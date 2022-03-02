@@ -13,7 +13,7 @@ import "./../Interface/IERC721.sol";
 import "./../Interface/IMintingFactory.sol";
 
 contract ExchangeCore is Ownable, Pausable {
-    // using SafeMath for uint256;
+    using SafeMath for uint256;
 
     address public mintingFactory;
     address public ETH;
