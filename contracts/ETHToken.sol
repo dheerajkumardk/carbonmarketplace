@@ -6,6 +6,6 @@ import "./ERC20.sol";
 
 contract ETHToken is ERC20 {
     constructor() ERC20("ETH Token", "ETH") {
-        _mint(msg.sender, 100000000*10**18); // 100M
+        _mint(msg.sender, 100000000 * 10**18); // 100M
     }
 }
