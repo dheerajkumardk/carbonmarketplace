@@ -13,15 +13,15 @@ let provider = ethers.getDefaultProvider("http://localhost:8545");
 
 erc721MintingFactoryInstance = new ethers.Contract(mintingFactoryAddress, MintingFactoryABI.abi, provider);
 
-// creating an instance of the minting factory
-// factoryContractInstance = async () => {
-//     const erc721MintingFactory = await ethers.getContractFactory("AltERC721MintingFactory");
-//     erc721MintingFactoryInstance = await erc721MintingFactory.deploy();
-//     await erc721MintingFactoryInstance.deployed();
+creating an instance of the minting factory
+factoryContractInstance = async () => {
+    const erc721MintingFactory = await ethers.getContractFactory("AltERC721MintingFactory");
+    erc721MintingFactoryInstance = await erc721MintingFactory.deploy();
+    await erc721MintingFactoryInstance.deployed();
 
-//     mintingFactoryAddress = erc721MintingFactoryInstance.address;
-//     console.log("Minting Factory Address: ", mintingFactoryAddress);
-// }
+    mintingFactoryAddress = erc721MintingFactoryInstance.address;
+    console.log("Minting Factory Address: ", mintingFactoryAddress);
+}
 
 
 describe("ERC721MintingFactory", () => {
