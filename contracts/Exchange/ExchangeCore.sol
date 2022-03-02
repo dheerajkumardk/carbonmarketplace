@@ -65,7 +65,8 @@ contract ExchangeCore is Ownable, Pausable {
     }
 
     function validateBuyer(address _buyer, uint256 _amount)
-        internal view
+        internal
+        view
         returns (bool)
     {
         require(
@@ -102,7 +103,7 @@ contract ExchangeCore is Ownable, Pausable {
         bool validBuyer = validateBuyer(_buyer, _amount);
         bool isCancel = cancelledOrders[_buyer][_nftContract][_tokenId];
 
-        if(validTime && validSeller && validBuyer && !isCancel){
+        if (validTime && validSeller && validBuyer && !isCancel) {
             // transfer tradingFee to the exchange
             uint256 fee = _amount.mul(tradingFeeFactor).div(BaseFactorMax);
             IERC20(ETH).transferFrom(_buyer, address(this), fee);
@@ -138,7 +139,10 @@ contract ExchangeCore is Ownable, Pausable {
         uint256 _tokenId,
         address _buyer
     ) public onlyOwner {
-        require(cancelledOrders[_buyer][_nftContract][_tokenId], "Order was never cancelled");
+        require(
+            cancelledOrders[_buyer][_nftContract][_tokenId],
+            "Order was never cancelled"
+        );
         cancelledOrders[_buyer][_nftContract][_tokenId] = false;
         emit OrderUncancelled(_nftContract, _tokenId, _buyer);
     }
