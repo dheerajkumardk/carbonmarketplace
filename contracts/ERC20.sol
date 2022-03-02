@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../NFTMarketplace/Interface/IERC20.sol";
+import "./Interface/IERC20.sol";
 
 contract ERC20 is IERC20 {
     uint256 private _totalSupply;
