@@ -7,11 +7,11 @@ import "./GEMSNFT.sol";
 
 contract GEMSStaking {
     address public GEMSToken;
-    GEMSNFT internal IGEMSNFT;
+    address public GEMSNFTAddress;
 
-    constructor(address _gemsToken, GEMSNFT _IGEMSNFT) {
+    constructor(address _gemsToken, address _gemsNFTAddress) {
         GEMSToken = _gemsToken;
-        IGEMSNFT = GEMSNFT(_IGEMSNFT);
+        GEMSNFTAddress = _gemsNFTAddress;
     }
 
     struct UserInfo {
@@ -24,26 +24,31 @@ contract GEMSStaking {
     event Staked(address user, uint256 amount);
     event UnStaked(address user, uint256 amount);
 
-    function stake(uint256 _amount) public {
-        require(_amount >= 100000, "Requires minimum 100,000 tokens for staking");
-        
-        IERC20(GEMSToken).transferFrom(msg.sender, address(this), _amount);
+    function stake(address user, uint256 _amount) public {
+        require(
+            _amount >= 100000,
+            "Requires minimum 100,000 tokens for staking"
+        );
+        require(user != address(0), "User address is zero");
+
+        IERC20(GEMSToken).transferFrom(user, address(this), _amount);
         // nft token generated
-        string memory tokenURI = "hello";
-        IGEMSNFT.mintNewNFT(tokenURI);
-        uint256 tokenId = IGEMSNFT.getTotalNFTs();
+        // string memory tokenURI = "hello";
+        uint256 tokenId = GEMSNFT(GEMSNFTAddress).mintNewNFT(user);
 
-        userData[msg.sender] = UserInfo(_amount, tokenId);
+        userData[user] = UserInfo(_amount, tokenId);
 
-        emit Staked(msg.sender, _amount);
+        emit Staked(user, _amount);
     }
 
     function unstake() public {
         uint256 amount = userData[msg.sender].tokensStaked;
         uint256 tokenId = userData[msg.sender].tokenId;
+        require(amount != 0, "User had no amount staked!");
+        require(msg.sender == GEMSNFT(GEMSNFTAddress).ownerOf(tokenId));
 
-        IERC20(GEMSToken).transferFrom(address(this), msg.sender, amount);
-        IGEMSNFT.burnNFT(tokenId);
+        IERC20(GEMSToken).transfer(msg.sender, amount);
+        GEMSNFT(GEMSNFTAddress).burnNFT(tokenId);
         emit UnStaked(msg.sender, amount);
     }
     // mapping => user -> Struct (stakedAmt, tokenId)
