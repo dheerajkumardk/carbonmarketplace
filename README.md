@@ -1,11 +1,11 @@
 # Development Procedure
 
 Open two terminals
-    terminal 1:
-        run the following command:
-        `npx hardhat node`
 
-        This will start a local development blockchain at port 8545
+terminal 1:
+run the following command:
+`npx hardhat node`
+This will start a local development blockchain at port 8545
 
     terminal 2:
         after setting up terminal 1, run all the other comands in here.
