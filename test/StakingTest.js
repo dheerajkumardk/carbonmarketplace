@@ -35,7 +35,15 @@ describe("Staking", () => {
 
     it('Should call stake function', async () => {
         let staketxn = await GEMSStaking.stake(account, amount);
-        console.log(staketxn);
+
+        let user, amount;
+        GEMSStaking.on("Staked", (_user, _amount) => {
+            user = _user;
+            amount = _amount;
+        });
+        await new Promise(res => setTimeout(() => res(null), 5000));
+
+        console.log(user, " has staked ", amount, " tokens.");
     })
 
     it('Should verify nft minting', async () => {
@@ -45,7 +53,15 @@ describe("Staking", () => {
 
     it('Should call unstake function', async () => {
         let unstakeTxn = await GEMSStaking.unstake();
-        console.log(unstakeTxn);
+
+        let user, amount;
+        GEMSStaking.on("UnStaked", (_user, _amount) => {
+            user = _user;
+            amount = _amount;
+        });
+        await new Promise(res => setTimeout(() => res(null), 5000));
+
+        console.log(user, " has unstaken ", amount, " tokens.");
     })
 
     it('Should verify NFT burning', async () => {
