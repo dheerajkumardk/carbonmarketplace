@@ -1,19 +1,19 @@
 const main = async () => {
+    const [account, account2, account3] = await hre.ethers.getSigners();
+    let creator = account3.address;
+    
+    const Eth = await hre.ethers.getContractFactory("ETHToken");
+    const eth = await Eth.connect(account).deploy();
+    await eth.deployed();
+    console.log("WETH address: ", eth.address);
+
     const MintingFactory = await hre.ethers.getContractFactory("MintingFactory");
-    const mintingFactory = await MintingFactory.deploy();
+    const mintingFactory = await MintingFactory.deploy(eth.address);
     await mintingFactory.deployed();
     console.log("Minting Factory deployed at: ", mintingFactory.address);
 
-    const [account, account2, account3] = await hre.ethers.getSigners();
-    let creator = account3.address;
-
-    const Weth = await hre.ethers.getContractFactory("WETHToken");
-    const weth = await Weth.connect(account).deploy();
-    await weth.deployed();
-    console.log("WETH address: ", weth.address);
-
     const ExchangeCore = await hre.ethers.getContractFactory("ExchangeCore");
-    const exchangeCore = await ExchangeCore.deploy(mintingFactory.address, weth.address);
+    const exchangeCore = await ExchangeCore.deploy(mintingFactory.address, eth.address);
     await exchangeCore.deployed();
     console.log("Exchange Core deployed at: ", exchangeCore.address);
 
