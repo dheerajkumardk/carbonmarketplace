@@ -6,13 +6,14 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 // import required interfaces
 import "./../Interface/IERC20.sol";
 import "./../Interface/IERC721.sol";
 import "./../Interface/IMintingFactory.sol";
 
-contract ExchangeCore is Ownable, Pausable {
+contract ExchangeCore is Ownable, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
 
     address public mintingFactory;
@@ -96,7 +97,7 @@ contract ExchangeCore is Ownable, Pausable {
         address _seller,
         uint256 _amount,
         uint256 _auctionEndTime
-    ) public onlyOwner whenNotPaused {
+    ) public onlyOwner whenNotPaused nonReentrant {
         // Validating all the requirements
         bool validTime = validateAuctionTime(_auctionEndTime);
         bool validSeller = validateSeller(_nftContract, _tokenId, _seller);

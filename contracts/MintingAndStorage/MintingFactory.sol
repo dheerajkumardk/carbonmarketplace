@@ -24,7 +24,12 @@ contract MintingFactory {
     // nftContract => ownerAddress
     mapping(address => address) public nftToOwner;
 
-    event NFTContractCreated(string name, string symbol, address nftContract, address creator);
+    event NFTContractCreated(
+        string name,
+        string symbol,
+        address nftContract,
+        address creator
+    );
     event NFTMinted(address nftContract, uint256 tokenId);
     event OwnerUpdated(address nftContract, uint256 tokenId, address newOwner);
     event ExchangeAddressChanged(address oldExchange, address newExchange);
@@ -32,7 +37,8 @@ contract MintingFactory {
 
     modifier onlyCreatorAdmin(address _nftContract) {
         require(
-            nftToOwner[_nftContract] == msg.sender || adminAddress == msg.sender,
+            nftToOwner[_nftContract] == msg.sender ||
+                adminAddress == msg.sender,
             "Only Creator or Admin can call this!"
         );
         _;
@@ -48,10 +54,11 @@ contract MintingFactory {
         _;
     }
 
-    function createNFTContract(string memory _name, string memory _symbol, address _creator)
-        external onlyAdmin
-        returns (address _nftcontract)
-    {
+    function createNFTContract(
+        string memory _name,
+        string memory _symbol,
+        address _creator
+    ) external onlyAdmin returns (address _nftcontract) {
         // create new contract
         address nftContract = address(new ERC721NFTContract(_name, _symbol));
         // update mapping of owner to NFTContracts
@@ -64,11 +71,11 @@ contract MintingFactory {
         return nftContract;
     }
 
-    function mintNFT(address _nftContract, string memory _tokenURI)
+    function mintNFT(address _nftContract)
         public
         onlyCreatorAdmin(_nftContract)
     {
-        uint256 _tokenId = ERC721NFTContract(_nftContract).mintNewNFT(_tokenURI);
+        uint256 _tokenId = ERC721NFTContract(_nftContract).mintNewNFT();
 
         emit NFTMinted(_nftContract, _tokenId);
     }
