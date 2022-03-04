@@ -1,7 +1,7 @@
 const main = async () => {
     const [account, account2, account3] = await hre.ethers.getSigners();
     let creator = account3.address;
-    
+
     const Eth = await hre.ethers.getContractFactory("ETHToken");
     const eth = await Eth.connect(account).deploy();
     await eth.deployed();
