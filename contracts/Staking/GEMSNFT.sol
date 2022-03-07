@@ -11,12 +11,21 @@ contract GEMSNFT is ERC721URIStorage {
     Counters.Counter private _tokenIds;
 
     string baseURI = "https://carbon.xyz";
+    address public stakingPool;
+    address public admin;
 
-    constructor(string memory _name, string memory _symbol)
-        ERC721(_name, _symbol)
-    {}
+    constructor(string memory _name, string memory _symbol, address _stakingPool, address _admin)
+        ERC721(_name, _symbol) {
+        stakingPool = _stakingPool;
+        admin = _admin;
+    }
 
-    function mintNewNFT(address user) public returns (uint256) {
+    modifier onlyAuthorised() {
+        require(msg.sender == stakingPool || msg.sender == admin, "Only Staking pool contract or admin can call this function");
+        _;
+    }
+
+    function mintNewNFT(address user) public onlyAuthorised returns (uint256) {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         string memory tokenURI = string(
