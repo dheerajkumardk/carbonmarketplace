@@ -18,6 +18,7 @@ describe("ExchangeCore", () => {
     let amount = 1;
     let tokenId = 1;
     let exchangeAddress;
+    let tradingFee;
 
 
     beforeEach(async () => {
@@ -74,6 +75,20 @@ describe("ExchangeCore", () => {
         let cancelOrder = await exchangeContractInstance.cancelOrder(nftAddress, tokenId, account);
         console.log(cancelOrder);
     })
+
+    it ('Should transfer fees to the Exchange', async () => {
+        // tradingFee = await WETH.balanceOf(exchangeAddress);
+        let tx = await exchangeContractInstance.RedeemTradingFees();
+        console.log(tx);
+    })
+
+    it ('Should change the owner', async () => {
+        let tx = await exchangeContractInstance.updateOwner(account2);
+        console.log(tx);
+    })
+
+
+
 
 
 })

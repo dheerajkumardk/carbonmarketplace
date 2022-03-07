@@ -134,6 +134,11 @@ describe("ERC721MintingFactory", () => {
 
     })
 
+    it('Should change the owner', async () => {
+        let tx = await erc721MintingFactoryInstance.changeAdmin(account2);
+        console.log(tx);
+    })
+
 
 
 })
