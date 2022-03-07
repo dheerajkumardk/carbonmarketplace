@@ -2,7 +2,7 @@
 const { ethers } = require("hardhat");
 const { expect, assert } = require("chai");
 const gemTokenAbi = require("../artifacts/contracts/Staking/GEMSToken.sol/GEMSToken.json");
-const gemnftAbi = require("../artifacts/contracts/Staking/GEMSNFT.sol/GEMSNFT.json");
+const gemnftAbi = require("../artifacts/contracts/Staking/GEMSNFTReceipt.sol/GEMSNFTReceipt.json");
 const gemStakingAbi = require("../artifacts/contracts/Staking/GEMSStaking.sol/GEMSStaking.json");
 
 
