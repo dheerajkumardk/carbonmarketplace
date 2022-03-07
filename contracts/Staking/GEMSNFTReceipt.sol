@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract GEMSNFT is ERC721URIStorage {
+contract GEMSNFTReceipt is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -14,14 +14,21 @@ contract GEMSNFT is ERC721URIStorage {
     address public stakingPool;
     address public admin;
 
-    constructor(string memory _name, string memory _symbol, address _stakingPool, address _admin)
-        ERC721(_name, _symbol) {
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _stakingPool,
+        address _admin
+    ) ERC721(_name, _symbol) {
         stakingPool = _stakingPool;
         admin = _admin;
     }
 
     modifier onlyAuthorised() {
-        require(msg.sender == stakingPool || msg.sender == admin, "Only Staking pool contract or admin can call this function");
+        require(
+            msg.sender == stakingPool || msg.sender == admin,
+            "Only Staking pool contract or admin can call this function"
+        );
         _;
     }
 

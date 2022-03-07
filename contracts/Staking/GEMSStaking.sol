@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./../Interface/IERC20.sol";
-import "./GEMSNFT.sol";
+import "./GEMSNFTReceipt.sol";
 
 contract GEMSStaking {
     address public GEMSToken;
@@ -35,7 +35,7 @@ contract GEMSStaking {
         IERC20(GEMSToken).transferFrom(user, address(this), _amount);
         // nft token generated
         // string memory tokenURI = "hello";
-        uint256 tokenId = GEMSNFT(GEMSNFTAddress).mintNewNFT(user);
+        uint256 tokenId = GEMSNFTReceipt(GEMSNFTAddress).mintNewNFT(user);
 
         userData[user] = UserInfo(_amount, tokenId);
 
@@ -46,10 +46,10 @@ contract GEMSStaking {
         uint256 amount = userData[msg.sender].tokensStaked;
         uint256 tokenId = userData[msg.sender].tokenId;
         require(amount != 0, "User had no amount staked!");
-        require(msg.sender == GEMSNFT(GEMSNFTAddress).ownerOf(tokenId));
+        require(msg.sender == GEMSNFTReceipt(GEMSNFTAddress).ownerOf(tokenId));
 
         IERC20(GEMSToken).transfer(msg.sender, amount);
-        GEMSNFT(GEMSNFTAddress).burnNFT(tokenId);
+        GEMSNFTReceipt(GEMSNFTAddress).burnNFT(tokenId);
         emit UnStaked(msg.sender, amount);
     }
     // mapping => user -> Struct (stakedAmt, tokenId)

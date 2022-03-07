@@ -1,6 +1,8 @@
 const main = async () => {
     const [account, account2, account3] = await hre.ethers.getSigners();
     let creator = account3.address;
+    let stakingPool = account2.address;
+    let admin = account.address;
 
     const Eth = await hre.ethers.getContractFactory("ETHToken");
     const eth = await Eth.connect(account).deploy();
@@ -38,13 +40,13 @@ const main = async () => {
     await gemsToken.deployed();
     console.log("GEMS Token deployed at : ", gemsToken.address);
 
-    const GEMSNFT = await hre.ethers.getContractFactory("GEMSNFT");
-    const gemsNFT = await GEMSNFT.deploy("GEMS NFT", "GEMNT");
-    await gemsNFT.deployed();
-    console.log("GEMS NFT deployed at : ", gemsNFT.address);
+    const GEMSNFTReceipt = await hre.ethers.getContractFactory("GEMSNFTReceipt");
+    const gemsNFTReceipt = await GEMSNFTReceipt.deploy("GEMS NFT", "GEMNT", stakingPool, admin);
+    await gemsNFTReceipt.deployed();
+    console.log("GEMS NFT Receipt deployed at : ", gemsNFTReceipt.address);
 
     const GEMSStaking = await hre.ethers.getContractFactory("GEMSStaking");
-    const gemsStaking = await GEMSStaking.deploy(gemsToken.address, gemsNFT.address);
+    const gemsStaking = await GEMSStaking.deploy(gemsToken.address, gemsNFTReceipt.address);
     await gemsStaking.deployed();
     console.log("GEMS Staking deployed at : ", gemsStaking.address);
 
