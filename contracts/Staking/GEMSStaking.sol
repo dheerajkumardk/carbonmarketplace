@@ -8,7 +8,7 @@ import "./GEMSNFTReceipt.sol";
 contract GEMSStaking {
     address public GEMSToken;
     address public GEMSNFTAddress;
-    uint256 minTokensToStake = 100000 * 10**18;
+    uint256 tokensToStake = 100000 * 10**18;
 
     constructor(address _gemsToken, address _gemsNFTAddress) {
         GEMSToken = _gemsToken;
@@ -28,8 +28,8 @@ contract GEMSStaking {
 
     function stake(address user, uint256 _amount) public {
         require(
-            _amount >= minTokensToStake,
-            "Requires minimum 100,000 tokens for staking"
+            _amount == tokensToStake,
+            "Requires exactly 100,000 tokens for staking"
         );
         require(user != address(0), "User address is zero");
 
