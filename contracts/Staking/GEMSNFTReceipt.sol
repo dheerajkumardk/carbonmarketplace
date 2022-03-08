@@ -17,10 +17,8 @@ contract GEMSNFTReceipt is ERC721URIStorage {
     constructor(
         string memory _name,
         string memory _symbol,
-        address _stakingPool,
         address _admin
     ) ERC721(_name, _symbol) {
-        stakingPool = _stakingPool;
         admin = _admin;
     }
 
@@ -50,5 +48,9 @@ contract GEMSNFTReceipt is ERC721URIStorage {
 
     function burnNFT(uint256 tokenId) public {
         _burn(tokenId);
+    }
+
+    function setStakingPool(address _stakingPool) public onlyAuthorised {
+        stakingPool = _stakingPool;
     }
 }

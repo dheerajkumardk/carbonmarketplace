@@ -18,6 +18,7 @@ contract GEMSStaking {
     struct UserInfo {
         uint256 tokensStaked;
         uint256 tokenId;
+        uint256 timestamp;
     }
 
     mapping(address => UserInfo) public userData;
@@ -37,7 +38,7 @@ contract GEMSStaking {
         // string memory tokenURI = "hello";
         uint256 tokenId = GEMSNFTReceipt(GEMSNFTAddress).mintNewNFT(user);
 
-        userData[user] = UserInfo(_amount, tokenId);
+        userData[user] = UserInfo(_amount, tokenId, block.timestamp);
 
         emit Staked(user, _amount);
     }

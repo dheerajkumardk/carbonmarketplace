@@ -1,9 +1,9 @@
 //v1 develop
 const { ethers } = require("hardhat");
 const { expect, assert } = require("chai");
-const wethAbi = require("../artifacts/contracts/NFTMarketplace/Interface/IERC20.sol/IERC20.json");
-const nftAbi = require("../artifacts/contracts/NFTMarketplace/Interface/IERC721.sol/IERC721.json")
-const exchangeAbi = require("../artifacts/contracts/NFTMarketplace/Exchange/ExchangeCore.sol/ExchangeCore.json");
+const wethAbi = require("../artifacts/contracts/ETHToken.sol/ETHToken.json");
+const nftAbi = require("../artifacts/contracts/MintingAndStorage/ERC721NFTContract.sol/ERC721NFTContract.json");
+const exchangeAbi = require("../artifacts/contracts/Exchange/ExchangeCore.sol/ExchangeCore.json");
 
 
 let account, account2, WETH, NFT, exchangeContractInstance;
@@ -76,13 +76,13 @@ describe("ExchangeCore", () => {
         console.log(cancelOrder);
     })
 
-    it ('Should transfer fees to the Exchange', async () => {
+    it('Should transfer fees to the Exchange', async () => {
         // tradingFee = await WETH.balanceOf(exchangeAddress);
         let tx = await exchangeContractInstance.RedeemTradingFees();
         console.log(tx);
     })
 
-    it ('Should change the owner', async () => {
+    it('Should change the owner', async () => {
         let tx = await exchangeContractInstance.updateOwner(account2);
         console.log(tx);
     })

@@ -1,6 +1,6 @@
 
-const NFTContractABI = require('../artifacts/contracts/NFTMarketplace/MintingAndStorage/Carbon/ERC721NFTContract.sol/ERC721NFTContract.json');
-const MintingFactoryABI = require('../artifacts/contracts/NFTMarketplace/MintingAndStorage/Carbon/MintingFactory.sol/MintingFactory.json');
+const NFTContractABI = require('../artifacts/contracts/MintingAndStorage/ERC721NFTContract.sol/ERC721NFTContract.json');
+const MintingFactoryABI = require('../artifacts/contracts/MintingAndStorage/MintingFactory.sol/MintingFactory.json');
 
 const { expect, assert } = require("chai");
 const { ethers } = require("hardhat");
@@ -71,7 +71,7 @@ describe("ERC721MintingFactory", () => {
     // })
 
     it('Should mint an NFT for a contract', async () => {
-        let newNFT = await erc721MintingFactoryInstance.connect(account).mintNFT(nftContract, "https://gateway.pinata.cloud/ipfs/QmYJ8A4js3Pcqgp3HkCeoj2BUuen5tD7o8Z4R2k46eLM8b");
+        let newNFT = await erc721MintingFactoryInstance.connect(account).mintNFT(nftContract);
 
         // await newNFT.wait()
 
