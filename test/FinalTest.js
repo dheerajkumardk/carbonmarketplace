@@ -23,12 +23,12 @@ let stakingPool;
 let amount = "100000000000000000000000"; // STAKING_AMOUNT
 let tokenId = 1;
 
-let ethAddress = '0xc5a5C42992dECbae36851359345FE25997F5C42d';
-let mintingFactoryAddress = '0x67d269191c92Caf3cD7723F116c85e6E9bf55933';
-let exchangeAddress = '0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E';
-let gemsTokenAddress = '0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690';
-let gemsNFTReceiptAddress = '0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB';
-let gemsStakingAddress = '0x9E545E3C0baAB3E08CdfD552C960A1050f373042';
+let ethAddress = '0xd9140951d8aE6E5F625a02F5908535e16e3af964';
+let mintingFactoryAddress = '0x56D13Eb21a625EdA8438F55DF2C31dC3632034f5';
+let exchangeAddress = '0xE8addD62feD354203d079926a8e563BC1A7FE81e';
+let gemsTokenAddress = '0xe039608E695D21aB11675EBBA00261A0e750526c';
+let gemsNFTReceiptAddress = '0x071586BA1b380B00B793Cc336fe01106B0BFbE6D';
+let gemsStakingAddress = '0xe70f935c32dA4dB13e7876795f1e175465e6458e';
 let nftContractAddress;
 
 let account, account2;
@@ -52,6 +52,18 @@ describe("ERC721MintingFactory", () => {
         admin = account.address;
     })
 
+    it('Should be able to change Exchange Address', async () => {
+        let changeAddress = await mintingFactory.connect(account).updateExchangeAddress(exchangeAddress);
+        await changeAddress.wait();
+
+        mintingFactory.on("ExchangeAddressChanged", (_oldAddress, _newAddress) => {
+            newExchangeAddress = _newAddress;
+            console.log(_oldAddress, _newAddress);
+        });
+        await new Promise(res => setTimeout(() => res(null), 5000));
+        console.log("New Exchange Address: ", newExchangeAddress);
+    })
+
     // WORKING
     it('Should mint NFT contract', async () => {
         let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
@@ -67,6 +79,13 @@ describe("ERC721MintingFactory", () => {
         console.log("NFT Contract Address: ", nftContractAddress);
     })
 
+    it('Check set Approval', async () => {
+        nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
+
+        let tx = await nftContract.isApprovedForAll(mintingFactoryAddress, exchangeAddress);
+        console.log(tx);
+    })
+
     it('Should return NFT contract created by the user', async () => {
         console.log(mintingFactory.getNFTsForOwner(account));
     })
@@ -80,59 +99,35 @@ describe("ERC721MintingFactory", () => {
             console.log(_nftContract, _tokenId);
         });
         await new Promise(res => setTimeout(() => res(null), 5000));
-        console.log("TokenID Minted #: ", tokenIdMinted);
+        console.log("TokenID Minted #: ", tokenIdMinted.toString());
     })
 
     // WORKING FINE
     it('Should return totalNFTs minted for a contract', async () => {
         let totalNFTs = await mintingFactory.getTotalNFTsMinted(nftContractAddress);
 
-        console.log(totalNFTs);
+        console.log(totalNFTs.toString());
     })
 
     // WORKING => But gives undefined
     it('Should return total NFT contract minted by a user', async () => {
         let totalCollections = await mintingFactory.getNFTsForOwner(account.address);
-        console.log("total collections: ", totalCollections);
+        console.log("total collections: ", totalCollections.toString());
     })
 
-    // WORKING FINE
-    it('Should be able to change Exchange Address', async () => {
-        let changeAddress = await mintingFactory.connect(account).updateExchangeAddress(account2.address);
-        await changeAddress.wait();
-
-        mintingFactory.on("ExchangeAddressChanged", (_oldAddress, _newAddress) => {
-            newExchangeAddress = _newAddress;
-            console.log(_oldAddress, _newAddress);
-        });
-        await new Promise(res => setTimeout(() => res(null), 5000));
-        console.log("New Exchange Address: ", newExchangeAddress);
-    })
 
     // // ERROR => Only Exchange can call it, Done that
-    it('Should not be able to change NFT owner in mapping', async () => {
-        let nftOwnerChange = await mintingFactory.connect(account2).updateOwner(nftContractAddress, 1, '0x259989150c6302D5A7AeEc4DA49ABfe1464C58fE');
-        await nftOwnerChange.wait();
 
-        let newOwner, tokenId;
-        mintingFactory.on("OwnerUpdated", (_nftContract, _tokenId, _newOwner) => {
-            newOwner = _newOwner;
-            tokenId = _tokenId;
-            console.log(_nftContract, _tokenId, _newOwner);
-        });
-        await new Promise(res => setTimeout(() => res(null), 5000));
-        console.log("New Owner Address: ", newOwner, " Token Id: ", tokenId, " old owner: ", account2.address);
-    })
 
-    it('Should change the owner', async () => {
-        let tx = await mintingFactory.connect(account).changeAdmin(account2.address);
-        // console.log(tx);
-        mintingFactory.on("AdminUpdated", (_newAdmin) => {
-            newAdmin = _newAdmin;
-        });
-        await new Promise(res => setTimeout(() => res(null), 5000));
-        console.log("New Admin Address: ", newAdmin);
-    })
+    // it('Should change the owner', async () => {
+    //     let tx = await mintingFactory.connect(account).changeAdmin(account2.address);
+    //     // console.log(tx);
+    //     mintingFactory.on("AdminUpdated", (_newAdmin) => {
+    //         newAdmin = _newAdmin;
+    //     });
+    //     await new Promise(res => setTimeout(() => res(null), 5000));
+    //     console.log("New Admin Address: ", newAdmin);
+    // })
 
     // #############################################################################
 
@@ -161,14 +156,6 @@ describe("ERC721MintingFactory", () => {
         await new Promise(res => setTimeout(() => res(null), 5000));
 
         console.log(user, " has staked ", amountStaked.toString(), " tokens.");
-    })
-
-    it('Should verify nft minting', async () => {
-        let tx = await gemsNFTReceipt.ownerOf(tokenId);
-        console.log("Owner of gems nft receipt tokenid 1 : ", tx);
-
-        // let userBalance = await gemsToken.balanceOf(account.address);
-        // console.log("user bal", userBalance.toString());
     })
 
     it('Should call unstake function', async () => {
@@ -212,41 +199,42 @@ describe("ERC721MintingFactory", () => {
     it('Should Validate the NFT sale', async () => {
         // check token allowance
         let allowanceAmt = await eth.allowance(account.address, exchangeAddress);
-        console.log(allowanceAmt);
+        console.log(allowanceAmt.toString());
 
         // check if user has x amt of token balance
         let userBalance = await eth.balanceOf(account.address);
 
         // check nft allowance
         let allowanceNFT = await nftContract.getApproved(tokenId);
-        console.log(allowanceNFT);
+        // console.log(allowanceNFT);
 
         // check auction time
 
     })
 
     it('Should execute the order', async () => {
-        let auctionTime = 1646663098;
+        let auctionTime = 1647728701;
         let allowanceAmt = "1000000000000000000";
-        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, account2.address, allowanceAmt, auctionTime);
-        console.log(executeOrder);
+        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, mintingFactoryAddress, allowanceAmt, auctionTime);
+        // for primary market, seller => minting factory
+        // console.log(executeOrder);
     })
 
     it('Should cancel the order', async () => {
         let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
-        console.log(cancelOrder);
+        // console.log(cancelOrder);
     })
 
     it('Should transfer fees to the Exchange', async () => {
         // tradingFee = await WETH.balanceOf(exchangeAddress);
         let tx = await exchange.connect(account).RedeemTradingFees();
-        console.log(tx);
+        // console.log(tx);
     })
 
-    it('Should change the owner', async () => {
-        let tx = await exchange.connect(account).updateOwner(account2.address);
-        console.log(tx);
-    })
+    // it('Should change the owner', async () => {
+    //     let tx = await exchange.connect(account).updateOwner(account2.address);
+    //     console.log(tx);
+    // })
 
 
 

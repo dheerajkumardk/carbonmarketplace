@@ -57,8 +57,10 @@ contract ExchangeCore is Ownable, Pausable, ReentrancyGuard {
         address tokenApprovedAddress = IERC721(_nftContract).getApproved(
             _tokenId
         );
+
         require(
-            tokenApprovedAddress == address(this),
+            tokenApprovedAddress == address(this) ||
+                IERC721(_nftContract).isApprovedForAll(_seller, address(this)),
             "Contract is not approved for this NFT"
         );
 
