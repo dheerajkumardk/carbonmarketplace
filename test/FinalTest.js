@@ -23,12 +23,12 @@ let stakingPool;
 let amount = "100000000000000000000000"; // STAKING_AMOUNT
 let tokenId = 1;
 
-let ethAddress = '0xd9140951d8aE6E5F625a02F5908535e16e3af964';
-let mintingFactoryAddress = '0x56D13Eb21a625EdA8438F55DF2C31dC3632034f5';
-let exchangeAddress = '0xE8addD62feD354203d079926a8e563BC1A7FE81e';
-let gemsTokenAddress = '0xe039608E695D21aB11675EBBA00261A0e750526c';
-let gemsNFTReceiptAddress = '0x071586BA1b380B00B793Cc336fe01106B0BFbE6D';
-let gemsStakingAddress = '0xe70f935c32dA4dB13e7876795f1e175465e6458e';
+let ethAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+let mintingFactoryAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+let exchangeAddress = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
+let gemsTokenAddress = '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9';
+let gemsNFTReceiptAddress = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
+let gemsStakingAddress = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
 let nftContractAddress;
 
 let account, account2;
