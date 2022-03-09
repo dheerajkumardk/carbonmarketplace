@@ -1,4 +1,4 @@
-// SPDX-License-Identifier : MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 import "./../Interface/IERC20.sol";
@@ -13,17 +13,20 @@ contract MembershipTrader is Ownable {
     address carbonMembershipNFT;
     uint256 public constant tokensToDeposit = 100000;
 
-    constructor(address _gemsToken, address _carbonMembershipNFT) public {
+    constructor(address _gemsToken, address _carbonMembershipNFT) {
         gemsToken = _gemsToken;
         carbonMembershipNFT = _carbonMembershipNFT;
     }
 
-    function validate(address user) internal view returns(bool) {
+    function validate(address user) internal view returns (bool) {
         uint256 allowanceAmt = IERC20(gemsToken).allowance(user, address(this));
-        require(allowanceAmt >= tokensToDeposit, "Tokens are not approved to the Membership Trader");
+        require(
+            allowanceAmt >= tokensToDeposit,
+            "Tokens are not approved to the Membership Trader"
+        );
 
         // validate for contract
-        require(!isContract(msg.sender), "Sender is a contract");
+        require(!Address.isContract(msg.sender), "Sender is a contract");
 
         return true;
     }
