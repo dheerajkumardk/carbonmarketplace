@@ -46,4 +46,8 @@ contract MembershipTrader is Ownable {
         uint256 _amount = IERC20(gemsToken).balanceOf(address(this));
         IERC20(gemsToken).transfer(msg.sender, _amount);
     }
+
+    function updateOwner(address _newOwner) public onlyOwner {
+        _transferOwnership(_newOwner);
+    }
 }

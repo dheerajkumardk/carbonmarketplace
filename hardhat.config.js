@@ -25,14 +25,14 @@ module.exports = {
     },
     hardhat: {
     },
-    ropsten: {
-      url: "https://eth-ropsten.alchemyapi.io/v2/123abc123abc123abc123abc123abcde",
-      accounts: [process.env.PRIVATE_KEY]
-    },
-    mumbai: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API}`,
-      accounts: [process.env.PRIVATE_KEY]
-    }
+    // ropsten: {
+    //   url: "https://eth-ropsten.alchemyapi.io/v2/123abc123abc123abc123abc123abcde",
+    //   accounts: [process.env.PRIVATE_KEY]
+    // },
+    // mumbai: {
+    //   url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API}`,
+    //   accounts: [process.env.PRIVATE_KEY]
+    // }
   },
   solidity: {
     version: "0.8.4",
