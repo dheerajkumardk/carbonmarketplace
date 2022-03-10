@@ -15,11 +15,9 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
     string baseURI = "https://carbon.xyz";
     address public membershipTrader;
 
-    constructor(
-        string memory _name,
-        string memory _symbol
-    ) ERC721("Carbon Membership Pass", "CMEM") {
-    }
+    constructor(string memory _name, string memory _symbol)
+        ERC721("Carbon Membership Pass", "CMEM")
+    {}
 
     modifier onlyMembershipTrader() {
         require(
@@ -29,7 +27,12 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
         _;
     }
 
-    function mintNewNFT(address user) public onlyMembershipTrader whenNotPaused returns (uint256) {
+    function mintNewNFT(address user)
+        public
+        onlyMembershipTrader
+        whenNotPaused
+        returns (uint256)
+    {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         string memory tokenURI = string(
@@ -41,12 +44,25 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
         return newItemId;
     }
 
-    function setMembershipTrader(address _newMembershipTrader) public onlyOwner {
+    function setMembershipTrader(address _newMembershipTrader)
+        public
+        onlyOwner
+    {
         membershipTrader = _newMembershipTrader;
     }
+
+    function pause() public onlyOwner {
+        _pause();
+    }
+
+    function unpause() public onlyOwner {
+        _unpause();
+    }
+
+    function updateOwner(address _newOwner) public onlyOwner {
+        _transferOwnership(_newOwner);
+    }
 }
-
-
 
 // erc 721
 // only thing, not called by contract

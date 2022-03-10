@@ -50,6 +50,16 @@ const main = async () => {
     await gemsStaking.deployed();
     console.log("GEMS Staking deployed at : ", gemsStaking.address);
 
+
+    const CarbonMembership = await hre.ethers.getContractFactory("CarbonMembership");
+    const carbonMembership = await CarbonMembership.deploy("CARBON MEMBERSHIP PASS", "CMEM");
+    await carbonMembership.deployed();
+    console.log("Carbon Membership deployed at: ", carbonMembership.address);
+
+    const MembershipTrader = await hre.ethers.getContractFactory("MembershipTrader");
+    const membershipTrader = await MembershipTrader.deploy(gemsToken.address, carbonMembership.address);
+    await membershipTrader.deployed();
+    console.log("Membership Trader deployed at: ", membershipTrader.address);
 }
 
 const runMain = async () => {
