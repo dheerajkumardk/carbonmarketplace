@@ -10,17 +10,27 @@ contract ERC721NFTContract is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
+    address public admin;
     address public factory;
+
     string baseURI = "https://carbon.xyz";
 
     modifier onlyFactory() {
-        require(msg.sender == factory, "Only factory contract can mint NFTs");
+        require(msg.sender == factory, "Only factory can mint NFT");
         _;
     }
 
-    constructor(string memory _name, string memory _symbol)
-        ERC721(_name, _symbol)
-    {
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Only admin can call this");
+        _;
+    }
+
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _admin
+    ) ERC721(_name, _symbol) {
+        admin = _admin;
         factory = msg.sender;
     }
 
@@ -32,7 +42,7 @@ contract ERC721NFTContract is ERC721URIStorage {
             abi.encodePacked(baseURI, Strings.toString(newItemId))
         );
 
-        _mint(factory, newItemId);
+        _mint(admin, newItemId);
         _setTokenURI(newItemId, tokenURI);
 
         return newItemId;
@@ -40,5 +50,14 @@ contract ERC721NFTContract is ERC721URIStorage {
 
     function getTotalNFTs() public view returns (uint256) {
         return _tokenIds.current();
+    }
+
+    function changeAdmin(address _newAdmin) public onlyAdmin {
+        require(_newAdmin != address(0), "Zero address cannot be set");
+        admin = _newAdmin;
+    }
+
+    function getContractAdmin() public view returns (address) {
+        return admin;
     }
 }

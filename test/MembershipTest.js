@@ -51,22 +51,22 @@ describe("Membership Test", () => {
         console.log("user bal. ", await carbonMembership.balanceOf(account.address));
     })
 
-    it ('Should redeem GEMS', async () => {
+    it('Should redeem GEMS', async () => {
         let tx = await membershipTrader.connect(account).withdrawGEMS();
         console.log(await gemsToken.balanceOf(membershipTraderAddress));
         console.log(await gemsToken.balanceOf(account.address));
     })
 
-    it ('Should unpause the Carbon Membership Contract', async () => {
+    it('Should unpause the Carbon Membership Contract', async () => {
         let tx = carbonMembership.connect(account).unpause();
         console.log(tx);
     })
 
-    it ('Should update owner for Carbon Membership', async () => {
+    it('Should update owner for Carbon Membership', async () => {
         let tx = carbonMembership.connect(account).updateOwner(account2.address)
     })
 
-    it ('Should update owner for Membership Trader', async () => {
+    it('Should update owner for Membership Trader', async () => {
         let tx = membershipTrader.connect(account).updateOwner(account2.address)
     })
 

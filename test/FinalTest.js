@@ -23,18 +23,19 @@ let stakingPool;
 let amount = "100000000000000000000000"; // STAKING_AMOUNT
 let tokenId = 1;
 
-let ethAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
-let mintingFactoryAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
-let exchangeAddress = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0';
-let gemsTokenAddress = '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9';
-let gemsNFTReceiptAddress = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9';
-let gemsStakingAddress = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707';
+let ethAddress = '0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154';
+let mintingFactoryAddress = '0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575';
+let exchangeAddress = '0xCD8a1C3ba11CF5ECfa6267617243239504a98d90';
+let gemsTokenAddress = '0x82e01223d51Eb87e16A03E24687EDF0F294da6f1';
+let gemsNFTReceiptAddress = '0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3';
+let gemsStakingAddress = '0x7969c5eD335650692Bc04293B07F5BF2e7A673C0';
 let nftContractAddress;
 
 let account, account2;
 let newExchangeAddress;
 let provider = ethers.getDefaultProvider("http://localhost:8545");
 
+let nftContractAdmin;
 
 mintingFactory = new ethers.Contract(mintingFactoryAddress, MintingFactoryABI.abi, provider);
 eth = new ethers.Contract(ethAddress, ETHTOKENABI.abi, provider);
@@ -66,7 +67,7 @@ describe("ERC721MintingFactory", () => {
 
     // WORKING
     it('Should mint NFT contract', async () => {
-        let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
+        let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address, account.address);
 
         mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
             nftContractAddress = _nftContract;
@@ -79,10 +80,19 @@ describe("ERC721MintingFactory", () => {
         console.log("NFT Contract Address: ", nftContractAddress);
     })
 
-    it('Check set Approval', async () => {
+    it('Set Approval', async () => {
         nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
+        nftContractAdmin = await nftContract.getContractAdmin();
 
-        let tx = await nftContract.isApprovedForAll(mintingFactoryAddress, exchangeAddress);
+        let tx = await nftContract.connect(account).setApprovalForAll(exchangeAddress, true);
+        // console.log(tx);
+    })
+
+    it('Check set Approval', async () => {
+        // nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
+        // nftContractAdmin = await nftContract.getContractAdmin();
+
+        let tx = await nftContract.isApprovedForAll(nftContractAdmin, exchangeAddress);
         console.log(tx);
     })
 
@@ -215,7 +225,8 @@ describe("ERC721MintingFactory", () => {
     it('Should execute the order', async () => {
         let auctionTime = 1647728701;
         let allowanceAmt = "1000000000000000000";
-        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, mintingFactoryAddress, allowanceAmt, auctionTime);
+
+        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
         // for primary market, seller => minting factory
         // console.log(executeOrder);
     })
