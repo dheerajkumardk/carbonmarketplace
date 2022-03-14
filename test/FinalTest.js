@@ -1,3 +1,4 @@
+const Address = require("./Addresses.json");
 
 const { expect, assert } = require("chai");
 const { ethers } = require("hardhat");
@@ -9,41 +10,41 @@ const EXCHANGEABI = require("./../artifacts/contracts/Exchange/ExchangeCore.sol/
 const GEMSTOKENABI = require("./../artifacts/contracts/Staking/GEMSToken.sol/GEMSToken.json");
 const GEMSNFTRECEIPTABI = require("./../artifacts/contracts/Staking/GEMSNFTReceipt.sol/GEMSNFTReceipt.json");
 const GEMSSTAKINGABI = require("./../artifacts/contracts/Staking/GEMSStaking.sol/GEMSStaking.json");
+const CARBONMEMBERSHIPABI = require("./../artifacts/contracts/Membership/CarbonMembership.sol/CarbonMembership.json");
+const MEMBERSHIPTRADERABI = require("./../artifacts/contracts/Membership/MembershipTrader.sol/MembershipTrader.json");
 const NFTCONTRACTABI = require("./../artifacts/contracts/MintingAndStorage/ERC721NFTContract.sol/ERC721NFTContract.json");
 
-let eth; // ETH_TOKEN
-let mintingFactory; // MINTING_FACTORY
 let nftContract; // NFT_CONTRACT
 let newAdmin; // owner of Minting Factory
-let exchange;
-let gemsToken; // GEMS_TOKEN
-let gemsNFTReceipt; // GEMS_NFT Receipt
-let gemsStaking; // GEMS_STAKING
+
 let stakingPool;
 let amount = "100000000000000000000000"; // STAKING_AMOUNT
 let tokenId = 1;
 
-let ethAddress = '0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154';
-let mintingFactoryAddress = '0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575';
-let exchangeAddress = '0xCD8a1C3ba11CF5ECfa6267617243239504a98d90';
-let gemsTokenAddress = '0x82e01223d51Eb87e16A03E24687EDF0F294da6f1';
-let gemsNFTReceiptAddress = '0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3';
-let gemsStakingAddress = '0x7969c5eD335650692Bc04293B07F5BF2e7A673C0';
+let ethAddress = Address.ethAddress;
+let mintingFactoryAddress = Address.mintingFactoryAddress;
+let exchangeAddress = Address.exchangeAddress;
+let gemsTokenAddress = Address.gemsTokenAddress;
+let gemsNFTReceiptAddress = Address.gemsNFTReceiptAddress;
+let gemsStakingAddress = Address.gemsStakingAddress;
+let carbonMembershipAddress = Address.carbonMembershipAddress;
+let membershipTraderAddress = Address.membershipTraderAddress;
 let nftContractAddress;
-
+ 
 let account, account2;
 let newExchangeAddress;
 let provider = ethers.getDefaultProvider("http://localhost:8545");
 
 let nftContractAdmin;
 
-mintingFactory = new ethers.Contract(mintingFactoryAddress, MintingFactoryABI.abi, provider);
-eth = new ethers.Contract(ethAddress, ETHTOKENABI.abi, provider);
-exchange = new ethers.Contract(exchangeAddress, EXCHANGEABI.abi, provider);
-gemsToken = new ethers.Contract(gemsTokenAddress, GEMSTOKENABI.abi, provider);
-gemsNFTReceipt = new ethers.Contract(gemsNFTReceiptAddress, GEMSNFTRECEIPTABI.abi, provider);
-gemsStaking = new ethers.Contract(gemsStakingAddress, GEMSSTAKINGABI.abi, provider);
-
+let mintingFactory = new ethers.Contract(mintingFactoryAddress, MintingFactoryABI.abi, provider);
+let eth = new ethers.Contract(ethAddress, ETHTOKENABI.abi, provider);
+let exchange = new ethers.Contract(exchangeAddress, EXCHANGEABI.abi, provider);
+let gemsToken = new ethers.Contract(gemsTokenAddress, GEMSTOKENABI.abi, provider);
+let gemsNFTReceipt = new ethers.Contract(gemsNFTReceiptAddress, GEMSNFTRECEIPTABI.abi, provider);
+let gemsStaking = new ethers.Contract(gemsStakingAddress, GEMSSTAKINGABI.abi, provider);
+let carbonMembership = new ethers.Contract(carbonMembershipAddress, CARBONMEMBERSHIPABI.abi, provider);
+let membershipTrader = new ethers.Contract(membershipTraderAddress, MEMBERSHIPTRADERABI.abi, provider);
 describe("ERC721MintingFactory", () => {
 
 
@@ -248,7 +249,47 @@ describe("ERC721MintingFactory", () => {
     // })
 
 
+    it('Should approve funds to membership trader', async () => {
+        let tx = await gemsToken.connect(account).approve(membershipTraderAddress, 100000);
+        // console.log(tx);
+        console.log(await gemsToken.allowance(account.address, membershipTraderAddress));
+    })
 
+    it('Should set Membership Trader', async () => {
+        let tx = await carbonMembership.connect(account).setMembershipTrader(membershipTraderAddress);
+        // console.log(tx);
+    })
+
+    it('Should pause the Carbon Membership Contract', async () => {
+        let tx = carbonMembership.connect(account).pause();
+        // console.log(tx);
+    })
+
+    it('Should execute the order', async () => {
+        let tx = await membershipTrader.connect(account).executeOrder(account.address);
+        // console.log(tx);
+        console.log("bal. membership Trader: ", await gemsToken.balanceOf(membershipTraderAddress));
+        console.log("user bal. ", await carbonMembership.balanceOf(account.address));
+    })
+
+    it('Should redeem GEMS', async () => {
+        let tx = await membershipTrader.connect(account).withdrawGEMS();
+        console.log(await gemsToken.balanceOf(membershipTraderAddress));
+        console.log(await gemsToken.balanceOf(account.address));
+    })
+
+    it('Should unpause the Carbon Membership Contract', async () => {
+        let tx = carbonMembership.connect(account).unpause();
+        console.log(tx);
+    })
+
+    it('Should update owner for Carbon Membership', async () => {
+        let tx = carbonMembership.connect(account).updateOwner(account2.address)
+    })
+
+    it('Should update owner for Membership Trader', async () => {
+        let tx = membershipTrader.connect(account).updateOwner(account2.address)
+    })
 
 
 

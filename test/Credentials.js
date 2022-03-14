@@ -1,6 +1,0 @@
-let ethAddress = '0x4EE6eCAD1c2Dae9f525404De8555724e3c35d07B';
-let mintingFactoryAddress = '0xBEc49fA140aCaA83533fB00A2BB19bDdd0290f25';
-let exchangeAddress = '0xD84379CEae14AA33C123Af12424A37803F885889';
-let gemsTokenAddress = '0x2B0d36FACD61B71CC05ab8F3D2355ec3631C0dd5';
-let gemsNFTReceiptAddress = '0xfbC22278A96299D91d41C453234d97b4F5Eb9B2d';
-let gemsStakingAddress = '0x46b142DD1E924FAb83eCc3c08e4D46E82f005e0E';
