@@ -55,6 +55,32 @@ describe("ERC721MintingFactory", () => {
         admin = account.address;
     })
 
+    it('Should change the owner', async () => {
+        try {
+            let tx = await mintingFactory.connect(account).changeAdmin(account2.address);
+            // console.log(tx);
+            mintingFactory.on("AdminUpdated", (_newAdmin) => {
+                newAdmin = _newAdmin;
+            });
+            await new Promise(res => setTimeout(() => res(null), 5000));
+            console.log("New Admin Address: ", newAdmin);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Only Admin can call this!'");
+        }
+    })
+    it('Should change the owner', async () => {
+        try {
+
+            let tx = await exchange.connect(account).updateOwner(account2.address);
+            // console.log(tx);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'");
+        }
+    })
+
+    // Getting this on second try => After owner is changed
     it('Should be able to change Exchange Address', async () => {
 
         try {
@@ -68,14 +94,35 @@ describe("ERC721MintingFactory", () => {
             await new Promise(res => setTimeout(() => res(null), 5000));
             console.log("New Exchange Address: ", newExchangeAddress);
         } catch (error) {
-            // console.log(error.message);
+            console.log(error.message);
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Only Admin can call this!'");
         }
 
 
     })
 
-    // WORKING
+    it('Should update owner for Carbon Membership', async () => {
+        try {
+            let tx = carbonMembership.connect(account3).updateOwner(account2.address)
+
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
+        }
+    })
+
+    it('Should update owner for Membership Trader', async () => {
+        try {
+
+            let tx = membershipTrader.connect(account).updateOwner(account2.address)
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
+        }
+    })
+
+
+    // WORKING => Checked in 2nd try
     it('Should mint NFT contract', async () => {
 
         try {
@@ -92,6 +139,7 @@ describe("ERC721MintingFactory", () => {
             console.log("NFT Contract Address: ", nftContractAddress);
 
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Only Admin can call this!'");
 
         }
@@ -103,10 +151,11 @@ describe("ERC721MintingFactory", () => {
         try {
             nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
             nftContractAdmin = await nftContract.getContractAdmin();
-            let tx = await nftContract.connect(account).setApprovalForAll(exchangeAddress, true);
+            let tx = await nftContract.connect(account).setApprovalForAll(account2, true);
             // console.log(tx);
 
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`invalid contract address or ENS name (argument="addressOrName", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
 
         }
@@ -120,14 +169,12 @@ describe("ERC721MintingFactory", () => {
             let tx = await nftContract.isApprovedForAll(nftContractAdmin, exchangeAddress);
             console.log(tx);
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal("Cannot read property 'isApprovedForAll' of undefined");
         }
 
     })
 
-    it('Should return NFT contract created by the user', async () => {
-        console.log(mintingFactory.getNFTsForOwner(account));
-    })
 
     it('Should mint an NFT for a contract', async () => {
 
@@ -135,6 +182,7 @@ describe("ERC721MintingFactory", () => {
             try {
                 let newNFT = await mintingFactory.connect(account).mintNFT(nftContractAddress);
             } catch (error) {
+                console.log(error.message);
                 expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
             }
 
@@ -147,6 +195,7 @@ describe("ERC721MintingFactory", () => {
             // console.log("TokenID Minted #: ", tokenIdMinted.toString());
 
         } catch (error) {
+
             console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Only Creator or Admin can call this!'`);
         }
@@ -160,6 +209,7 @@ describe("ERC721MintingFactory", () => {
             let totalNFTs = await mintingFactory.getTotalNFTsMinted(nftContractAddress);
             console.log(totalNFTs.toString());
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
         }
     })
@@ -170,6 +220,7 @@ describe("ERC721MintingFactory", () => {
             let totalCollections = await mintingFactory.getNFTsForOwner(account);
             console.log("total collections: ", totalCollections.toString());
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`invalid address or ENS name (argument="name", value="<SignerWithAddress 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266>", code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
         }
     })
@@ -178,19 +229,7 @@ describe("ERC721MintingFactory", () => {
     // // ERROR => Only Exchange can call it, Done that
 
 
-    it('Should change the owner', async () => {
-        try {
-            let tx = await mintingFactory.connect(account).changeAdmin(account2.address);
-            // console.log(tx);
-            mintingFactory.on("AdminUpdated", (_newAdmin) => {
-                newAdmin = _newAdmin;
-            });
-            await new Promise(res => setTimeout(() => res(null), 5000));
-            console.log("New Admin Address: ", newAdmin);
-        } catch (error) {
-            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Only Admin can call this!'");
-        }
-    })
+
 
     // #############################################################################
 
@@ -199,6 +238,7 @@ describe("ERC721MintingFactory", () => {
 
             let tx = await gemsNFTReceipt.connect(account2).setStakingPool(gemsStaking.address);
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Only Staking pool contract or admin can call this function'");
         }
     })
@@ -210,13 +250,14 @@ describe("ERC721MintingFactory", () => {
         try {
             let userBalance = await gemsToken.balanceOf(account.address);
 
-            console.log(userBalance.toString());
+            // console.log(userBalance.toString());
 
             let tx = await gemsToken.connect(account).approve(gemsStakingAddress, ethers.utils.parseEther(amount));
 
             // console.log((await gemsToken.allowance(account.address, gemsStakingAddress)).toString());
             // console.log(tx);
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`Error: overflow (fault="overflow", operation="BigNumber.from", value=9.991e+26, code=NUMERIC_FAULT, version=bignumber/5.5.0)`);
         }
 
@@ -237,6 +278,7 @@ describe("ERC721MintingFactory", () => {
 
             console.log(user, " has staked ", amountStaked.toString(), " tokens.");
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Only Staking pool contract or admin can call this function'");
         }
 
@@ -258,6 +300,7 @@ describe("ERC721MintingFactory", () => {
 
             console.log(user, " has unstaken ", amount.toString(), " tokens.");
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'User had no amount staked!'");
         }
     })
@@ -267,7 +310,7 @@ describe("ERC721MintingFactory", () => {
         // console.log(txn);
 
         let txn2 = await gemsToken.balanceOf(account.address);
-        console.log(txn2.toString());
+        // console.log(txn2.toString());
     })
 
 
@@ -287,6 +330,7 @@ describe("ERC721MintingFactory", () => {
             let tx = await nftContract.connect(account).getApproved(tokenId);
             // console.log(tx);
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal("Cannot read property 'connect' of undefined");
         }
     })
@@ -296,7 +340,7 @@ describe("ERC721MintingFactory", () => {
 
             // check token allowance
             let allowanceAmt = await eth.allowance(account.address, exchangeAddress);
-            console.log(allowanceAmt.toString());
+            // console.log(allowanceAmt.toString());
 
             // check if user has x amt of token balance
             let userBalance = await eth.balanceOf(account.address);
@@ -307,6 +351,7 @@ describe("ERC721MintingFactory", () => {
 
             // check auction time
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal("Cannot read property 'getApproved' of undefined");
         }
 
@@ -323,10 +368,12 @@ describe("ERC721MintingFactory", () => {
                 // for primary market, seller => minting factory
                 // console.log(executeOrder);
             } catch (error) {
+                console.log(error.message);
                 expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
             }
 
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'`);
         }
 
@@ -339,15 +386,16 @@ describe("ERC721MintingFactory", () => {
 
                     let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
                 } catch (error) {
+                    console.log(error.message);
                     expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
                 }
                 // console.log(cancelOrder);
             } catch (error) {
-                // console.log(error.message);
+                console.log(error.message);
                 expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'`);
             }
         } catch (error) {
-            // console.log(error.message);
+            console.log(error.message);
             expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
         }
 
@@ -361,19 +409,12 @@ describe("ERC721MintingFactory", () => {
             let tx = await exchange.connect(account).RedeemTradingFees();
             // console.log(tx);
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'");
         }
     })
 
-    it('Should change the owner', async () => {
-        try {
 
-            let tx = await exchange.connect(account).updateOwner(account2.address);
-            // console.log(tx);
-        } catch (error) {
-            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'");
-        }
-    })
 
 
     // ##################################################################
@@ -382,7 +423,7 @@ describe("ERC721MintingFactory", () => {
     it('Should approve funds to membership trader', async () => {
         let tx = await gemsToken.connect(account).approve(membershipTraderAddress, 100000);
         // console.log(tx);
-        console.log(await gemsToken.allowance(account.address, membershipTraderAddress));
+        // console.log(await gemsToken.allowance(account.address, membershipTraderAddress));
     })
 
     it('Should set Membership Trader', async () => {
@@ -391,6 +432,7 @@ describe("ERC721MintingFactory", () => {
             let tx = await carbonMembership.connect(account3).setMembershipTrader(membershipTraderAddress);
             // console.log(tx);
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
         }
     })
@@ -400,6 +442,7 @@ describe("ERC721MintingFactory", () => {
             let tx = carbonMembership.connect(account2).pause();
             // console.log(tx);
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
         }
 
@@ -412,6 +455,7 @@ describe("ERC721MintingFactory", () => {
             console.log("bal. membership Trader: ", await gemsToken.balanceOf(membershipTraderAddress));
             console.log("user bal. ", await carbonMembership.balanceOf(account.address));
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Only Membership Trader can call this function'`);
         }
 
@@ -423,6 +467,7 @@ describe("ERC721MintingFactory", () => {
             console.log(await gemsToken.balanceOf(membershipTraderAddress));
             console.log(await gemsToken.balanceOf(account.address));
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
         }
 
@@ -430,30 +475,20 @@ describe("ERC721MintingFactory", () => {
 
     it('Should unpause the Carbon Membership Contract', async () => {
         try {
-            let tx = carbonMembership.connect(account).unpause();
-            console.log(tx);
+            try {
+                let tx = await carbonMembership.connect(account).unpause();
+                // console.log(tx);
+            } catch (error) {
+                console.log(error.message);
+                expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: not paused'`);
+            }
+
         } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
         }
     })
 
-    it('Should update owner for Carbon Membership', async () => {
-        try {
-            let tx = carbonMembership.connect(account3).updateOwner(account2.address)
-
-        } catch (error) {
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
-        }
-    })
-
-    it('Should update owner for Membership Trader', async () => {
-        try {
-
-            let tx = membershipTrader.connect(account).updateOwner(account2.address)
-        } catch (error) {
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
-        }
-    })
 
 
 
