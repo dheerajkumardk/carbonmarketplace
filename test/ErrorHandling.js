@@ -103,7 +103,7 @@ describe("ERC721MintingFactory", () => {
 
     it('Should update owner for Carbon Membership', async () => {
         try {
-            let tx = carbonMembership.connect(account3).updateOwner(account2.address)
+            let tx = carbonMembership.connect(account).updateOwner(account2.address)
 
         } catch (error) {
             console.log(error.message);
@@ -148,31 +148,22 @@ describe("ERC721MintingFactory", () => {
 
     it('Set Approval', async () => {
 
-        try {
-            nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
-            nftContractAdmin = await nftContract.getContractAdmin();
-            let tx = await nftContract.connect(account).setApprovalForAll(account2, true);
-            // console.log(tx);
-
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal(`invalid contract address or ENS name (argument="addressOrName", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
-
-        }
+        // nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
+        // nftContractAdmin = await nftContract.getContractAdmin();
+        let tx = await nftContract.connect(account).setApprovalForAll(account2.address, true);
+        // console.log(tx);
+        // console.log(nftContract);
+        // console.log(nftContractAdmin);
+        // console.log(tx);
 
     })
 
     it('Check set Approval', async () => {
         // nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
         // nftContractAdmin = await nftContract.getContractAdmin();
-        try {
-            let tx = await nftContract.isApprovedForAll(nftContractAdmin, exchangeAddress);
-            console.log(tx);
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal("Cannot read property 'isApprovedForAll' of undefined");
-        }
 
+        let tx = await nftContract.isApprovedForAll(nftContractAdmin, exchangeAddress);
+        console.log(tx);
     })
 
 
@@ -215,6 +206,7 @@ describe("ERC721MintingFactory", () => {
     })
 
     // WORKING => But gives undefined
+    // ETHERS ERROR => INVALID ADDRESS
     it('Should return total NFT contract minted by a user', async () => {
         try {
             let totalCollections = await mintingFactory.getNFTsForOwner(account);
@@ -224,12 +216,6 @@ describe("ERC721MintingFactory", () => {
             expect(error.message).to.equal(`invalid address or ENS name (argument="name", value="<SignerWithAddress 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266>", code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
         }
     })
-
-
-    // // ERROR => Only Exchange can call it, Done that
-
-
-
 
     // #############################################################################
 
@@ -246,25 +232,12 @@ describe("ERC721MintingFactory", () => {
     // // STAKING TESTS
 
     it('Approve user tokens to Staking contract', async () => {
+        let userBalance = await gemsToken.balanceOf(account.address);
 
-        try {
-            let userBalance = await gemsToken.balanceOf(account.address);
-
-            // console.log(userBalance.toString());
-
-            let tx = await gemsToken.connect(account).approve(gemsStakingAddress, ethers.utils.parseEther(amount));
-
-            // console.log((await gemsToken.allowance(account.address, gemsStakingAddress)).toString());
-            // console.log(tx);
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal(`Error: overflow (fault="overflow", operation="BigNumber.from", value=9.991e+26, code=NUMERIC_FAULT, version=bignumber/5.5.0)`);
-        }
-
+        let tx = await gemsToken.connect(account).approve(gemsStakingAddress, ethers.utils.parseEther(amount));
     })
 
     it('Should call stake function', async () => {
-
 
         try {
             let staketxn = await gemsStaking.connect(account2).stake(account.address, amount);
@@ -282,6 +255,53 @@ describe("ERC721MintingFactory", () => {
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Only Staking pool contract or admin can call this function'");
         }
 
+        try {
+            let staketxn = await gemsStaking.connect(account2).stake(account.address, amount);
+
+            let user, amountStaked;
+            gemsStaking.on("Staked", (_user, _amount) => {
+                user = _user;
+                amountStaked = _amount;
+            });
+            await new Promise(res => setTimeout(() => res(null), 5000));
+
+            console.log(user, " has staked ", amountStaked.toString(), " tokens.");
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Inadequate token allowance'");
+        }
+
+        try {
+            let staketxn = await gemsStaking.connect(account2).stake(account.address, amount);
+
+            let user, amountStaked;
+            gemsStaking.on("Staked", (_user, _amount) => {
+                user = _user;
+                amountStaked = _amount;
+            });
+            await new Promise(res => setTimeout(() => res(null), 5000));
+
+            console.log(user, " has staked ", amountStaked.toString(), " tokens.");
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'User address is zero'");
+        }
+
+        try {
+            let staketxn = await gemsStaking.connect(account2).stake(account.address, amount);
+
+            let user, amountStaked;
+            gemsStaking.on("Staked", (_user, _amount) => {
+                user = _user;
+                amountStaked = _amount;
+            });
+            await new Promise(res => setTimeout(() => res(null), 5000));
+
+            console.log(user, " has staked ", amountStaked.toString(), " tokens.");
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Requires exactly 100,000 tokens for staking'");
+        }
 
 
 
@@ -325,80 +345,110 @@ describe("ERC721MintingFactory", () => {
     })
 
     it('Should Approve nft with given tokenId for Sell Order', async () => {
-        try {
-            // approves the nft with given token id
-            let tx = await nftContract.connect(account).getApproved(tokenId);
-            // console.log(tx);
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal("Cannot read property 'connect' of undefined");
-        }
+        // approves the nft with given token id
+        let tx = await nftContract.connect(account).getApproved(tokenId);
+        // console.log(tx);
+
     })
 
     it('Should Validate the NFT sale', async () => {
-        try {
+        // check token allowance
+        let allowanceAmt = await eth.allowance(account.address, exchangeAddress);
+        // console.log(allowanceAmt.toString());
 
-            // check token allowance
-            let allowanceAmt = await eth.allowance(account.address, exchangeAddress);
-            // console.log(allowanceAmt.toString());
+        // check if user has x amt of token balance
+        let userBalance = await eth.balanceOf(account.address);
 
-            // check if user has x amt of token balance
-            let userBalance = await eth.balanceOf(account.address);
-
-            // check nft allowance
-            let allowanceNFT = await nftContract.getApproved(tokenId);
-            // console.log(allowanceNFT);
-
-            // check auction time
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal("Cannot read property 'getApproved' of undefined");
-        }
+        // check nft allowance
+        let allowanceNFT = await nftContract.getApproved(tokenId);
 
     })
 
     it('Should execute the order', async () => {
+        let auctionTime = 1647728701;
+        let allowanceAmt = "1000000000000000000";
 
         try {
-            let auctionTime = 1647728701;
-            let allowanceAmt = "1000000000000000000";
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            // for primary market, seller => minting factory
+            // console.log(executeOrder);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
+        }
 
-            try {
-                let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
-                // for primary market, seller => minting factory
-                // console.log(executeOrder);
-            } catch (error) {
-                console.log(error.message);
-                expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
-            }
+        try {
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
 
         } catch (error) {
             console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'`);
         }
 
+        try {
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Contract is not approved for this NFT'`);
+        }
+
+        try {
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Seller does not owns the token'`);
+        }
+
+        try {
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Allowance is less than the NFT's price.`);
+        }
+
+        try {
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Buyer doesn't have sufficient funds`);
+        }
+
+        try {
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Auction has ended`);
+        }
     })
 
     it('Should cancel the order', async () => {
-        try {
-            try {
-                try {
 
-                    let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
-                } catch (error) {
-                    console.log(error.message);
-                    expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
-                }
-                // console.log(cancelOrder);
-            } catch (error) {
-                console.log(error.message);
-                expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'`);
-            }
+        try {
+
+            let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
         } catch (error) {
             console.log(error.message);
             expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
         }
 
+        try {
+            let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'`);
+        }
+
+        try {
+            let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
+        }
 
     })
 
@@ -459,6 +509,15 @@ describe("ERC721MintingFactory", () => {
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Only Membership Trader can call this function'`);
         }
 
+        try {
+            let tx = await membershipTrader.connect(account).executeOrder(account.address);
+            // console.log(tx);
+            console.log("bal. membership Trader: ", await gemsToken.balanceOf(membershipTraderAddress));
+            console.log("user bal. ", await carbonMembership.balanceOf(account.address));
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Tokens are not approved to the Membership Trader'`);
+        }
     })
 
     it('Should redeem GEMS', async () => {
@@ -474,15 +533,19 @@ describe("ERC721MintingFactory", () => {
     })
 
     it('Should unpause the Carbon Membership Contract', async () => {
-        try {
-            try {
-                let tx = await carbonMembership.connect(account).unpause();
-                // console.log(tx);
-            } catch (error) {
-                console.log(error.message);
-                expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: not paused'`);
-            }
 
+
+        try {
+            let tx = await carbonMembership.connect(account).unpause();
+            // console.log(tx);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: not paused'`);
+        }
+
+        try {
+            let tx = await carbonMembership.connect(account).unpause();
+            // console.log(tx);
         } catch (error) {
             console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);

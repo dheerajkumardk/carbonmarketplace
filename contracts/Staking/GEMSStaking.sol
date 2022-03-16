@@ -32,6 +32,9 @@ contract GEMSStaking {
             "Requires exactly 100,000 tokens for staking"
         );
         require(user != address(0), "User address is zero");
+        // on-chain approval
+        uint256 allowanceAmt = IERC20(GEMSToken).allowance(user, address(this));
+        require(allowanceAmt == _amount, "Inadequate token allowance");
 
         IERC20(GEMSToken).transferFrom(user, address(this), _amount);
         // nft token generated
