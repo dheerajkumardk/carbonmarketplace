@@ -268,6 +268,22 @@ describe("ERC721MintingFactory", () => {
             console.log(user, " has staked ", amountStaked.toString(), " tokens.");
         } catch (error) {
             console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'User had already staked tokens'");
+        }
+
+        try {
+            let staketxn = await gemsStaking.connect(account2).stake(account.address, amount);
+
+            let user, amountStaked;
+            gemsStaking.on("Staked", (_user, _amount) => {
+                user = _user;
+                amountStaked = _amount;
+            });
+            await new Promise(res => setTimeout(() => res(null), 5000));
+
+            console.log(user, " has staked ", amountStaked.toString(), " tokens.");
+        } catch (error) {
+            console.log(error.message);
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Inadequate token allowance'");
         }
 

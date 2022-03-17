@@ -27,6 +27,8 @@ contract GEMSStaking {
     event UnStaked(address user, uint256 amount);
 
     function stake(address user, uint256 _amount) public {
+        uint256 amountStaked = userData[user].tokensStaked;
+        require(amountStaked == 0, "User had already staked tokens");
         require(
             _amount == tokensToStake,
             "Requires exactly 100,000 tokens for staking"
