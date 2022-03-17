@@ -68,7 +68,7 @@ describe("ERC721MintingFactory", () => {
 
     // WORKING
     it('Should mint NFT contract', async () => {
-        let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address, account.address);
+        let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
 
         mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
             nftContractAddress = _nftContract;

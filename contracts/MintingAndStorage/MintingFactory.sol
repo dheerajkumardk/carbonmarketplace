@@ -57,12 +57,11 @@ contract MintingFactory {
     function createNFTContract(
         string memory _name,
         string memory _symbol,
-        address _creator,
-        address _contractAdmin
+        address _creator
     ) external onlyAdmin returns (address _nftcontract) {
         // create new contract
         address nftContract = address(
-            new ERC721NFTContract(_name, _symbol, _contractAdmin)
+            new ERC721NFTContract(_name, _symbol, adminAddress)
         );
         // update mapping of owner to NFTContracts
         ownerToNFTs[_creator].push(nftContract);
