@@ -1,37 +1,25 @@
+const Addresses = require("./deployedAddresses.json");
+
 const main = async () => {
     const [account, account2, account3] = await hre.ethers.getSigners();
-    let creator = account3.address;
-    let stakingPool = account2.address;
+    // let creator = account3.address;
+    // let stakingPool = account2.address;
     let admin = account.address;
 
-    const Eth = await hre.ethers.getContractFactory("ETHToken");
-    const eth = await Eth.connect(account).deploy();
-    await eth.deployed();
-    console.log("WETH address: ", eth.address);
+    // const Eth = await hre.ethers.getContractFactory("ETHToken");
+    // const eth = await Eth.connect(account).deploy();
+    // await eth.deployed();
+    // console.log("WETH address: ", eth.address);
 
-    const MintingFactory = await hre.ethers.getContractFactory("MintingFactory");
-    const mintingFactory = await MintingFactory.deploy(eth.address);
-    await mintingFactory.deployed();
-    console.log("Minting Factory deployed at: ", mintingFactory.address);
+    // const MintingFactory = await hre.ethers.getContractFactory("MintingFactory");
+    // const mintingFactory = await MintingFactory.deploy(eth.address);
+    // await mintingFactory.deployed();
+    // console.log("Minting Factory deployed at: ", mintingFactory.address);
 
     const ExchangeCore = await hre.ethers.getContractFactory("ExchangeCore");
-    const exchangeCore = await ExchangeCore.deploy(mintingFactory.address, eth.address);
+    const exchangeCore = await ExchangeCore.deploy(Addresses.mumbai.mintingFactoryAddress, Addresses.mumbai.ETHAddress);
     await exchangeCore.deployed();
     console.log("Exchange Core deployed at: ", exchangeCore.address);
-
-    // *****   // accounts3 => creator bana dena
-
-    // creator will mint his nft,
-    // then, console log the nft address and creator address.
-
-    // let txn = await nftFactory.createNFTContract("CHENNAI SUPER KINGS", "CSK");
-    // await txn.wait()
-    // console.log("NFT Contract minted!");
-
-    // // get the contract address now
-    // let txn2 = nftFactory.getNFTsForOwner(accounts[0]);
-    // await txn.wait();
-    // console.log(txn);
 
     // Deploying : GEMS NFT, TOKEN AND STAKING
 
