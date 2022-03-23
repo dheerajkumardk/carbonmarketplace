@@ -2,30 +2,37 @@
 
 pragma solidity ^0.8.0;
 
-// make it ownable, pausable
-import "@openzeppelin/contracts/access/Ownable.sol";
+// make it pausable
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 // import required interfaces
 import "./../Interface/IERC20.sol";
 import "./../Interface/IERC721.sol";
 import "./../Interface/IMintingFactory.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract ExchangeCore is Ownable, Pausable, ReentrancyGuard {
+contract ExchangeCore is AccessControl, Pausable, ReentrancyGuard,  {
     using SafeMath for uint256;
 
     address public mintingFactory;
     address public ETH;
 
-    uint256 public tradingFeeFactor = 500; // 5%
-    uint256 public constant BaseFactorMax = 10000; // 100%
+    uint256 public PRIMARY_MARKET_CARBON_ROYALTIES = 250; // 25%
+    uint256 public PRIMARY_MARKET_CREATOR_ROYALTIES = 750; // 75%
+    uint256 public BUYERS_PREMIUM_FEES = 25; // 2.5%
+    uint256 public constant BaseFactorMax = 1025; // 102.5%
+
+    bytes32 public constant DEFAULT_ADMIN = keccak256("DEFAULT_ADMIN");
 
     //@dev ETH is an ERC20 token on polygon
     constructor(address _mintingFactory, address _eth) {
         mintingFactory = _mintingFactory;
         ETH = _eth;
+
+        _setupRole(DEFAULT_ADMIN, msg.sender);
     }
 
     // One who bids for an nft, can cancel it anytime before auction ends
@@ -43,6 +50,28 @@ contract ExchangeCore is Ownable, Pausable, ReentrancyGuard {
 
     event OrderCancelled(address nftContract, uint256 tokenId, address buyer);
     event OrderUncancelled(address nftContract, uint256 tokenId, address buyer);
+
+    modifier onlyAdmin() {
+        require(isMember(msg.sender), "Restricted to members.");
+        _;
+    }
+
+    function isAdmin(address account) public view virtual returns (bool) {
+        return hasRole(DEFAULT_ADMIN, account);
+    }
+
+    function addAdmin(address account) public virtual onlyAdmin {
+        grantRole(DEFAULT_ADMIN, account);
+    }
+
+    /// @dev Remove oneself as a member of the community.
+    function leaveRole() public virtual {
+        renounceRole(DEFAULT_ADMIN, msg.sender);
+    }
+
+    function removeAdmin(address account) public virtual onlyAdmin {
+        revokeRole(DEFAULT_ADMIN, account);
+    }
 
     function validateSeller(
         address _nftContract,
@@ -92,6 +121,19 @@ contract ExchangeCore is Ownable, Pausable, ReentrancyGuard {
         return true;
     }
 
+    function isCancelled(
+        address _nftContract,
+        uint256 _tokenId,
+        address _buyer
+    ) internal view returns (bool) {
+        require(
+            !cancelledOrders[_buyer][_nftContract][_tokenId],
+            "Order is cancelled"
+        );
+
+        return true;
+    }
+
     function executeOrder(
         address _nftContract,
         uint256 _tokenId,
@@ -99,21 +141,31 @@ contract ExchangeCore is Ownable, Pausable, ReentrancyGuard {
         address _seller,
         uint256 _amount,
         uint256 _auctionEndTime
-    ) public onlyOwner whenNotPaused nonReentrant {
+    ) public onlyAdmin whenNotPaused nonReentrant {
         // Validating all the requirements
         bool validTime = validateAuctionTime(_auctionEndTime);
         bool validSeller = validateSeller(_nftContract, _tokenId, _seller);
         bool validBuyer = validateBuyer(_buyer, _amount);
-        bool isCancel = cancelledOrders[_buyer][_nftContract][_tokenId];
+        bool isCancel = isCancelled(_nftContract, _tokenId, _buyer);
 
         if (validTime && validSeller && validBuyer && !isCancel) {
-            // transfer tradingFee to the exchange
-            uint256 fee = _amount.mul(tradingFeeFactor).div(BaseFactorMax);
-            IERC20(ETH).transferFrom(_buyer, address(this), fee);
+            // transfer Royalties to the exchange
+            uint256 carbonRoyaltyFee = _amount
+                .mul(PRIMARY_MARKET_CARBON_ROYALTIES)
+                .div(BaseFactorMax);
+            uint256 carbonTradeFee = _amount.mul(BUYERS_PREMIUM_FEES).div(
+                BaseFactorMax
+            );
+            uint256 creatorRoyalties = _amount
+                .mul(PRIMARY_MARKET_CREATOR_ROYALTIES)
+                .div(BaseFactorMax);
+
+            uint256 totalCarbonFee = carbonRoyaltyFee + carbonTradeFee;
+
+            IERC20(ETH).transferFrom(_buyer, address(this), totalCarbonFee);
 
             // transferring the amount to the seller
-            uint256 transferableAmt = _amount - fee;
-            IERC20(ETH).transferFrom(_buyer, _seller, transferableAmt);
+            IERC20(ETH).transferFrom(_buyer, _seller, creatorRoyalties);
 
             // transferring the NFT to the buyer
             IERC721(_nftContract).transferFrom(_seller, _buyer, _tokenId);
@@ -132,7 +184,12 @@ contract ExchangeCore is Ownable, Pausable, ReentrancyGuard {
         address _nftContract,
         uint256 _tokenId,
         address _buyer
-    ) public onlyOwner {
+    ) public onlyAdmin whenNotPaused {
+        require(
+            !cancelledOrders[_buyer][_nftContract][_tokenId],
+            "Order already cancelled"
+        );
+
         cancelledOrders[_buyer][_nftContract][_tokenId] = true;
         emit OrderCancelled(_nftContract, _tokenId, _buyer);
     }
@@ -141,7 +198,7 @@ contract ExchangeCore is Ownable, Pausable, ReentrancyGuard {
         address _nftContract,
         uint256 _tokenId,
         address _buyer
-    ) public onlyOwner {
+    ) public onlyAdmin whenNotPaused {
         require(
             cancelledOrders[_buyer][_nftContract][_tokenId],
             "Order was never cancelled"
@@ -150,18 +207,26 @@ contract ExchangeCore is Ownable, Pausable, ReentrancyGuard {
         emit OrderUncancelled(_nftContract, _tokenId, _buyer);
     }
 
-    function setTradingFeeFactor(uint256 _tradingFeeFactor) public onlyOwner {
-        require(_tradingFeeFactor != 0, "Fee cannot be zero");
-        tradingFeeFactor = _tradingFeeFactor;
+    function setPRIMARY_MARKET_ROYALTIES_CARBON(uint256 _carbonRoyalties)
+        public
+        onlyAdmin
+        whenNotPaused
+    {
+        PRIMARY_MARKET_CREATOR_ROYALTIES = 1000 - _carbonRoyalties;
+        PRIMARY_MARKET_CARBON_ROYALTIES = _carbonRoyalties;
     }
 
-    function updateOwner(address _newOwner) external onlyOwner {
-        transferOwnership(_newOwner);
-    }
-
-    function RedeemTradingFees() external onlyOwner {
+    function redeemTotalFeesCollected() external onlyAdmin whenNotPaused {
         uint256 totalBalance = IERC20(ETH).balanceOf(address(this));
         IERC20(ETH).transfer(owner(), totalBalance);
+    }
+
+    function pause() public onlyAdmin {
+        _pause();
+    }
+
+    function unpause() public onlyAdmin {
+        _unpause();
     }
 }
 
