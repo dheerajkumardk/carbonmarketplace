@@ -69,16 +69,6 @@ describe("ERC721MintingFactory", () => {
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Only Admin can call this!'");
         }
     })
-    it('Should change the owner', async () => {
-        try {
-
-            let tx = await exchange.connect(account).updateOwner(account2.address);
-            // console.log(tx);
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'");
-        }
-    })
 
     // Getting this on second try => After owner is changed
     it('Should be able to change Exchange Address', async () => {
@@ -390,7 +380,7 @@ describe("ERC721MintingFactory", () => {
             // console.log(executeOrder);
         } catch (error) {
             console.log(error.message);
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'`);
         }
 
         try {
@@ -422,7 +412,7 @@ describe("ERC721MintingFactory", () => {
 
         } catch (error) {
             console.log(error.message);
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Allowance is less than the NFT's price.`);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string "Allowance is less than the NFT's price."`);
         }
 
         try {
@@ -430,7 +420,7 @@ describe("ERC721MintingFactory", () => {
 
         } catch (error) {
             console.log(error.message);
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Buyer doesn't have sufficient funds`);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Buyer doesn't have sufficient funds'`);
         }
 
         try {
@@ -438,7 +428,15 @@ describe("ERC721MintingFactory", () => {
 
         } catch (error) {
             console.log(error.message);
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Auction has ended`);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Auction has ended'`);
+        }
+
+        try {
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Order is cancelled'`);
         }
     })
 
@@ -463,7 +461,25 @@ describe("ERC721MintingFactory", () => {
             let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
         } catch (error) {
             console.log(error.message);
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'`);
+        }
+
+    })
+
+    it('Should uncancel the order', async () => {
+
+        try {
+            let uncancelOrder = await exchange.connect(account).uncancelOrder(nftContractAddress, tokenId, account.address);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'`);
+        }
+
+        try {
+            let uncancelOrder = await exchange.connect(account).uncancelOrder(nftContractAddress, tokenId, account.address);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'`);
         }
 
     })
@@ -472,12 +488,78 @@ describe("ERC721MintingFactory", () => {
         try {
 
             // tradingFee = await WETH.balanceOf(exchangeAddress);
-            let tx = await exchange.connect(account).RedeemTradingFees();
+            let tx = await exchange.connect(account).redeemTotalFeesCollected();
             // console.log(tx);
         } catch (error) {
             console.log(error.message);
-            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'");
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'");
         }
+
+        try {
+
+            // tradingFee = await WETH.balanceOf(exchangeAddress);
+            let tx = await exchange.connect(account).redeemTotalFeesCollected();
+            // console.log(tx);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'`);
+        }
+    })
+
+    it('Should set the carbon royalty fees', async () => {
+        try {
+
+            // tradingFee = await WETH.balanceOf(exchangeAddress);
+            let tx = await exchange.connect(account).setPRIMARY_MARKET_ROYALTIES_CARBON(350);
+            // console.log(tx);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'");
+        }
+
+        try {
+
+            // tradingFee = await WETH.balanceOf(exchangeAddress);
+            let tx = await exchange.connect(account).setPRIMARY_MARKET_ROYALTIES_CARBON(350);
+            // console.log(tx);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'");
+        }
+    })
+
+    it('Should set the carbon fee vault address', async () => {
+        try {
+
+            // tradingFee = await WETH.balanceOf(exchangeAddress);
+            let tx = await exchange.connect(account).setCarbonFeeVaultAddress(account2.address);
+            // console.log(tx);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'");
+        }
+
+    })
+
+    it('Should add an admin', async () => {
+        try {
+            let tx = await adminRole.connect(account).addAdmin(account2.address);
+            //    console.log(tx);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'");
+        }
+    })
+
+    it('Should remove an admin', async () => {
+        try {
+            let tx = await adminRole.connect(account).removeAdmin(account2.address);
+            //    console.log(tx);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'");
+        }
+
     })
 
 

@@ -48,6 +48,11 @@ const main = async () => {
     const membershipTrader = await MembershipTrader.deploy(gemsToken.address, carbonMembership.address);
     await membershipTrader.deployed();
     console.log("Membership Trader deployed at: ", membershipTrader.address);
+
+    const AdminRole = await hre.ethers.getContractFactory("AdminRole");
+    const adminRole = await AdminRole.deploy(account.address);
+    await adminRole.deployed();
+    console.log("AdminRole deployed at: ", adminRole.address);
 }
 
 const runMain = async () => {
