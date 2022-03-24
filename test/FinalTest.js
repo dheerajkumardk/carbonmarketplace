@@ -13,6 +13,7 @@ const GEMSSTAKINGABI = require("./../artifacts/contracts/Staking/GEMSStaking.sol
 const CARBONMEMBERSHIPABI = require("./../artifacts/contracts/Membership/CarbonMembership.sol/CarbonMembership.json");
 const MEMBERSHIPTRADERABI = require("./../artifacts/contracts/Membership/MembershipTrader.sol/MembershipTrader.json");
 const NFTCONTRACTABI = require("./../artifacts/contracts/MintingAndStorage/ERC721NFTContract.sol/ERC721NFTContract.json");
+const ADMINROLEABI = require("./../artifacts/contracts/AdminRole.sol/AdminRole.json");
 
 let nftContract; // NFT_CONTRACT
 let newAdmin; // owner of Minting Factory
@@ -29,8 +30,9 @@ let gemsNFTReceiptAddress = Address.gemsNFTReceiptAddress;
 let gemsStakingAddress = Address.gemsStakingAddress;
 let carbonMembershipAddress = Address.carbonMembershipAddress;
 let membershipTraderAddress = Address.membershipTraderAddress;
+let adminRoleAddress = Address.adminRoleAddress;
 let nftContractAddress;
- 
+
 let account, account2;
 let newExchangeAddress;
 let provider = ethers.getDefaultProvider("http://localhost:8545");
@@ -45,6 +47,8 @@ let gemsNFTReceipt = new ethers.Contract(gemsNFTReceiptAddress, GEMSNFTRECEIPTAB
 let gemsStaking = new ethers.Contract(gemsStakingAddress, GEMSSTAKINGABI.abi, provider);
 let carbonMembership = new ethers.Contract(carbonMembershipAddress, CARBONMEMBERSHIPABI.abi, provider);
 let membershipTrader = new ethers.Contract(membershipTraderAddress, MEMBERSHIPTRADERABI.abi, provider);
+let adminRole = new ethers.Contract(adminRoleAddress, ADMINROLEABI, provider);
+
 describe("ERC721MintingFactory", () => {
 
 
@@ -239,14 +243,50 @@ describe("ERC721MintingFactory", () => {
 
     it('Should transfer fees to the Exchange', async () => {
         // tradingFee = await WETH.balanceOf(exchangeAddress);
-        let tx = await exchange.connect(account).RedeemTradingFees();
+        let tx = await exchange.connect(account).redeemTotalFeesCollected();
         // console.log(tx);
     })
 
-    // it('Should change the owner', async () => {
-    //     let tx = await exchange.connect(account).updateOwner(account2.address);
-    //     console.log(tx);
-    // })
+    it('Should set Carbon Vault Fee Address', async () => {
+        let tx = await exchange.connect(account).setCarbonFeeVaultAddress(account2.address);
+        // console.log(tx);
+    })
+
+    it('Should pause the Exchange contract', async () => {
+        let tx = await exchange.connect(account).pause();
+        // console.log(tx);
+    })
+
+    it('Should unpause the Exchange contract', async () => {
+        let tx = await exchange.connect(account).unpause();
+        // console.log(tx);
+    })
+
+    it('Should change the carbon royalty fees', async () => {
+        let tx = await exchange.connect(account).setPRIMARY_MARKET_ROYALTIES_CARBON(350);
+        // console.log(tx);
+    })
+
+    // Admin Role
+    it('Should check if is Admin', async () => {
+        let tx = await adminRole.isAdmin(account2.address);
+        // console.log(tx); 
+   })
+
+   it ('Should add an admin', async () => {
+       let tx = await adminRole.connect(account).addAdmin(account2.address);
+    //    console.log(tx);
+   })
+
+   it ('Should leave admin role', async () => {
+       let tx = await adminRole.leaveRole();
+    //    console.log(tx);
+   })
+
+   it ('Should remove an admin', async () => {
+       let tx = await adminRole.connect(account).removeAdmin(account2.address);
+    //    console.log(tx);
+   })
 
 
     it('Should approve funds to membership trader', async () => {
