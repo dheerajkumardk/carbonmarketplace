@@ -543,7 +543,7 @@ describe("ERC721MintingFactory", () => {
 
     it('Should add an admin', async () => {
         try {
-            let tx = await adminRole.connect(account).addAdmin(account2.address);
+            let tx = await exchange.connect(account).addAnAdmin(account2.address);
             //    console.log(tx);
         } catch (error) {
             console.log(error.message);
@@ -553,7 +553,7 @@ describe("ERC721MintingFactory", () => {
 
     it('Should remove an admin', async () => {
         try {
-            let tx = await adminRole.connect(account).removeAdmin(account2.address);
+            let tx = await exchange.connect(account).removeAnAdmin(account2.address);
             //    console.log(tx);
         } catch (error) {
             console.log(error.message);

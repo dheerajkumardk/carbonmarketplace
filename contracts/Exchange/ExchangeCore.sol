@@ -27,9 +27,14 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     uint256 public constant BaseFactorMax = 1025; // 102.5%
 
     //@dev ETH is an ERC20 token on polygon
-    constructor(address _mintingFactory, address _eth) AdminRole(msg.sender) {
+    constructor(
+        address _mintingFactory,
+        address _eth,
+        address root
+    ) AdminRole(root) {
         mintingFactory = _mintingFactory;
         ETH = _eth;
+        // _setupRole(keccak256("DEFAULT_ADMIN"), msg.sender);
     }
 
     // One who bids for an nft, can cancel it anytime before auction ends
@@ -183,6 +188,22 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     {
         require(_carbonFeeVault != address(0), "Vault address cannot be zero");
         carbonFeeVault = _carbonFeeVault;
+    }
+
+    function isAnAdmin(address account) public view returns (bool) {
+        return isAdmin(account);
+    }
+
+    function addAnAdmin(address _account) public onlyAdmin {
+        AdminRole.addAdmin(_account);
+    }
+
+    function removeAnAdmin(address _account) public onlyAdmin {
+        AdminRole.removeAdmin(_account);
+    }
+
+    function leaveAsAdmin() public onlyAdmin {
+        AdminRole.leaveRole();
     }
 
     function pause() public onlyAdmin {
