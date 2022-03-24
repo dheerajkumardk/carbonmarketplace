@@ -5,10 +5,10 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract AdminRole is AccessControl {
-    bytes32 public constant DEFAULT_ADMIN = keccak256("DEFAULT_ADMIN");
+    // bytes32 public constant override DEFAULT_ADMIN_ROLE = keccak256("DEFAULT_ADMIN_ROLE");
 
-    constructor(address _admin) {
-        _setupRole(DEFAULT_ADMIN, _admin);
+    constructor(address account) {
+        _setupRole(DEFAULT_ADMIN_ROLE, account);
     }
 
     modifier onlyAdmin() {
@@ -17,19 +17,19 @@ contract AdminRole is AccessControl {
     }
 
     function isAdmin(address account) internal view returns (bool) {
-        return hasRole(DEFAULT_ADMIN, account);
+        return hasRole(DEFAULT_ADMIN_ROLE, account);
     }
 
-    function addAdmin(address account) external onlyAdmin {
-        grantRole(DEFAULT_ADMIN, account);
+    function addAdmin(address account) internal onlyAdmin {
+        grantRole(DEFAULT_ADMIN_ROLE, account);
     }
 
     /// @dev Remove oneself as a member of the community.
-    function leaveRole() external {
-        renounceRole(DEFAULT_ADMIN, msg.sender);
+    function leaveRole() internal {
+        renounceRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function removeAdmin(address account) external onlyAdmin {
-        revokeRole(DEFAULT_ADMIN, account);
+    function removeAdmin(address account) internal onlyAdmin {
+        revokeRole(DEFAULT_ADMIN_ROLE, account);
     }
 }

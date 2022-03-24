@@ -13,7 +13,6 @@ const GEMSSTAKINGABI = require("./../artifacts/contracts/Staking/GEMSStaking.sol
 const CARBONMEMBERSHIPABI = require("./../artifacts/contracts/Membership/CarbonMembership.sol/CarbonMembership.json");
 const MEMBERSHIPTRADERABI = require("./../artifacts/contracts/Membership/MembershipTrader.sol/MembershipTrader.json");
 const NFTCONTRACTABI = require("./../artifacts/contracts/MintingAndStorage/ERC721NFTContract.sol/ERC721NFTContract.json");
-const ADMINROLEABI = require("./../artifacts/contracts/AdminRole.sol/AdminRole.json");
 
 let nftContract; // NFT_CONTRACT
 let newAdmin; // owner of Minting Factory
@@ -30,7 +29,6 @@ let gemsNFTReceiptAddress = Address.gemsNFTReceiptAddress;
 let gemsStakingAddress = Address.gemsStakingAddress;
 let carbonMembershipAddress = Address.carbonMembershipAddress;
 let membershipTraderAddress = Address.membershipTraderAddress;
-let adminRoleAddress = Address.adminRoleAddress;
 let nftContractAddress;
 
 let account, account2;
@@ -47,7 +45,6 @@ let gemsNFTReceipt = new ethers.Contract(gemsNFTReceiptAddress, GEMSNFTRECEIPTAB
 let gemsStaking = new ethers.Contract(gemsStakingAddress, GEMSSTAKINGABI.abi, provider);
 let carbonMembership = new ethers.Contract(carbonMembershipAddress, CARBONMEMBERSHIPABI.abi, provider);
 let membershipTrader = new ethers.Contract(membershipTraderAddress, MEMBERSHIPTRADERABI.abi, provider);
-let adminRole = new ethers.Contract(adminRoleAddress, ADMINROLEABI, provider);
 
 describe("ERC721MintingFactory", () => {
 
@@ -269,24 +266,29 @@ describe("ERC721MintingFactory", () => {
 
     // Admin Role
     it('Should check if is Admin', async () => {
-        let tx = await adminRole.isAdmin(account2.address);
+        let tx = await exchange.isAnAdmin(account2.address);
         // console.log(tx); 
-   })
+    })
 
-   it ('Should add an admin', async () => {
-       let tx = await adminRole.connect(account).addAdmin(account2.address);
-    //    console.log(tx);
-   })
+    // it('Should add an admin', async () => {
+    //     let tx = await exchange.connect(account).addAnAdmin(account2.address);
+    //     //    console.log(tx);
+    // })
 
-   it ('Should leave admin role', async () => {
-       let tx = await adminRole.leaveRole();
-    //    console.log(tx);
-   })
+    // it('Should leave admin role', async () => {
+    //     let tx = await exchange.connect(account).leaveAsAdmin();
+    //     //    console.log(tx);
+    // })
 
-   it ('Should remove an admin', async () => {
-       let tx = await adminRole.connect(account).removeAdmin(account2.address);
-    //    console.log(tx);
-   })
+    it('Should remove an admin', async () => {
+        let tx = await exchange.connect(account2).removeAnAdmin(account.address);
+        // console.log(tx); 
+    })
+
+    it('Should check if is Admin', async () => {
+        let tx = await exchange.isAnAdmin(account2.address);
+        console.log(tx); 
+    })
 
 
     it('Should approve funds to membership trader', async () => {

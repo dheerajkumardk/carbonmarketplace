@@ -1,4 +1,4 @@
-const Addresses = require("./deployedAddresses.json");
+// const Addresses = require("./deployedAddresses.json");
 
 const main = async () => {
     const [account, account2, account3] = await hre.ethers.getSigners();
@@ -6,18 +6,18 @@ const main = async () => {
     // let stakingPool = account2.address;
     let admin = account.address;
 
-    // const Eth = await hre.ethers.getContractFactory("ETHToken");
-    // const eth = await Eth.connect(account).deploy();
-    // await eth.deployed();
-    // console.log("WETH address: ", eth.address);
+    const Eth = await hre.ethers.getContractFactory("ETHToken");
+    const eth = await Eth.connect(account).deploy();
+    await eth.deployed();
+    console.log("WETH address: ", eth.address);
 
-    // const MintingFactory = await hre.ethers.getContractFactory("MintingFactory");
-    // const mintingFactory = await MintingFactory.deploy(eth.address);
-    // await mintingFactory.deployed();
-    // console.log("Minting Factory deployed at: ", mintingFactory.address);
+    const MintingFactory = await hre.ethers.getContractFactory("MintingFactory");
+    const mintingFactory = await MintingFactory.deploy(eth.address);
+    await mintingFactory.deployed();
+    console.log("Minting Factory deployed at: ", mintingFactory.address);
 
     const ExchangeCore = await hre.ethers.getContractFactory("ExchangeCore");
-    const exchangeCore = await ExchangeCore.deploy(Addresses.mumbai.mintingFactoryAddress, Addresses.mumbai.ETHAddress);
+    const exchangeCore = await ExchangeCore.deploy(mintingFactory.address, eth.address, account.address);
     await exchangeCore.deployed();
     console.log("Exchange Core deployed at: ", exchangeCore.address);
 
@@ -52,7 +52,8 @@ const main = async () => {
     const AdminRole = await hre.ethers.getContractFactory("AdminRole");
     const adminRole = await AdminRole.deploy(account.address);
     await adminRole.deployed();
-    console.log("AdminRole deployed at: ", adminRole.address);
+    console.log("Admin Role deployed at: ", adminRole.address);
+
 }
 
 const runMain = async () => {
