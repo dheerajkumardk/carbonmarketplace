@@ -264,32 +264,20 @@ describe("ERC721MintingFactory", () => {
         // console.log(tx);
     })
 
-    // Admin Role
-    it('Should check if is Admin', async () => {
-        let tx = await exchange.isAnAdmin(account2.address);
-        // console.log(tx); 
+    it('Should add an admin', async () => {
+        let tx = await exchange.connect(account).addAdmin(account2.address);
+        //    console.log(tx);
     })
 
-    // it('Should add an admin', async () => {
-    //     let tx = await exchange.connect(account).addAnAdmin(account2.address);
-    //     //    console.log(tx);
-    // })
-
-    // it('Should leave admin role', async () => {
-    //     let tx = await exchange.connect(account).leaveAsAdmin();
-    //     //    console.log(tx);
-    // })
+    it('Should leave admin role', async () => {
+        let tx = await exchange.connect(account2).leaveRole();
+        //    console.log(tx);
+    })
 
     it('Should remove an admin', async () => {
-        let tx = await exchange.connect(account2).removeAnAdmin(account.address);
+        let tx = await exchange.connect(account).removeAdmin(account2.address);
         // console.log(tx); 
     })
-
-    it('Should check if is Admin', async () => {
-        let tx = await exchange.isAnAdmin(account2.address);
-        console.log(tx); 
-    })
-
 
     it('Should approve funds to membership trader', async () => {
         let tx = await gemsToken.connect(account).approve(membershipTraderAddress, 100000);

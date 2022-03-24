@@ -20,16 +20,16 @@ contract AdminRole is AccessControl {
         return hasRole(DEFAULT_ADMIN_ROLE, account);
     }
 
-    function addAdmin(address account) internal onlyAdmin {
+    function addAdmin(address account) external onlyAdmin {
         grantRole(DEFAULT_ADMIN_ROLE, account);
     }
 
     /// @dev Remove oneself as a member of the community.
-    function leaveRole() internal {
+    function leaveRole() external {
         renounceRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function removeAdmin(address account) internal onlyAdmin {
+    function removeAdmin(address account) external onlyAdmin {
         revokeRole(DEFAULT_ADMIN_ROLE, account);
     }
 }

@@ -12,12 +12,14 @@ import "./../Interface/IERC20.sol";
 import "./../Interface/IERC721.sol";
 import "./../Interface/IMintingFactory.sol";
 import "./../AdminRole.sol";
+import "./../Interface/ICarbonMembership.sol";
 
 contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
 
     address public mintingFactory;
     address public ETH;
+    address public carbonMembership;
 
     address public carbonFeeVault;
 
@@ -30,11 +32,12 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     constructor(
         address _mintingFactory,
         address _eth,
+        address _carbonMembership,
         address root
     ) AdminRole(root) {
         mintingFactory = _mintingFactory;
         ETH = _eth;
-        // _setupRole(keccak256("DEFAULT_ADMIN"), msg.sender);
+        carbonMembership = _carbonMembership;
     }
 
     // One who bids for an nft, can cancel it anytime before auction ends
@@ -121,7 +124,12 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
                 .mul(PRIMARY_MARKET_CREATOR_ROYALTIES)
                 .div(BaseFactorMax);
 
-            uint256 totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
+            uint256 totalCarbonFee;
+            if (ICarbonMembership(carbonMembership).balanceOf(_buyer) >= 1) {
+                totalCarbonFee = carbonRoyaltyFee;
+            } else {
+                totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
+            }
 
             IERC20(ETH).transferFrom(_buyer, address(this), totalCarbonFee);
 
@@ -192,18 +200,6 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
 
     function isAnAdmin(address account) public view returns (bool) {
         return isAdmin(account);
-    }
-
-    function addAnAdmin(address _account) public onlyAdmin {
-        AdminRole.addAdmin(_account);
-    }
-
-    function removeAnAdmin(address _account) public onlyAdmin {
-        AdminRole.removeAdmin(_account);
-    }
-
-    function leaveAsAdmin() public onlyAdmin {
-        AdminRole.leaveRole();
     }
 
     function pause() public onlyAdmin {
