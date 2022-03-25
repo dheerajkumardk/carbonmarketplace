@@ -16,10 +16,7 @@ const main = async () => {
     await mintingFactory.deployed();
     console.log("Minting Factory deployed at: ", mintingFactory.address);
 
-    const ExchangeCore = await hre.ethers.getContractFactory("ExchangeCore");
-    const exchangeCore = await ExchangeCore.deploy(mintingFactory.address, eth.address, account.address);
-    await exchangeCore.deployed();
-    console.log("Exchange Core deployed at: ", exchangeCore.address);
+
 
     // Deploying : GEMS NFT, TOKEN AND STAKING
 
@@ -49,10 +46,15 @@ const main = async () => {
     await membershipTrader.deployed();
     console.log("Membership Trader deployed at: ", membershipTrader.address);
 
-    const AdminRole = await hre.ethers.getContractFactory("AdminRole");
-    const adminRole = await AdminRole.deploy(account.address);
-    await adminRole.deployed();
-    console.log("Admin Role deployed at: ", adminRole.address);
+    const ExchangeCore = await hre.ethers.getContractFactory("ExchangeCore");
+    const exchangeCore = await ExchangeCore.deploy(mintingFactory.address, eth.address, carbonMembership.address, account.address);
+    await exchangeCore.deployed();
+    console.log("Exchange Core deployed at: ", exchangeCore.address);
+
+    // const AdminRole = await hre.ethers.getContractFactory("AdminRole");
+    // const adminRole = await AdminRole.deploy(account.address);
+    // await adminRole.deployed();
+    // console.log("Admin Role deployed at: ", adminRole.address);
 
 }
 
