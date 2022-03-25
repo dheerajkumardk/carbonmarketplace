@@ -12,7 +12,7 @@ const main = async () => {
     console.log("WETH address: ", eth.address);
 
     const MintingFactory = await hre.ethers.getContractFactory("MintingFactory");
-    const mintingFactory = await MintingFactory.deploy(eth.address);
+    const mintingFactory = await MintingFactory.deploy(eth.address, account.address);
     await mintingFactory.deployed();
     console.log("Minting Factory deployed at: ", mintingFactory.address);
 

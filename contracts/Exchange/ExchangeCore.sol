@@ -109,6 +109,8 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
             !cancelledOrders[_buyer][_nftContract][_tokenId],
             "Order is cancelled"
         );
+        address _factory = IERC721(_nftContract).getFactory();
+        require(_factory == mintingFactory, "Factory is not same");
         bool validSeller = validateSeller(_nftContract, _tokenId, _seller);
         bool validBuyer = validateBuyer(_buyer, _amount);
 
@@ -190,16 +192,16 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         IERC20(ETH).transfer(carbonFeeVault, totalBalance);
     }
 
+    function updateFactory(address _factory) external onlyAdmin {
+        mintingFactory = _factory;
+    }
+
     function setCarbonFeeVaultAddress(address _carbonFeeVault)
         external
         onlyAdmin
     {
         require(_carbonFeeVault != address(0), "Vault address cannot be zero");
         carbonFeeVault = _carbonFeeVault;
-    }
-
-    function isAnAdmin(address account) public view returns (bool) {
-        return isAdmin(account);
     }
 
     function pause() public onlyAdmin {

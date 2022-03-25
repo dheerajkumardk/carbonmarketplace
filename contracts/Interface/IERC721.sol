@@ -54,4 +54,6 @@ interface IERC721 {
         external
         view
         returns (bool);
+
+    function getFactory() external view returns (address);
 }

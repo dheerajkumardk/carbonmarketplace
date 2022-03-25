@@ -55,19 +55,25 @@ describe("ERC721MintingFactory", () => {
         admin = account.address;
     })
 
-    it('Should change the owner', async () => {
+    it('Should add an admin', async () => {
         try {
-            let tx = await mintingFactory.connect(account).changeAdmin(account2.address);
-            // console.log(tx);
-            mintingFactory.on("AdminUpdated", (_newAdmin) => {
-                newAdmin = _newAdmin;
-            });
-            await new Promise(res => setTimeout(() => res(null), 5000));
-            console.log("New Admin Address: ", newAdmin);
+            let tx = await mintingFactory.connect(account).addAdmin(account2.address);
+            //    console.log(tx);
         } catch (error) {
             console.log(error.message);
-            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Only Admin can call this!'");
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'");
         }
+    })
+
+    it('Should remove an admin', async () => {
+        try {
+            let tx = await mintingFactory.connect(account).removeAdmin(account2.address);
+            //    console.log(tx);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'");
+        }
+
     })
 
     // Getting this on second try => After owner is changed
@@ -136,37 +142,30 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    it('Set Approval', async () => {
+    // it('Set Approval', async () => {
 
-        // nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
-        // nftContractAdmin = await nftContract.getContractAdmin();
-        let tx = await nftContract.connect(account).setApprovalForAll(account2.address, true);
-        // console.log(tx);
-        // console.log(nftContract);
-        // console.log(nftContractAdmin);
-        // console.log(tx);
+    //     let tx = await nftContract.connect(account).setApprovalForAll(account2.address, true);
 
-    })
 
-    it('Check set Approval', async () => {
-        // nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
-        // nftContractAdmin = await nftContract.getContractAdmin();
+    // })
 
-        let tx = await nftContract.isApprovedForAll(nftContractAdmin, exchangeAddress);
-        console.log(tx);
-    })
+    // it('Check set Approval', async () => {
+    //     // nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
+    //     // nftContractAdmin = await nftContract.getContractAdmin();
+
+    //     let tx = await nftContract.isApprovedForAll(nftContractAdmin, exchangeAddress);
+    //     console.log(tx);
+    // })
 
 
     it('Should mint an NFT for a contract', async () => {
-
         try {
-            try {
-                let newNFT = await mintingFactory.connect(account).mintNFT(nftContractAddress);
-            } catch (error) {
-                console.log(error.message);
-                expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
-            }
-
+            let newNFT = await mintingFactory.connect(account).mintNFT(nftContractAddress);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.5.0)`);
+        }
+        try {
             let tokenIdMinted;
             mintingFactory.on("NFTMinted", (_nftContract, _tokenId) => {
                 tokenIdMinted = _tokenId;
@@ -329,6 +328,24 @@ describe("ERC721MintingFactory", () => {
             console.log(error.message);
             expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'User had no amount staked!'");
         }
+
+        try {
+            let unstakeTxn = await gemsStaking.connect(account2).unstake();
+
+            let user, amount;
+            gemsStaking.on("UnStaked", (_user, _amount) => {
+                user = _user;
+                amount = _amount;
+            });
+            await new Promise(res => setTimeout(() => res(null), 5000));
+
+            console.log(user, " has unstaken ", amount.toString(), " tokens.");
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'ERC721: owner query for nonexistent token'");
+        }
+
+
     })
 
     it('Should verify NFT burning', async () => {
@@ -438,6 +455,15 @@ describe("ERC721MintingFactory", () => {
             console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Order is cancelled'`);
         }
+
+        try {
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            // for primary market, seller => minting factory
+            // console.log(executeOrder);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Factory is not same'`);
+        }
     })
 
     it('Should cancel the order', async () => {
@@ -464,6 +490,13 @@ describe("ERC721MintingFactory", () => {
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'`);
         }
 
+        try {
+            let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Order already cancelled'`);
+        }
+
     })
 
     it('Should uncancel the order', async () => {
@@ -482,6 +515,12 @@ describe("ERC721MintingFactory", () => {
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'`);
         }
 
+        try {
+            let uncancelOrder = await exchange.connect(account).uncancelOrder(nftContractAddress, tokenId, account.address);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(` Error: VM Exception while processing transaction: reverted with reason string 'Order was never cancelled'`);
+        }
     })
 
     it('Should transfer fees to the Exchange', async () => {
@@ -543,7 +582,7 @@ describe("ERC721MintingFactory", () => {
 
     it('Should add an admin', async () => {
         try {
-            let tx = await exchange.connect(account).addAnAdmin(account2.address);
+            let tx = await exchange.connect(account).addAdmin(account2.address);
             //    console.log(tx);
         } catch (error) {
             console.log(error.message);
@@ -553,7 +592,7 @@ describe("ERC721MintingFactory", () => {
 
     it('Should remove an admin', async () => {
         try {
-            let tx = await exchange.connect(account).removeAnAdmin(account2.address);
+            let tx = await exchange.connect(account).removeAdmin(account2.address);
             //    console.log(tx);
         } catch (error) {
             console.log(error.message);
@@ -648,6 +687,26 @@ describe("ERC721MintingFactory", () => {
             console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
         }
+    })
+
+    it('Should update Factory in ERC 721 NFT Contract', async () => {
+        try {
+            let tx = await nftContract.connect(account).updateFactory(account3.address);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'`);
+        }
+
+    })
+
+    it('Should update Factory in Exchange', async () => {
+        try {
+            let tx = await exchange.connect(account).updateFactory(account3.address);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'`);
+        }
+
     })
 
 

@@ -18,7 +18,7 @@ let nftContract; // NFT_CONTRACT
 let newAdmin; // owner of Minting Factory
 
 let stakingPool;
-let amount = "100000000000000000000000"; // STAKING_AMOUNT
+let amount = "100000"; // STAKING_AMOUNT
 let tokenId = 1;
 
 let ethAddress = Address.ethAddress;
@@ -108,7 +108,7 @@ describe("ERC721MintingFactory", () => {
         let tokenIdMinted;
         mintingFactory.on("NFTMinted", (_nftContract, _tokenId) => {
             tokenIdMinted = _tokenId;
-            console.log(_nftContract, _tokenId);
+            console.log(_nftContract, _tokenId.toString());
         });
         await new Promise(res => setTimeout(() => res(null), 5000));
         console.log("TokenID Minted #: ", tokenIdMinted.toString());
@@ -126,6 +126,22 @@ describe("ERC721MintingFactory", () => {
         let totalCollections = await mintingFactory.getNFTsForOwner(account.address);
         console.log("total collections: ", totalCollections.toString());
     })
+
+    it('Should add admin role to another address', async () => {
+        let tx = await mintingFactory.connect(account).addAdmin(account2.address);
+        // console.log(tx);
+    })
+
+    // it ('Should leave admin role', async () => {
+    //     let tx = await mintingFactory.connect(account).leaveRole();
+    //     console.log(tx);
+    // })
+
+    it('Should remove admine role for another address', async () => {
+        let tx = await mintingFactory.connect(account).removeAdmin(account2.address);
+        // console.log(tx);
+    })
+
 
 
     // // ERROR => Only Exchange can call it, Done that
@@ -158,7 +174,7 @@ describe("ERC721MintingFactory", () => {
     })
 
     it('Should call stake function', async () => {
-        let staketxn = await gemsStaking.connect(account).stake(account.address, amount);
+        let staketxn = await gemsStaking.connect(account).stake(account.address, ethers.utils.parseEther(amount));
 
         let user, amountStaked;
         gemsStaking.on("Staked", (_user, _amount) => {
@@ -225,17 +241,24 @@ describe("ERC721MintingFactory", () => {
     })
 
     it('Should execute the order', async () => {
-        let auctionTime = 1647728701;
-        let allowanceAmt = "1000000000000000000";
+        let auctionTime = 1748203441;
+        let allowanceAmt = "1025";
 
-        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+        console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
+        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime);
+        console.log("user bal after execute order:", (await eth.balanceOf(account.address)).toString());
         // for primary market, seller => minting factory
         // console.log(executeOrder);
     })
 
-    it('Should cancel the order', async () => {
-        let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
-        // console.log(cancelOrder);
+    // it('Should cancel the order', async () => {
+    //     let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
+    //     // console.log(cancelOrder);
+    // })
+
+    it('Should set Carbon Vault Fee Address', async () => {
+        let tx = await exchange.connect(account).setCarbonFeeVaultAddress(account2.address);
+        // console.log(tx);
     })
 
     it('Should transfer fees to the Exchange', async () => {
@@ -244,10 +267,7 @@ describe("ERC721MintingFactory", () => {
         // console.log(tx);
     })
 
-    it('Should set Carbon Vault Fee Address', async () => {
-        let tx = await exchange.connect(account).setCarbonFeeVaultAddress(account2.address);
-        // console.log(tx);
-    })
+
 
     it('Should pause the Exchange contract', async () => {
         let tx = await exchange.connect(account).pause();
@@ -282,7 +302,7 @@ describe("ERC721MintingFactory", () => {
     it('Should approve funds to membership trader', async () => {
         let tx = await gemsToken.connect(account).approve(membershipTraderAddress, 100000);
         // console.log(tx);
-        console.log(await gemsToken.allowance(account.address, membershipTraderAddress));
+        console.log((await gemsToken.allowance(account.address, membershipTraderAddress)).toString());
     })
 
     it('Should set Membership Trader', async () => {
@@ -290,22 +310,27 @@ describe("ERC721MintingFactory", () => {
         // console.log(tx);
     })
 
+    // it('Should pause the Carbon Membership Contract', async () => {
+    //     let tx = carbonMembership.connect(account).pause();
+    //     // console.log(tx);
+    // })
+
     it('Should pause the Carbon Membership Contract', async () => {
-        let tx = carbonMembership.connect(account).pause();
+        let tx = carbonMembership.connect(account).unpause();
         // console.log(tx);
     })
 
     it('Should execute the order', async () => {
         let tx = await membershipTrader.connect(account).executeOrder(account.address);
         // console.log(tx);
-        console.log("bal. membership Trader: ", await gemsToken.balanceOf(membershipTraderAddress));
-        console.log("user bal. ", await carbonMembership.balanceOf(account.address));
+        console.log("bal. membership Trader: ", (await gemsToken.balanceOf(membershipTraderAddress)).toString());
+        console.log("user bal. ", (await carbonMembership.balanceOf(account.address)).toString());
     })
 
     it('Should redeem GEMS', async () => {
         let tx = await membershipTrader.connect(account).withdrawGEMS();
-        console.log(await gemsToken.balanceOf(membershipTraderAddress));
-        console.log(await gemsToken.balanceOf(account.address));
+        console.log((await gemsToken.balanceOf(membershipTraderAddress)).toString());
+        console.log((await gemsToken.balanceOf(account.address)).toString());
     })
 
     it('Should unpause the Carbon Membership Contract', async () => {
@@ -321,7 +346,29 @@ describe("ERC721MintingFactory", () => {
         let tx = membershipTrader.connect(account).updateOwner(account2.address)
     })
 
+    it('Should execute the order - Special Case', async () => {
+        let auctionTime = 1748203441;
+        let allowanceAmt = "1025";
+        console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
 
+        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime);
+        console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
+        // for primary market, seller => minting factory
+        // console.log(executeOrder);
+    })
+
+    it('Should update factory in ERC721 NFT Contract', async () => {
+        console.log(await nftContract.getFactory());
+        let tx = await nftContract.connect(account).updateFactory(account3.address);
+
+        console.log(await nftContract.getFactory());
+    })
+
+    it('Should update factory in Exchange', async () => {
+
+        let tx = await exchange.connect(account).updateFactory(account3.address);
+
+    })
 
 
 })
