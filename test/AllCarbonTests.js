@@ -3,6 +3,7 @@ const Address = require("./Addresses.json");
 const { expect, assert } = require("chai");
 const { ethers } = require("hardhat");
 
+
 // ABIs
 const MintingFactoryABI = require('./../artifacts/contracts/MintingAndStorage/MintingFactory.sol/MintingFactory.json');
 const ETHTOKENABI = require("./../artifacts/contracts/ETHToken.sol/ETHToken.json");
@@ -84,7 +85,7 @@ describe("ERC721MintingFactory", () => {
 
     it('Set Approval', async () => {
         nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
-        nftContractAdmin = await nftContract.getContractAdmin();
+        nftContractAdmin = await nftContract.admin();
 
         let tx = await nftContract.connect(account).setApprovalForAll(exchangeAddress, true);
         // console.log(tx);
@@ -346,23 +347,12 @@ describe("ERC721MintingFactory", () => {
         let tx = membershipTrader.connect(account).updateOwner(account2.address)
     })
 
-    it('Should execute the order - Special Case', async () => {
-        let auctionTime = 1748203441;
-        let allowanceAmt = "1025";
-        console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
-
-        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime);
-        console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
-        // for primary market, seller => minting factory
-        // console.log(executeOrder);
-    })
-
 
     it('Should update factory in ERC721 NFT Contract', async () => {
-        console.log(await nftContract.getFactory());
+        console.log(await nftContract.factory());
         let tx = await nftContract.connect(account).updateFactory(account2.address);
 
-        console.log(await nftContract.getFactory());
+        console.log(await nftContract.factory());
     })
 
     it('Should update factory in Exchange', async () => {

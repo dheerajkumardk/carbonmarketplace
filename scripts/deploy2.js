@@ -1,4 +1,4 @@
-const Addresses = require("../test/Addresses.json");
+const fs = require('fs');
 
 const main = async () => {
     const [account, account2, account3] = await hre.ethers.getSigners();
@@ -10,14 +10,11 @@ const main = async () => {
     const eth = await Eth.connect(account).deploy();
     await eth.deployed();
     console.log("WETH address: ", eth.address);
-    Addresses["ethAddress"] = eth.address;
 
     const MintingFactory = await hre.ethers.getContractFactory("MintingFactory");
     const mintingFactory = await MintingFactory.deploy(eth.address, account.address);
     await mintingFactory.deployed();
     console.log("Minting Factory deployed at: ", mintingFactory.address);
-
-
 
     // Deploying : GEMS NFT, TOKEN AND STAKING
 
@@ -52,10 +49,18 @@ const main = async () => {
     await exchangeCore.deployed();
     console.log("Exchange Core deployed at: ", exchangeCore.address);
 
-    // const AdminRole = await hre.ethers.getContractFactory("AdminRole");
-    // const adminRole = await AdminRole.deploy(account.address);
-    // await adminRole.deployed();
-    // console.log("Admin Role deployed at: ", adminRole.address);
+    fs.writeFileSync('__dirname/../test/Addresses.json', `
+    { 
+        "ethAddress" : "${eth.address}",
+       "mintingFactoryAddress" : "${mintingFactory.address}",
+       "exchangeAddress" : "${exchangeCore.address}",
+       "gemsTokenAddress" : "${gemsToken.address}",
+       "gemsNFTReceiptAddress" : "${gemsNFTReceipt.address}",
+       "gemsStakingAddress" : "${gemsStaking.address}",
+       "carbonMembershipAddress" : "${carbonMembership.address}",
+       "membershipTraderAddress" : "${membershipTrader.address}"
+     }
+    `)
 
 }
 
