@@ -46,16 +46,14 @@ let gemsStaking = new ethers.Contract(gemsStakingAddress, GEMSSTAKINGABI.abi, pr
 let carbonMembership = new ethers.Contract(carbonMembershipAddress, CARBONMEMBERSHIPABI.abi, provider);
 let membershipTrader = new ethers.Contract(membershipTraderAddress, MEMBERSHIPTRADERABI.abi, provider);
 
-describe("ERC721MintingFactory", () => {
-
-
+describe("All Carbon Tests Handled", () => {
 
     beforeEach(async () => {
         [account, account2, account3] = await ethers.getSigners();
         admin = account.address;
     })
 
-    it('Should add an admin', async () => {
+    it('Should add an admin for Minting Factory', async () => {
         try {
             let tx = await mintingFactory.connect(account).addAdmin(account2.address);
             //    console.log(tx);
@@ -65,7 +63,7 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    it('Should remove an admin', async () => {
+    it('Should remove an admin for Minting Factory', async () => {
         try {
             let tx = await mintingFactory.connect(account).removeAdmin(account2.address);
             //    console.log(tx);
@@ -77,7 +75,7 @@ describe("ERC721MintingFactory", () => {
     })
 
     // Getting this on second try => After owner is changed
-    it('Should be able to change Exchange Address', async () => {
+    it('Should be able to change Exchange Address for Minting Factory', async () => {
 
         try {
             let changeAddress = await mintingFactory.connect(account).updateExchangeAddress(exchangeAddress);
@@ -117,9 +115,7 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-
-    // WORKING => Checked in 2nd try
-    it('Should mint NFT contract', async () => {
+    it('Should mint NFT contract in Minting Factory', async () => {
 
         try {
             let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
@@ -142,23 +138,7 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    // it('Set Approval', async () => {
-
-    //     let tx = await nftContract.connect(account).setApprovalForAll(account2.address, true);
-
-
-    // })
-
-    // it('Check set Approval', async () => {
-    //     // nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
-    //     // nftContractAdmin = await nftContract.getContractAdmin();
-
-    //     let tx = await nftContract.isApprovedForAll(nftContractAdmin, exchangeAddress);
-    //     console.log(tx);
-    // })
-
-
-    it('Should mint an NFT for a contract', async () => {
+    it('Should mint an NFT for a contract in Minting Factory', async () => {
         try {
             let newNFT = await mintingFactory.connect(account).mintNFT(nftContractAddress);
         } catch (error) {
@@ -182,7 +162,6 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    // WORKING FINE
     it('Should return totalNFTs minted for a contract', async () => {
         try {
 
@@ -194,8 +173,6 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    // WORKING => But gives undefined
-    // ETHERS ERROR => INVALID ADDRESS
     it('Should return total NFT contract minted by a user', async () => {
         try {
             let totalCollections = await mintingFactory.getNFTsForOwner(account);
@@ -206,9 +183,7 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    // #############################################################################
-
-    it('Should update staking pool', async () => {
+    it('Should update staking pool in GEMS NFT Receipt', async () => {
         try {
 
             let tx = await gemsNFTReceipt.connect(account2).setStakingPool(gemsStaking.address);
@@ -218,15 +193,13 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    // // STAKING TESTS
-
-    it('Approve user tokens to Staking contract', async () => {
+    it('Approve user GEMS tokens to Staking contract', async () => {
         let userBalance = await gemsToken.balanceOf(account.address);
 
         let tx = await gemsToken.connect(account).approve(gemsStakingAddress, ethers.utils.parseEther(amount));
     })
 
-    it('Should call stake function', async () => {
+    it('Should call stake function in GEMS STaking', async () => {
 
         try {
             let staketxn = await gemsStaking.connect(account2).stake(account.address, amount);
@@ -312,7 +285,7 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    it('Should call unstake function', async () => {
+    it('Should call unstake function in GEMS STaking', async () => {
         try {
             let unstakeTxn = await gemsStaking.connect(account2).unstake();
 
@@ -348,7 +321,7 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    it('Should verify NFT burning', async () => {
+    it('Should verify GEMS NFT burning', async () => {
         // let txn = await gemsNFTReceipt.ownerOf(tokenId);
         // console.log(txn);
 
@@ -356,12 +329,7 @@ describe("ERC721MintingFactory", () => {
         // console.log(txn2.toString());
     })
 
-
-
-    // #################################################
-    // EXCHANGE TESTS
-
-    it('Should Approve x tokens for Buy Order', async () => {
+    it('Should Approve some ETH tokens for Buy Order to Exchange', async () => {
         let allowanceAmt = "1000000000000000000"; // 1 ETH
         // approves amount tokens
         let tx = await eth.connect(account).approve(exchangeAddress, ethers.utils.parseEther(allowanceAmt));
@@ -374,7 +342,7 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    it('Should Validate the NFT sale', async () => {
+    it('Should Validate the NFT sale for Exchange Order', async () => {
         // check token allowance
         let allowanceAmt = await eth.allowance(account.address, exchangeAddress);
         // console.log(allowanceAmt.toString());
@@ -387,7 +355,7 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    it('Should execute the order', async () => {
+    it('Should execute the order in Exchange', async () => {
         let auctionTime = 1647728701;
         let allowanceAmt = "1000000000000000000";
 
@@ -466,7 +434,7 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    it('Should cancel the order', async () => {
+    it('Should cancel the order in Exchange', async () => {
 
         try {
 
@@ -499,7 +467,7 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    it('Should uncancel the order', async () => {
+    it('Should uncancel the order in Exchange', async () => {
 
         try {
             let uncancelOrder = await exchange.connect(account).uncancelOrder(nftContractAddress, tokenId, account.address);
@@ -523,7 +491,7 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    it('Should transfer fees to the Exchange', async () => {
+    it('Should withdraw fees collected from the Exchange', async () => {
         try {
 
             // tradingFee = await WETH.balanceOf(exchangeAddress);
@@ -545,7 +513,7 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    it('Should set the carbon royalty fees', async () => {
+    it('Should set the carbon royalty fees in Exchange', async () => {
         try {
 
             // tradingFee = await WETH.balanceOf(exchangeAddress);
@@ -567,7 +535,7 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    it('Should set the carbon fee vault address', async () => {
+    it('Should set the carbon fee vault address in Exchange', async () => {
         try {
 
             // tradingFee = await WETH.balanceOf(exchangeAddress);
@@ -580,7 +548,7 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    it('Should add an admin', async () => {
+    it('Should add an admin for Exchange', async () => {
         try {
             let tx = await exchange.connect(account).addAdmin(account2.address);
             //    console.log(tx);
@@ -590,7 +558,7 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    it('Should remove an admin', async () => {
+    it('Should remove an admin for Exchange', async () => {
         try {
             let tx = await exchange.connect(account).removeAdmin(account2.address);
             //    console.log(tx);
@@ -601,19 +569,13 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-
-
-
-    // ##################################################################
-    // MEMBERSHIP TESTS HANDLING
-
-    it('Should approve funds to membership trader', async () => {
+    it('Should approve funds in GEMS to membership trader', async () => {
         let tx = await gemsToken.connect(account).approve(membershipTraderAddress, 100000);
         // console.log(tx);
         // console.log(await gemsToken.allowance(account.address, membershipTraderAddress));
     })
 
-    it('Should set Membership Trader', async () => {
+    it('Should set Membership Trader in Carbon Membership', async () => {
         try {
 
             let tx = await carbonMembership.connect(account3).setMembershipTrader(membershipTraderAddress);
@@ -635,7 +597,7 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    it('Should execute the order', async () => {
+    it('Should execute the order in Membership Trader - for PASS', async () => {
         try {
             let tx = await membershipTrader.connect(account).executeOrder(account.address);
             // console.log(tx);
@@ -657,7 +619,7 @@ describe("ERC721MintingFactory", () => {
         }
     })
 
-    it('Should redeem GEMS', async () => {
+    it('Should redeem GEMS from Membership Trader Contract', async () => {
         try {
             let tx = await membershipTrader.connect(account3).withdrawGEMS();
             console.log(await gemsToken.balanceOf(membershipTraderAddress));
@@ -708,10 +670,5 @@ describe("ERC721MintingFactory", () => {
         }
 
     })
-
-
-
-
-
 
 })

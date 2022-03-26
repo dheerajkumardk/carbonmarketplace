@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface IERC721 {
+interface IERC721NFTContract {
     event Transfer(
         address indexed _from,
         address indexed _to,
@@ -55,5 +55,15 @@ interface IERC721 {
         view
         returns (bool);
 
+    function mint() external returns (uint256);
+
+    function changeAdmin(address _newAdmin) external;
+
+    function getTotalNFTs() external view returns (uint256);
+
+    function updateFactory(address) external;
+
     function factory() external view returns (address);
+
+    function admin() external view returns (address);
 }

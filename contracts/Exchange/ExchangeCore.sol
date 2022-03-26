@@ -7,9 +7,10 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+import "hardhat/console.sol";
 // import required interfaces
 import "./../Interface/IERC20.sol";
-import "./../Interface/IERC721.sol";
+import "./../Interface/IERC721NFTContract.sol";
 import "./../Interface/IMintingFactory.sol";
 import "./../AdminRole.sol";
 import "./../Interface/ICarbonMembership.sol";
@@ -62,17 +63,19 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         address _seller
     ) internal view returns (bool) {
         // check if he owns the token
-        address tokenOwner = IERC721(_nftContract).ownerOf(_tokenId);
+        address tokenOwner = IERC721NFTContract(_nftContract).ownerOf(_tokenId);
         require(_seller == tokenOwner, "Seller does not owns the token");
 
         // check token approval
-        address tokenApprovedAddress = IERC721(_nftContract).getApproved(
-            _tokenId
-        );
+        address tokenApprovedAddress = IERC721NFTContract(_nftContract)
+            .getApproved(_tokenId);
 
         require(
             tokenApprovedAddress == address(this) ||
-                IERC721(_nftContract).isApprovedForAll(_seller, address(this)),
+                IERC721NFTContract(_nftContract).isApprovedForAll(
+                    _seller,
+                    address(this)
+                ),
             "Contract is not approved for this NFT"
         );
 
@@ -109,8 +112,11 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
             !cancelledOrders[_buyer][_nftContract][_tokenId],
             "Order is cancelled"
         );
-        address ERC721Factory = IERC721(_nftContract).getFactory();
-        require(ERC721Factory == mintingFactory, "ERC721 Factory doesn't match with Exchange Factory");
+        address ERC721Factory = IERC721NFTContract(_nftContract).factory();
+        require(
+            ERC721Factory == mintingFactory,
+            "ERC721 Factory doesn't match with Exchange Factory"
+        );
         bool validSeller = validateSeller(_nftContract, _tokenId, _seller);
         bool validBuyer = validateBuyer(_buyer, _amount);
 
@@ -125,6 +131,10 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
             uint256 creatorRoyalties = _amount
                 .mul(PRIMARY_MARKET_CREATOR_ROYALTIES)
                 .div(BaseFactorMax);
+            console.log("total amount: ", _amount);
+            console.log("Carbon Royalty Fee: ", carbonRoyaltyFee);
+            console.log("Carbon Trade Fee: ", carbonTradeFee);
+            console.log("Creator Royalty Fee: ", creatorRoyalties);
 
             uint256 totalCarbonFee;
             if (ICarbonMembership(carbonMembership).balanceOf(_buyer) >= 1) {
@@ -133,13 +143,19 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
                 totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
             }
 
+            console.log("total Fee:", totalCarbonFee);
+
             IERC20(ETH).transferFrom(_buyer, address(this), totalCarbonFee);
 
             // transferring the amount to the seller
             IERC20(ETH).transferFrom(_buyer, _seller, creatorRoyalties);
 
             // transferring the NFT to the buyer
-            IERC721(_nftContract).transferFrom(_seller, _buyer, _tokenId);
+            IERC721NFTContract(_nftContract).transferFrom(
+                _seller,
+                _buyer,
+                _tokenId
+            );
             // updating the NFT ownership in our Minting Factory
             IMintingFactory(mintingFactory).updateOwner(
                 _nftContract,
