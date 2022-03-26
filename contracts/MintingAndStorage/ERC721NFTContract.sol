@@ -34,7 +34,7 @@ contract ERC721NFTContract is ERC721URIStorage {
         factory = msg.sender;
     }
 
-    function mintNewNFT() public onlyFactory returns (uint256) {
+    function mint() public onlyFactory returns (uint256) {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
 
@@ -57,7 +57,7 @@ contract ERC721NFTContract is ERC721URIStorage {
         admin = _newAdmin;
     }
 
-    function getContractAdmin() public view returns (address) {
-        return admin;
+    function updateFactory(address _factory) external onlyAdmin {
+        factory = _factory;
     }
 }

@@ -3,18 +3,18 @@ pragma solidity ^0.8.4;
 
 import "./ERC721NFTContract.sol";
 import "../Interface/IERC20.sol";
+import "./../AdminRole.sol";
 
-contract MintingFactory {
+contract MintingFactory is AdminRole {
     // this contract creates an NFT contract
     // and then it can mint NFT for that contract
     // keeps track of all NFT contracts for the users
 
-    address public adminAddress;
     address public exchangeAddress;
     address public ETH;
+    address public carbonMintingFactoryFeeVault;
 
-    constructor(address _eth) {
-        adminAddress = msg.sender;
+    constructor(address _eth, address root) AdminRole(root) {
         ETH = _eth;
     }
 
@@ -33,12 +33,10 @@ contract MintingFactory {
     event NFTMinted(address nftContract, uint256 tokenId);
     event OwnerUpdated(address nftContract, uint256 tokenId, address newOwner);
     event ExchangeAddressChanged(address oldExchange, address newExchange);
-    event AdminUpdated(address newAdmin);
 
     modifier onlyCreatorAdmin(address _nftContract) {
         require(
-            nftToOwner[_nftContract] == msg.sender ||
-                adminAddress == msg.sender,
+            nftToOwner[_nftContract] == msg.sender || isAdmin(msg.sender),
             "Only Creator or Admin can call this!"
         );
         _;
@@ -49,11 +47,6 @@ contract MintingFactory {
         _;
     }
 
-    modifier onlyAdmin() {
-        require(msg.sender == adminAddress, "Only Admin can call this!");
-        _;
-    }
-
     function createNFTContract(
         string memory _name,
         string memory _symbol,
@@ -61,7 +54,7 @@ contract MintingFactory {
     ) external onlyAdmin returns (address _nftcontract) {
         // create new contract
         address nftContract = address(
-            new ERC721NFTContract(_name, _symbol, adminAddress)
+            new ERC721NFTContract(_name, _symbol, msg.sender)
         );
         // update mapping of owner to NFTContracts
         ownerToNFTs[_creator].push(nftContract);
@@ -77,7 +70,7 @@ contract MintingFactory {
         public
         onlyCreatorAdmin(_nftContract)
     {
-        uint256 _tokenId = ERC721NFTContract(_nftContract).mintNewNFT();
+        uint256 _tokenId = ERC721NFTContract(_nftContract).mint();
 
         emit NFTMinted(_nftContract, _tokenId);
     }
@@ -117,13 +110,19 @@ contract MintingFactory {
         return ERC721NFTContract(_nftContract).getTotalNFTs();
     }
 
-    function changeAdmin(address _newAdmin) external onlyAdmin {
-        adminAddress = _newAdmin;
-        emit AdminUpdated(_newAdmin);
-    }
-
     function transferFunds() external onlyAdmin {
         uint256 totalBalance = IERC20(ETH).balanceOf(address(this));
-        IERC20(ETH).transfer(adminAddress, totalBalance);
+        IERC20(ETH).transfer(carbonMintingFactoryFeeVault, totalBalance);
+    }
+
+    function setCarbonMintingFactoryFeeVault(address _mintingFactoryVault)
+        external
+        onlyAdmin
+    {
+        require(
+            _mintingFactoryVault != address(0),
+            "Vault address cannot be zero"
+        );
+        carbonMintingFactoryFeeVault = _mintingFactoryVault;
     }
 }
