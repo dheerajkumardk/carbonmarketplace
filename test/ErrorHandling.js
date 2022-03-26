@@ -462,7 +462,7 @@ describe("ERC721MintingFactory", () => {
             // console.log(executeOrder);
         } catch (error) {
             console.log(error.message);
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Factory is not same'`);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'ERC721 Factory doesn't match with Exchange Factory'`);
         }
     })
 

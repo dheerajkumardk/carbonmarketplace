@@ -109,8 +109,8 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
             !cancelledOrders[_buyer][_nftContract][_tokenId],
             "Order is cancelled"
         );
-        address _factory = IERC721(_nftContract).getFactory();
-        require(_factory == mintingFactory, "Factory is not same");
+        address ERC721Factory = IERC721(_nftContract).getFactory();
+        require(ERC721Factory == mintingFactory, "ERC721 Factory doesn't match with Exchange Factory");
         bool validSeller = validateSeller(_nftContract, _tokenId, _seller);
         bool validBuyer = validateBuyer(_buyer, _amount);
 

@@ -1,4 +1,4 @@
-// const Addresses = require("./deployedAddresses.json");
+const Addresses = require("../test/Addresses.json");
 
 const main = async () => {
     const [account, account2, account3] = await hre.ethers.getSigners();
@@ -10,6 +10,7 @@ const main = async () => {
     const eth = await Eth.connect(account).deploy();
     await eth.deployed();
     console.log("WETH address: ", eth.address);
+    Addresses["ethAddress"] = eth.address;
 
     const MintingFactory = await hre.ethers.getContractFactory("MintingFactory");
     const mintingFactory = await MintingFactory.deploy(eth.address, account.address);

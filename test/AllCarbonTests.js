@@ -357,16 +357,17 @@ describe("ERC721MintingFactory", () => {
         // console.log(executeOrder);
     })
 
+
     it('Should update factory in ERC721 NFT Contract', async () => {
         console.log(await nftContract.getFactory());
-        let tx = await nftContract.connect(account).updateFactory(account3.address);
+        let tx = await nftContract.connect(account).updateFactory(account2.address);
 
         console.log(await nftContract.getFactory());
     })
 
     it('Should update factory in Exchange', async () => {
 
-        let tx = await exchange.connect(account).updateFactory(account3.address);
+        let tx = await exchange.connect(account).updateFactory(account2.address);
 
     })
 
