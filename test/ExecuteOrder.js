@@ -45,7 +45,7 @@ let gemsToken = new ethers.Contract(gemsTokenAddress, GEMSTOKENABI.abi, provider
 let carbonMembership = new ethers.Contract(carbonMembershipAddress, CARBONMEMBERSHIPABI.abi, provider);
 let membershipTrader = new ethers.Contract(membershipTraderAddress, MEMBERSHIPTRADERABI.abi, provider);
 
-describe("ERC721MintingFactory", () => {
+describe("Execute Order", () => {
 
 
 
@@ -54,7 +54,7 @@ describe("ERC721MintingFactory", () => {
         admin = account.address;
     })
 
-    it('Should be able to change Exchange Address', async () => {
+    it('Should be able to change Exchange Address in Minting Factory', async () => {
         let changeAddress = await mintingFactory.connect(account).updateExchangeAddress(exchangeAddress);
         await changeAddress.wait();
 
@@ -67,7 +67,7 @@ describe("ERC721MintingFactory", () => {
     })
 
     // WORKING
-    it('Should mint NFT contract', async () => {
+    it('Should mint NFT contract in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
 
         mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
@@ -81,7 +81,7 @@ describe("ERC721MintingFactory", () => {
         console.log("NFT Contract Address: ", nftContractAddress);
     })
 
-    it('Set Approval', async () => {
+    it('Minting Factory set approval for Exchange Contract', async () => {
         nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
         nftContractAdmin = await nftContract.admin();
 
@@ -89,7 +89,7 @@ describe("ERC721MintingFactory", () => {
         // console.log(tx);
     })
 
-    it('Check set Approval', async () => {
+    it('Check set Approval of Minting Factory minted contracts to Exchange', async () => {
         // nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
         // nftContractAdmin = await nftContract.getContractAdmin();
 
@@ -97,7 +97,7 @@ describe("ERC721MintingFactory", () => {
         console.log(tx);
     })
 
-    it('Should mint an NFT for a contract', async () => {
+    it('Should mint an NFT for a contract from Minting Factory', async () => {
         let newNFT = await mintingFactory.connect(account).mintNFT(nftContractAddress);
 
         let tokenIdMinted;
@@ -109,7 +109,7 @@ describe("ERC721MintingFactory", () => {
         console.log("TokenID Minted #: ", tokenIdMinted.toString());
     })
 
-    it('Should Approve x tokens for Buy Order', async () => {
+    it('Should Approve some tokens for Buy Order to the Exchange', async () => {
         let allowanceAmt = "102500"; // 1 ETH
         // approves amount tokens
         let tx = await eth.connect(account).approve(exchangeAddress, ethers.utils.parseEther(allowanceAmt));
@@ -121,12 +121,12 @@ describe("ERC721MintingFactory", () => {
         // console.log(tx);
     })
 
-    it('Should set Carbon Vault Fee Address', async () => {
+    it('Should set Carbon Vault Fee Address in Exchange', async () => {
         let tx = await exchange.connect(account).setCarbonFeeVaultAddress(account2.address);
         // console.log(tx);
     })
 
-    it('Should execute the order', async () => {
+    it('Should execute the order in Exchange', async () => {
         let auctionTime = 1748203441;
         let allowanceAmt = "1025";
 
@@ -137,27 +137,22 @@ describe("ERC721MintingFactory", () => {
 
     })
 
-    it('Should set Membership Trader', async () => {
+    it('Should set Membership Trader in Carbon Membership Contract', async () => {
         let tx = await carbonMembership.connect(account).setMembershipTrader(membershipTraderAddress);
         // console.log(tx);
     })
 
-    it('Should approve funds to membership trader', async () => {
+    it('Should approve funds in GEMS Token to membership trader', async () => {
         let tx = await gemsToken.connect(account).approve(membershipTraderAddress, 100000);
         // console.log(tx);
         console.log((await gemsToken.allowance(account.address, membershipTraderAddress)).toString());
     })
 
-    it('Should execute the order', async () => {
+    it('Should execute the order for Membership pass', async () => {
         console.log("bal. membership Trader before : ", (await gemsToken.balanceOf(membershipTraderAddress)).toString());
         console.log("user bal. before ", (await carbonMembership.balanceOf(account.address)).toString());
 
-        try {
-            let tx = await membershipTrader.connect(account).executeOrder(account.address);
-        } catch (error) {
-            console.log(error);
-        }
-
+        let tx = await membershipTrader.connect(account).executeOrder(account.address);
 
         // console.log(tx);
         console.log("bal. membership Trader after : ", (await gemsToken.balanceOf(membershipTraderAddress)).toString());
@@ -165,14 +160,13 @@ describe("ERC721MintingFactory", () => {
     })
 
 
-    it('Should execute the order - Sp. case 2', async () => {
+    it('Should execute the order in Exchange - With Membership Pass - ', async () => {
         let auctionTime = 1748203441;
         let allowanceAmt = "1025";
 
         console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
         let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime);
         console.log("user bal after execute order:", (await eth.balanceOf(account.address)).toString());
-
 
     })
 
