@@ -9,6 +9,10 @@
     "ethereum-waffle": "^3.0.0",
     "ethers": "^5.0.0"
   },
+  "scripts": {
+    "deploy": "npx hardhat run scripts/deploy2.js",
+    "AllCarbonTests": "npx hardhat test test/AllCarbonTests.js"
+  },
   "devDependencies": {
     "hardhat": "^2.9.0"
   }
