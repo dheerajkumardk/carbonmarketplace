@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "hardhat/console.sol";
 // import required interfaces
 import "./../Interface/IERC20.sol";
 import "./../Interface/IERC721NFTContract.sol";
@@ -131,10 +130,6 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
             uint256 creatorRoyalties = _amount
                 .mul(PRIMARY_MARKET_CREATOR_ROYALTIES)
                 .div(BaseFactorMax);
-            console.log("total amount: ", _amount);
-            console.log("Carbon Royalty Fee: ", carbonRoyaltyFee);
-            console.log("Carbon Trade Fee: ", carbonTradeFee);
-            console.log("Creator Royalty Fee: ", creatorRoyalties);
 
             uint256 totalCarbonFee;
             if (ICarbonMembership(carbonMembership).balanceOf(_buyer) >= 1) {
@@ -142,8 +137,6 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
             } else {
                 totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
             }
-
-            console.log("total Fee:", totalCarbonFee);
 
             IERC20(ETH).transferFrom(_buyer, address(this), totalCarbonFee);
 
