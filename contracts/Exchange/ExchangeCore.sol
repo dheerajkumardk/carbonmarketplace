@@ -138,7 +138,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
                 totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
             }
 
-            IERC20(ETH).transferFrom(_buyer, address(this), totalCarbonFee);
+            IERC20(ETH).transferFrom(_buyer, carbonFeeVault, totalCarbonFee);
 
             // transferring the amount to the seller
             IERC20(ETH).transferFrom(_buyer, _seller, creatorRoyalties);
@@ -194,11 +194,6 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     {
         PRIMARY_MARKET_CREATOR_ROYALTIES = 1000 - _carbonRoyalties;
         PRIMARY_MARKET_CARBON_ROYALTIES = _carbonRoyalties;
-    }
-
-    function redeemTotalFeesCollected() external onlyAdmin whenNotPaused {
-        uint256 totalBalance = IERC20(ETH).balanceOf(address(this));
-        IERC20(ETH).transfer(carbonFeeVault, totalBalance);
     }
 
     function updateFactory(address _factory) external onlyAdmin {
