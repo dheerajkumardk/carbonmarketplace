@@ -24,7 +24,7 @@ const main = async () => {
     console.log("GEMS Token deployed at : ", gemsToken.address);
 
     const GEMSNFTReceipt = await hre.ethers.getContractFactory("GEMSNFTReceipt");
-    const gemsNFTReceipt = await GEMSNFTReceipt.deploy("GEMS NFT", "GEMNT", admin);
+    const gemsNFTReceipt = await GEMSNFTReceipt.deploy("GEMS NFT", "GEMNT", account.address);
     await gemsNFTReceipt.deployed();
     console.log("GEMS NFT Receipt deployed at : ", gemsNFTReceipt.address);
 

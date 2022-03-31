@@ -31,7 +31,7 @@ module.exports = {
     // },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/1lo5rOEtPbYlohlrOYiNa9xTUc2Qm8uD`,
-      accounts: [process.env.PRIVATE_KEY]
+      accounts: ['37c56e9aa9414c35cdaafdb5e487a92878ffe0966f2ebd21c5f77fd31ec5af39']
     }
   },
   solidity: {
