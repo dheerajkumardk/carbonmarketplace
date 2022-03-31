@@ -131,7 +131,7 @@ describe("Execute Order", () => {
         let allowanceAmt = "1025";
 
         console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
-        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime);
+        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime, 0);
         console.log("user bal after execute order:", (await eth.balanceOf(account.address)).toString());
 
 
@@ -165,7 +165,7 @@ describe("Execute Order", () => {
         let allowanceAmt = "1025";
 
         console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
-        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime);
+        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime, 1);
         console.log("user bal after execute order:", (await eth.balanceOf(account.address)).toString());
 
     })

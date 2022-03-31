@@ -360,7 +360,7 @@ describe("All Carbon Tests Handled", () => {
         let allowanceAmt = "1000000000000000000";
 
         try {
-            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
             // for primary market, seller => minting factory
             // console.log(executeOrder);
         } catch (error) {
@@ -369,7 +369,7 @@ describe("All Carbon Tests Handled", () => {
         }
 
         try {
-            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
 
         } catch (error) {
             console.log(error.message);
@@ -377,7 +377,7 @@ describe("All Carbon Tests Handled", () => {
         }
 
         try {
-            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
 
         } catch (error) {
             console.log(error.message);
@@ -385,7 +385,7 @@ describe("All Carbon Tests Handled", () => {
         }
 
         try {
-            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
 
         } catch (error) {
             console.log(error.message);
@@ -393,7 +393,7 @@ describe("All Carbon Tests Handled", () => {
         }
 
         try {
-            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
 
         } catch (error) {
             console.log(error.message);
@@ -401,7 +401,7 @@ describe("All Carbon Tests Handled", () => {
         }
 
         try {
-            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
 
         } catch (error) {
             console.log(error.message);
@@ -409,7 +409,7 @@ describe("All Carbon Tests Handled", () => {
         }
 
         try {
-            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
 
         } catch (error) {
             console.log(error.message);
@@ -417,7 +417,7 @@ describe("All Carbon Tests Handled", () => {
         }
 
         try {
-            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
 
         } catch (error) {
             console.log(error.message);
@@ -425,12 +425,21 @@ describe("All Carbon Tests Handled", () => {
         }
 
         try {
-            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime);
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
             // for primary market, seller => minting factory
             // console.log(executeOrder);
         } catch (error) {
             console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'ERC721 Factory doesn't match with Exchange Factory'`);
+        }
+
+        try {
+            let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, allowanceAmt, auctionTime, 0);
+            // for primary market, seller => minting factory
+            // console.log(executeOrder);
+        } catch (error) {
+            console.log(error.message);
+            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Invalid mode specified'`);
         }
     })
 
@@ -510,28 +519,6 @@ describe("All Carbon Tests Handled", () => {
         } catch (error) {
             console.log(error.message);
             expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'`);
-        }
-    })
-
-    it('Should set the carbon royalty fees in Exchange', async () => {
-        try {
-
-            // tradingFee = await WETH.balanceOf(exchangeAddress);
-            let tx = await exchange.connect(account).setPRIMARY_MARKET_ROYALTIES_CARBON(350);
-            // console.log(tx);
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'");
-        }
-
-        try {
-
-            // tradingFee = await WETH.balanceOf(exchangeAddress);
-            let tx = await exchange.connect(account).setPRIMARY_MARKET_ROYALTIES_CARBON(350);
-            // console.log(tx);
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'");
         }
     })
 
