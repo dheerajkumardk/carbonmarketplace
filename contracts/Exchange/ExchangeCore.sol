@@ -23,8 +23,6 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
 
     address public carbonFeeVault;
 
-    uint256 public PRIMARY_MARKET_CARBON_ROYALTIES = 250; // 25%
-    uint256 public PRIMARY_MARKET_CREATOR_ROYALTIES = 750; // 75%
     uint256 public BUYERS_PREMIUM_FEES = 25; // 2.5%
     uint256 public constant BaseFactorMax = 1025; // 102.5%
 
@@ -103,7 +101,8 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         address _buyer,
         address _seller,
         uint256 _amount,
-        uint256 _auctionEndTime
+        uint256 _auctionEndTime,
+        uint256 _mode
     ) public onlyAdmin whenNotPaused nonReentrant {
         // Validating all the requirements
         require(_auctionEndTime > block.timestamp, "Auction has ended");
@@ -111,25 +110,36 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
             !cancelledOrders[_buyer][_nftContract][_tokenId],
             "Order is cancelled"
         );
-        address ERC721Factory = IERC721NFTContract(_nftContract).factory();
         require(
-            ERC721Factory == mintingFactory,
+            IERC721NFTContract(_nftContract).factory() == mintingFactory,
             "ERC721 Factory doesn't match with Exchange Factory"
         );
+        require(_mode <= 2, "Invalid mode specified");
         bool validSeller = validateSeller(_nftContract, _tokenId, _seller);
         bool validBuyer = validateBuyer(_buyer, _amount);
 
         if (validSeller && validBuyer) {
+            uint256 carbonRoyaltyFee;
+            uint256 creatorRoyalties;
+
+            if (_mode == 0) {
+                // 90-10
+                carbonRoyaltyFee = _amount.mul(100).div(BaseFactorMax);
+                creatorRoyalties = _amount.mul(900).div(BaseFactorMax);
+            } else if (_mode == 1) {
+                // 60-40
+                carbonRoyaltyFee = _amount.mul(400).div(BaseFactorMax);
+                creatorRoyalties = _amount.mul(600).div(BaseFactorMax);
+            } else {
+                // 50-50
+                carbonRoyaltyFee = _amount.mul(500).div(BaseFactorMax);
+                creatorRoyalties = _amount.mul(500).div(BaseFactorMax);
+            }
             // transfer Royalties to the exchange
-            uint256 carbonRoyaltyFee = _amount
-                .mul(PRIMARY_MARKET_CARBON_ROYALTIES)
-                .div(BaseFactorMax);
+
             uint256 carbonTradeFee = _amount.mul(BUYERS_PREMIUM_FEES).div(
                 BaseFactorMax
             );
-            uint256 creatorRoyalties = _amount
-                .mul(PRIMARY_MARKET_CREATOR_ROYALTIES)
-                .div(BaseFactorMax);
 
             uint256 totalCarbonFee;
             if (ICarbonMembership(carbonMembership).balanceOf(_buyer) >= 1) {
@@ -185,15 +195,6 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         );
         cancelledOrders[_buyer][_nftContract][_tokenId] = false;
         emit OrderUncancelled(_nftContract, _tokenId, _buyer);
-    }
-
-    function setPRIMARY_MARKET_ROYALTIES_CARBON(uint256 _carbonRoyalties)
-        public
-        onlyAdmin
-        whenNotPaused
-    {
-        PRIMARY_MARKET_CREATOR_ROYALTIES = 1000 - _carbonRoyalties;
-        PRIMARY_MARKET_CARBON_ROYALTIES = _carbonRoyalties;
     }
 
     function updateFactory(address _factory) external onlyAdmin {

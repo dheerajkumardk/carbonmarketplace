@@ -138,7 +138,7 @@ describe("All Carbon Tests", () => {
     //     console.log(tx);
     // })
 
-    it('Should remove admine role for another address in Minting Factory', async () => {
+    it('Should remove admin role for another address in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).removeAdmin(account2.address);
         // console.log(tx);
     })
@@ -217,12 +217,17 @@ describe("All Carbon Tests", () => {
 
     })
 
+    it('Should set Carbon Vault Fee Address in Exchange', async () => {
+        let tx = await exchange.connect(account).setCarbonFeeVaultAddress(account2.address);
+        // console.log(tx);
+    })
+
     it('Should execute the order in Exchange', async () => {
         let auctionTime = 1748203441;
         let allowanceAmt = "1025";
 
         console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
-        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime);
+        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime, 0);
         console.log("user bal after execute order:", (await eth.balanceOf(account.address)).toString());
         // for primary market, seller => minting factory
         // console.log(executeOrder);
@@ -233,17 +238,6 @@ describe("All Carbon Tests", () => {
     //     // console.log(cancelOrder);
     // })
 
-    it('Should set Carbon Vault Fee Address in Exchange', async () => {
-        let tx = await exchange.connect(account).setCarbonFeeVaultAddress(account2.address);
-        // console.log(tx);
-    })
-
-    it('Should withdraw total fees from the Exchange to the Carbon Vault', async () => {
-        // tradingFee = await WETH.balanceOf(exchangeAddress);
-        let tx = await exchange.connect(account).redeemTotalFeesCollected();
-        // console.log(tx);
-    })
-
     it('Should pause the Exchange contract', async () => {
         let tx = await exchange.connect(account).pause();
         // console.log(tx);
@@ -251,11 +245,6 @@ describe("All Carbon Tests", () => {
 
     it('Should unpause the Exchange contract', async () => {
         let tx = await exchange.connect(account).unpause();
-        // console.log(tx);
-    })
-
-    it('Should change the carbon royalty fees in Exchange', async () => {
-        let tx = await exchange.connect(account).setPRIMARY_MARKET_ROYALTIES_CARBON(350);
         // console.log(tx);
     })
 
