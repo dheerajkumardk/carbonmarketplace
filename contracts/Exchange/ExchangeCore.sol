@@ -45,10 +45,13 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         public cancelledOrders;
 
     event OrderExecuted(
-        address nftContract,
+        address indexed nftContract,
         uint256 tokenId,
-        address oldOwner,
-        address newOwner
+        address indexed seller,
+        address indexed buyer,
+        uint256 totalCarbonRoyalties,
+        uint256 creatorRoyalties,
+        uint256 mode
     );
 
     event OrderCancelled(address nftContract, uint256 tokenId, address buyer);
@@ -148,26 +151,47 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
                 totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
             }
 
-            IERC20(ETH).transferFrom(_buyer, carbonFeeVault, totalCarbonFee);
-
-            // transferring the amount to the seller
-            IERC20(ETH).transferFrom(_buyer, _seller, creatorRoyalties);
-
-            // transferring the NFT to the buyer
-            IERC721NFTContract(_nftContract).transferFrom(
-                _seller,
-                _buyer,
-                _tokenId
-            );
-            // updating the NFT ownership in our Minting Factory
-            IMintingFactory(mintingFactory).updateOwner(
+            _executeOrder(
+                totalCarbonFee,
+                creatorRoyalties,
                 _nftContract,
                 _tokenId,
-                _buyer
+                _buyer,
+                _seller,
+                _mode
             );
-
-            emit OrderExecuted(_nftContract, _tokenId, _seller, _buyer);
         }
+    }
+
+    function _executeOrder(
+        uint256 _totalCarbonFee,
+        uint256 _creatorRoyalties,
+        address _nftContract,
+        uint256 _tokenId,
+        address _buyer,
+        address _seller,
+        uint256 _mode
+    ) internal {
+
+        IERC20(ETH).transferFrom(_buyer, carbonFeeVault, _totalCarbonFee);
+
+        // transferring the amount to the seller
+        IERC20(ETH).transferFrom(_buyer, _seller, _creatorRoyalties);
+
+        // transferring the NFT to the buyer
+        IERC721NFTContract(_nftContract).transferFrom(
+            _seller,
+            _buyer,
+            _tokenId
+        );
+        // updating the NFT ownership in our Minting Factory
+        IMintingFactory(mintingFactory).updateOwner(
+            _nftContract,
+            _tokenId,
+            _buyer
+        );
+
+        emit OrderExecuted(_nftContract, _tokenId, _seller, _buyer, _totalCarbonFee, _creatorRoyalties, _mode);
     }
 
     function cancelOrder(

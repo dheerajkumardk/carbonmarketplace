@@ -1,6 +1,5 @@
 const Address = require("./Addresses.json");
 
-const { expect, assert } = require("chai");
 const { ethers } = require("hardhat");
 
 
@@ -9,25 +8,17 @@ const MintingFactoryABI = require('./../artifacts/contracts/MintingAndStorage/Mi
 const ETHTOKENABI = require("./../artifacts/contracts/ETHToken.sol/ETHToken.json");
 const EXCHANGEABI = require("./../artifacts/contracts/Exchange/ExchangeCore.sol//ExchangeCore.json");
 const GEMSTOKENABI = require("./../artifacts/contracts/Staking/GEMSToken.sol/GEMSToken.json");
-const GEMSNFTRECEIPTABI = require("./../artifacts/contracts/Staking/GEMSNFTReceipt.sol/GEMSNFTReceipt.json");
-const GEMSSTAKINGABI = require("./../artifacts/contracts/Staking/GEMSStaking.sol/GEMSStaking.json");
 const CARBONMEMBERSHIPABI = require("./../artifacts/contracts/Membership/CarbonMembership.sol/CarbonMembership.json");
 const MEMBERSHIPTRADERABI = require("./../artifacts/contracts/Membership/MembershipTrader.sol/MembershipTrader.json");
 const NFTCONTRACTABI = require("./../artifacts/contracts/MintingAndStorage/ERC721NFTContract.sol/ERC721NFTContract.json");
 
 let nftContract; // NFT_CONTRACT
-let newAdmin; // owner of Minting Factory
-
-let stakingPool;
-let amount = "100000"; // STAKING_AMOUNT
 let tokenId = 1;
 
 let ethAddress = Address.ethAddress;
 let mintingFactoryAddress = Address.mintingFactoryAddress;
 let exchangeAddress = Address.exchangeAddress;
 let gemsTokenAddress = Address.gemsTokenAddress;
-let gemsNFTReceiptAddress = Address.gemsNFTReceiptAddress;
-let gemsStakingAddress = Address.gemsStakingAddress;
 let carbonMembershipAddress = Address.carbonMembershipAddress;
 let membershipTraderAddress = Address.membershipTraderAddress;
 let nftContractAddress;
