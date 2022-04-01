@@ -59,7 +59,7 @@ contract MintingFactory is AdminRole {
         // update mapping of owner to NFTContracts
         ownerToNFTs[_creator].push(nftContract);
         nftToOwner[nftContract] = _creator;
-        // ERC721NFTContract(nftContract).setApprovalForAll(exchangeAddress, true);
+        ERC721NFTContract(nftContract).setApprovalForAll(exchangeAddress, true);
 
         emit NFTContractCreated(_name, _symbol, nftContract, _creator);
         // return address of new contract
