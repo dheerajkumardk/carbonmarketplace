@@ -11,6 +11,7 @@ contract MembershipTrader is Ownable {
 
     address gemsToken;
     address carbonMembershipNFT;
+    address carbonFeeVault;
     uint256 public constant tokensToDeposit = 100000;
 
     constructor(address _gemsToken, address _carbonMembershipNFT) {
@@ -36,15 +37,14 @@ contract MembershipTrader is Ownable {
         bool valid = validate(msg.sender);
         require(valid, "Order conditions not met");
         // transfer token
-        IERC20(gemsToken).transferFrom(user, address(this), tokensToDeposit);
+        IERC20(gemsToken).transferFrom(user, carbonFeeVault, tokensToDeposit);
         // mint nft
         CarbonMembership(carbonMembershipNFT).mintNewNFT(user);
         // emit event
     }
 
-    function withdrawGEMS() public onlyOwner {
-        uint256 _amount = IERC20(gemsToken).balanceOf(address(this));
-        IERC20(gemsToken).transfer(msg.sender, _amount);
+    function setCarbonFeeVault(address _carbonfeevault) public onlyOwner {
+        carbonFeeVault = _carbonfeevault;
     }
 
     function updateOwner(address _newOwner) public onlyOwner {

@@ -68,7 +68,6 @@ describe("All Carbon Tests", () => {
         console.log("New Exchange Address: ", newExchangeAddress);
     })
 
-    // WORKING
     it('Should mint NFT contract in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
 
@@ -115,18 +114,21 @@ describe("All Carbon Tests", () => {
         console.log("TokenID Minted #: ", tokenIdMinted.toString());
     })
 
-    // WORKING FINE
     it('Should return totalNFTs minted for a contract', async () => {
         let totalNFTs = await mintingFactory.getTotalNFTsMinted(nftContractAddress);
 
         console.log(totalNFTs.toString());
     })
 
-    // WORKING => But gives undefined
     it('Should return total NFT contract minted by a user', async () => {
         let totalCollections = await mintingFactory.getNFTsForOwner(account.address);
         console.log("total collections: ", totalCollections.toString());
     })
+
+    // it ('Should check current admin of Minting Factory', async () => {
+    //     let tx = await mintingFactory.isAdmin(account.address);
+    //     console.log(tx);
+    // })
 
     it('Should add admin role to another address in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).addAdmin(account2.address);
@@ -141,6 +143,14 @@ describe("All Carbon Tests", () => {
     it('Should remove admin role for another address in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).removeAdmin(account2.address);
         // console.log(tx);
+    })
+})
+
+describe("Staking", () => {
+
+    beforeEach(async () => {
+        [account, account2] = await ethers.getSigners();
+        admin = account.address;
     })
 
     it('Should update staking pool in GEMS NFT Receipt Contract', async () => {
@@ -189,6 +199,15 @@ describe("All Carbon Tests", () => {
         console.log(txn2.toString());
     })
 
+})
+
+describe("Exchange", () => {
+
+    beforeEach(async () => {
+        [account, account2] = await ethers.getSigners();
+        admin = account.address;
+    })
+
     it('Should Approve some ETH tokens for Buy Order to Exchange', async () => {
         let allowanceAmt = "1000000000000000000"; // 1 ETH
         // approves amount tokens
@@ -217,27 +236,6 @@ describe("All Carbon Tests", () => {
 
     })
 
-    it('Should set Carbon Vault Fee Address in Exchange', async () => {
-        let tx = await exchange.connect(account).setCarbonFeeVaultAddress(account2.address);
-        // console.log(tx);
-    })
-
-    it('Should execute the order in Exchange', async () => {
-        let auctionTime = 1748203441;
-        let allowanceAmt = "1025";
-
-        console.log("user bal before execute order:", (await eth.balanceOf(account.address)).toString());
-        let executeOrder = await exchange.connect(account).executeOrder(nftContractAddress, tokenId, account.address, nftContractAdmin, ethers.utils.parseEther(allowanceAmt), auctionTime, 0);
-        console.log("user bal after execute order:", (await eth.balanceOf(account.address)).toString());
-        // for primary market, seller => minting factory
-        // console.log(executeOrder);
-    })
-
-    // it('Should cancel the order in Exchange', async () => {
-    //     let cancelOrder = await exchange.connect(account).cancelOrder(nftContractAddress, tokenId, account.address);
-    //     // console.log(cancelOrder);
-    // })
-
     it('Should pause the Exchange contract', async () => {
         let tx = await exchange.connect(account).pause();
         // console.log(tx);
@@ -262,6 +260,14 @@ describe("All Carbon Tests", () => {
         let tx = await exchange.connect(account).removeAdmin(account2.address);
         // console.log(tx); 
     })
+})
+
+describe("Membership", () => {
+
+    beforeEach(async () => {
+        [account, account2] = await ethers.getSigners();
+        admin = account.address;
+    })
 
     it('Should approve funds in GEMS to membership trader', async () => {
         let tx = await gemsToken.connect(account).approve(membershipTraderAddress, 100000);
@@ -272,6 +278,9 @@ describe("All Carbon Tests", () => {
     it('Should set Membership Trader in Carbon Membership', async () => {
         let tx = await carbonMembership.connect(account).setMembershipTrader(membershipTraderAddress);
         // console.log(tx);
+    })
+    it('Should set Carbon Fee Vault - Membership Trader', async () => {
+        let tx = await membershipTrader.connect(account).setCarbonFeeVault(account2.address);
     })
 
     // it('Should pause the Carbon Membership Contract', async () => {
@@ -291,17 +300,6 @@ describe("All Carbon Tests", () => {
         console.log("user bal. ", (await carbonMembership.balanceOf(account.address)).toString());
     })
 
-    it('Should redeem GEMS token from Membership Trader', async () => {
-        let tx = await membershipTrader.connect(account).withdrawGEMS();
-        console.log((await gemsToken.balanceOf(membershipTraderAddress)).toString());
-        console.log((await gemsToken.balanceOf(account.address)).toString());
-    })
-
-    it('Should unpause the Carbon Membership Contract', async () => {
-        let tx = carbonMembership.connect(account).unpause();
-        console.log(tx);
-    })
-
     it('Should update owner for Carbon Membership', async () => {
         let tx = carbonMembership.connect(account).updateOwner(account2.address)
     })
@@ -318,9 +316,6 @@ describe("All Carbon Tests", () => {
     })
 
     it('Should update factory in Exchange', async () => {
-
         let tx = await exchange.connect(account).updateFactory(account2.address);
-
     })
-
 })
