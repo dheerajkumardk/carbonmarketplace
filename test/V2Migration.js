@@ -18,13 +18,13 @@ let nftContractAddress;
 
 let account, account2;
 let newExchangeAddress;
+let newFactoryAddress;
 let provider = ethers.getDefaultProvider("http://localhost:8545");
 
 let nftContractAdmin;
 let nftContract;
 let mintingFactory = new ethers.Contract(mintingFactoryAddress, MintingFactoryABI.abi, provider);
 let exchange = new ethers.Contract(exchangeAddress, EXCHANGEABI.abi, provider);
-
 
 describe("Update Contracts", () => {
 
@@ -38,11 +38,10 @@ describe("Update Contracts", () => {
         await changeAddress.wait();
 
         mintingFactory.on("ExchangeAddressChanged", (_oldAddress, _newAddress) => {
-            newExchangeAddress = _newAddress;
             console.log(_oldAddress, _newAddress);
         });
         await new Promise(res => setTimeout(() => res(null), 5000));
-        console.log("New Exchange Address: ", newExchangeAddress);
+        console.log("New Exchange Address: ", exchangeAddress);
     })
 
     it('Should mint NFT contract in Minting Factory', async () => {
@@ -59,7 +58,7 @@ describe("Update Contracts", () => {
         nftContracts.push(nftContractAddress);
     })
     it('Should mint NFT contract in Minting Factory', async () => {
-        let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
+        let tx = await mintingFactory.connect(account).createNFTContract("Chennai Super Kings", "CSK", account.address);
 
         mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
             nftContractAddress = _nftContract;
@@ -72,7 +71,7 @@ describe("Update Contracts", () => {
         nftContracts.push(nftContractAddress);
     })
     it('Should mint NFT contract in Minting Factory', async () => {
-        let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
+        let tx = await mintingFactory.connect(account).createNFTContract("Mumbai Indians", "MI", account.address);
 
         mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
             nftContractAddress = _nftContract;
@@ -85,7 +84,7 @@ describe("Update Contracts", () => {
         nftContracts.push(nftContractAddress);
     })
     it('Should mint NFT contract in Minting Factory', async () => {
-        let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
+        let tx = await mintingFactory.connect(account).createNFTContract("Rajasthan Royals", "RR", account.address);
 
         mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
             nftContractAddress = _nftContract;
@@ -98,7 +97,7 @@ describe("Update Contracts", () => {
         nftContracts.push(nftContractAddress);
     })
     it('Should mint NFT contract in Minting Factory', async () => {
-        let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
+        let tx = await mintingFactory.connect(account).createNFTContract("Deccan Chargers", "DC", account.address);
 
         mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
             nftContractAddress = _nftContract;
@@ -126,7 +125,8 @@ describe("Update Contracts", () => {
 
     // display all old NFT Contracts
     it('Should list all old NFT contracts', async () => {
-        console.log(nftContracts);
+        let tx = await mintingFactory.getNFTsForOwner(account.address);
+        console.log(tx);
     })
 
     // deploy new factory
@@ -135,8 +135,8 @@ describe("Update Contracts", () => {
         mintingFactory = await MintingFactory.deploy(Address.ethAddress, account.address);
         await mintingFactory.deployed();
         console.log("Minting Factory deployed at: ", mintingFactory.address);
-        mintingFactoryAddress = mintingFactory.address;
-        console.log(mintingFactoryAddress);
+        newFactoryAddress = mintingFactory.address;
+        // console.log("New factory: ", newFactoryAddress);
     })
 
     // deploy new exchange
@@ -145,11 +145,11 @@ describe("Update Contracts", () => {
         exchange = await ExchangeCore.deploy(mintingFactory.address, Address.ethAddress, Address.carbonMembershipAddress, account.address);
         await exchange.deployed();
         console.log("Exchange Core deployed at: ", exchange.address);
-        exchangeAddress = exchange.address;
+        newExchangeAddress = exchange.address;
     })
     // should update factory in Exchange
     it('Should be able to change Exchange Address in Minting Factory', async () => {
-        let changeAddress = await mintingFactory.connect(account).updateExchangeAddress(exchangeAddress);
+        let changeAddress = await mintingFactory.connect(account).updateExchangeAddress(newExchangeAddress);
         await changeAddress.wait();
 
         mintingFactory.on("ExchangeAddressChanged", (_oldAddress, _newAddress) => {
@@ -167,14 +167,14 @@ describe("Update Contracts", () => {
             nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, provider);
 
             // console.log(await nftContract.factory());
-            let tx = await nftContract.connect(account).updateFactory(mintingFactoryAddress);
+            let tx = await nftContract.connect(account).updateFactory(newFactoryAddress);
             // console.log(await nftContract.factory());
         }
 
     })
 
     it('Should update factory in Exchange', async () => {
-        let tx = await exchange.connect(account).updateFactory(mintingFactoryAddress);
+        let tx = await exchange.connect(account).updateFactory(newFactoryAddress);
     })
 
     it('Minting Factory set approval for Exchange Contract', async () => {
@@ -183,7 +183,7 @@ describe("Update Contracts", () => {
             nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, account);
             nftContractAdmin = await nftContract.admin();
 
-            let tx = await nftContract.connect(account).setApprovalForAll(exchangeAddress, true);
+            let tx = await nftContract.connect(account).setApprovalForAll(newExchangeAddress, true);
         }
         // console.log(tx);
     })
