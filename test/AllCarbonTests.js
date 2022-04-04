@@ -307,15 +307,4 @@ describe("Membership", () => {
     it('Should update owner for Membership Trader', async () => {
         let tx = membershipTrader.connect(account).updateOwner(account2.address)
     })
-
-    it('Should update factory in ERC721 NFT Contract', async () => {
-        console.log(await nftContract.factory());
-        let tx = await nftContract.connect(account).updateFactory(account2.address);
-
-        console.log(await nftContract.factory());
-    })
-
-    it('Should update factory in Exchange', async () => {
-        let tx = await exchange.connect(account).updateFactory(account2.address);
-    })
 })
