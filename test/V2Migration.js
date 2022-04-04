@@ -54,8 +54,6 @@ describe("Update Contracts", () => {
         await new Promise(res => setTimeout(() => res(null), 5000));
 
         console.log("NFT Contract Address: ", nftContractAddress);
-
-        nftContracts.push(nftContractAddress);
     })
     it('Should mint NFT contract in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).createNFTContract("Chennai Super Kings", "CSK", account.address);
@@ -67,8 +65,6 @@ describe("Update Contracts", () => {
         await new Promise(res => setTimeout(() => res(null), 5000));
 
         console.log("NFT Contract Address: ", nftContractAddress);
-
-        nftContracts.push(nftContractAddress);
     })
     it('Should mint NFT contract in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).createNFTContract("Mumbai Indians", "MI", account.address);
@@ -80,8 +76,6 @@ describe("Update Contracts", () => {
         await new Promise(res => setTimeout(() => res(null), 5000));
 
         console.log("NFT Contract Address: ", nftContractAddress);
-
-        nftContracts.push(nftContractAddress);
     })
     it('Should mint NFT contract in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).createNFTContract("Rajasthan Royals", "RR", account.address);
@@ -93,8 +87,6 @@ describe("Update Contracts", () => {
         await new Promise(res => setTimeout(() => res(null), 5000));
 
         console.log("NFT Contract Address: ", nftContractAddress);
-
-        nftContracts.push(nftContractAddress);
     })
     it('Should mint NFT contract in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).createNFTContract("Deccan Chargers", "DC", account.address);
@@ -106,8 +98,6 @@ describe("Update Contracts", () => {
         await new Promise(res => setTimeout(() => res(null), 5000));
 
         console.log("NFT Contract Address: ", nftContractAddress);
-
-        nftContracts.push(nftContractAddress);
     })
 
     it('Minting Factory set approval for Exchange Contract', async () => {
@@ -126,6 +116,7 @@ describe("Update Contracts", () => {
     // display all old NFT Contracts
     it('Should list all old NFT contracts', async () => {
         let tx = await mintingFactory.getNFTsForOwner(account.address);
+        nftContracts = tx;
         console.log(tx);
     })
 
@@ -166,11 +157,23 @@ describe("Update Contracts", () => {
             nftContractAddress = nftContracts[i];
             nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, provider);
 
-            // console.log(await nftContract.factory());
+            console.log(nftContractAddress);
+            console.log("before: ", await nftContract.factory());
             let tx = await nftContract.connect(account).updateFactory(newFactoryAddress);
-            // console.log(await nftContract.factory());
+            console.log("after: ", await nftContract.factory());
         }
 
+    })
+
+    // next - ERC721 ka factory call, check if it matches that of updated factory
+    it('Should check if factory matches', async () => {
+        for (let i = 0; i < nftContracts.length; i++) {
+            nftContractAddress = nftContracts[i];
+            nftContract = new ethers.Contract(nftContractAddress, NFTCONTRACTABI.abi, provider);
+
+            console.log(newFactoryAddress == await nftContract.factory());
+
+        }
     })
 
     it('Should update factory in Exchange', async () => {
@@ -185,8 +188,9 @@ describe("Update Contracts", () => {
 
             let tx = await nftContract.connect(account).setApprovalForAll(newExchangeAddress, true);
         }
-        // console.log(tx);
     })
+
+
 
 
 
