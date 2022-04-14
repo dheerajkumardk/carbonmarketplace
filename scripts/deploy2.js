@@ -49,18 +49,33 @@ const main = async () => {
     await exchangeCore.deployed();
     console.log("Exchange Core deployed at: ", exchangeCore.address);
 
-    fs.writeFileSync('__dirname/../test/Addresses.json', `
-    { 
-        "ethAddress" : "${eth.address}",
-       "mintingFactoryAddress" : "${mintingFactory.address}",
-       "exchangeAddress" : "${exchangeCore.address}",
-       "gemsTokenAddress" : "${gemsToken.address}",
-       "gemsNFTReceiptAddress" : "${gemsNFTReceipt.address}",
-       "gemsStakingAddress" : "${gemsStaking.address}",
-       "carbonMembershipAddress" : "${carbonMembership.address}",
-       "membershipTraderAddress" : "${membershipTrader.address}"
-     }
-    `)
+    if(eth.deployTransaction.chainId == 80001) {
+        fs.writeFileSync('__dirname/mumbaiAddresses.json', `
+        {
+            "ethAddress" : "${eth.address}",
+           "mintingFactoryAddress" : "${mintingFactory.address}",
+           "exchangeAddress" : "${exchangeCore.address}",
+           "gemsTokenAddress" : "${gemsToken.address}",
+           "gemsNFTReceiptAddress" : "${gemsNFTReceipt.address}",
+           "gemsStakingAddress" : "${gemsStaking.address}",
+           "carbonMembershipAddress" : "${carbonMembership.address}",
+           "membershipTraderAddress" : "${membershipTrader.address}"
+         }
+        `)
+    } else {
+        fs.writeFileSync('__dirname/../test/Addresses.json', `
+        {
+            "ethAddress" : "${eth.address}",
+           "mintingFactoryAddress" : "${mintingFactory.address}",
+           "exchangeAddress" : "${exchangeCore.address}",
+           "gemsTokenAddress" : "${gemsToken.address}",
+           "gemsNFTReceiptAddress" : "${gemsNFTReceipt.address}",
+           "gemsStakingAddress" : "${gemsStaking.address}",
+           "carbonMembershipAddress" : "${carbonMembership.address}",
+           "membershipTraderAddress" : "${membershipTrader.address}"
+         }
+        `)
+    }
 
 }
 
