@@ -190,7 +190,25 @@ describe("Staking", () => {
 
         console.log(user, " has unstaken ", amount.toString(), " tokens.");
     })
+    it('Approve user GEMS tokens to Staking contract', async () => {
+        let userBalance = await gemsToken.balanceOf(account.address);
+        // console.log("user bal", userBalance.toString());
 
+        let tx = await gemsToken.connect(account).approve(gemsStakingAddress, ethers.utils.parseEther(amount));
+        // console.log(tx);
+    })
+    it('Should call stake function in GEMS Staking Contract', async () => {
+        let staketxn = await gemsStaking.connect(account).stake(account.address, ethers.utils.parseEther(amount));
+
+        let user, amountStaked;
+        gemsStaking.on("Staked", (_user, _amount) => {
+            user = _user;
+            amountStaked = _amount;
+        });
+        await new Promise(res => setTimeout(() => res(null), 5000));
+
+        console.log(user, " has staked ", amountStaked.toString(), " tokens.");
+    })
     it('Should verify NFT burning in GEMS NFT Receipt', async () => {
         // let txn = await gemsNFTReceipt.ownerOf(tokenId);
         // console.log(txn);
