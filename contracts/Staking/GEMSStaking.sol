@@ -54,8 +54,10 @@ contract GEMSStaking {
         require(amount != 0, "User had no amount staked!");
         require(msg.sender == GEMSNFTReceipt(GEMSNFTAddress).ownerOf(tokenId));
 
-        IERC20(GEMSToken).transfer(msg.sender, amount);
+        userData[msg.sender].tokensStaked = 0;
         GEMSNFTReceipt(GEMSNFTAddress).burnNFT(tokenId);
+        
+        IERC20(GEMSToken).transfer(msg.sender, amount);
         emit UnStaked(msg.sender, amount);
     }
     // mapping => user -> Struct (stakedAmt, tokenId)

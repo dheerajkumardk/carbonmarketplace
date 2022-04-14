@@ -50,7 +50,7 @@ const main = async () => {
     console.log("Exchange Core deployed at: ", exchangeCore.address);
 
     if(eth.deployTransaction.chainId == 80001) {
-        fs.writeFileSync('__dirname/mumbaiAddresses.json', `
+        fs.writeFileSync(__dirname + '/mumbaiAddresses.json', `
         {
             "ethAddress" : "${eth.address}",
            "mintingFactoryAddress" : "${mintingFactory.address}",
@@ -63,7 +63,7 @@ const main = async () => {
          }
         `)
     } else {
-        fs.writeFileSync('__dirname/../test/Addresses.json', `
+        fs.writeFileSync(__dirname + '/../test/Addresses.json', `
         {
             "ethAddress" : "${eth.address}",
            "mintingFactoryAddress" : "${mintingFactory.address}",
