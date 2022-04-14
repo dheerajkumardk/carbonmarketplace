@@ -172,7 +172,6 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         address _seller,
         uint256 _mode
     ) internal {
-
         IERC20(ETH).transferFrom(_buyer, carbonFeeVault, _totalCarbonFee);
 
         // transferring the amount to the seller
@@ -191,7 +190,15 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
             _buyer
         );
 
-        emit OrderExecuted(_nftContract, _tokenId, _seller, _buyer, _totalCarbonFee, _creatorRoyalties, _mode);
+        emit OrderExecuted(
+            _nftContract,
+            _tokenId,
+            _seller,
+            _buyer,
+            _totalCarbonFee,
+            _creatorRoyalties,
+            _mode
+        );
     }
 
     function cancelOrder(

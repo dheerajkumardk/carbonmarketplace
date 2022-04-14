@@ -1,12 +1,12 @@
 {
     "mumbai": {
-        "ethAddress": "0xAa83ff89E0b79f62b886dB98B22691801fc74f11",
-        "mintingFactoryAddress": "0xf94441DFC2A00a1925C24Db03B7B55D9b265fFfF",
-        "exchangeAddress": "0xF8947CFBe77880E7F55fc4Fa4F9342547E5b579b",
-        "gemsTokenAddress": "0x8eC91dF2609B7F7B7CC40611CD06277C4A122791",
-        "gemsNFTReceiptAddress": "0x26B9C5895E56e6c33A3094E9886E17670c3dF313",
-        "gemsStakingAddress": "0xCf11A94eed4bb22aA4F8ec417a8b607B3e3Fdc2A",
-        "carbonMembershipAddress": "0x21618af3Bcf79cdB532d46348Bae71D7aC8Aa54D",
-        "membershipTraderAddress": "0x1AfB9C7A79F7C54ECb42BdDE145B669665EB92dD"
+        "ethAddress": "0x721EBD22513d0E54D50f002f8B488D85517623b9",
+        "mintingFactoryAddress": "0x39fCca39d3dDf922d5D01217527449BA6e6e80c4",
+        "exchangeAddress": "0x91bD07CcC85E1aF5fD4Ae467f143ca8690878BFb",
+        "gemsTokenAddress": "0xC5126aD3ab6DC27DdDfc1793A3FEb3899f2049b6",
+        "gemsNFTReceiptAddress": "0x1291Bbb5314565E4464BbFAeAb33aA46f1C724d7",
+        "gemsStakingAddress": "0x34A2e56678db5cFf65cffd51709D462B1D881c7D",
+        "carbonMembershipAddress": "0x6077A3da9660E8ba177fB0891126eFdeC79a0357",
+        "membershipTraderAddress": "0xc8cc1706C1eAc14E540B8Ec0a13C35d1C48fF73B"
     }
 }
