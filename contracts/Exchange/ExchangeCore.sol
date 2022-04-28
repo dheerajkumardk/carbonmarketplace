@@ -27,6 +27,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     uint256 public constant BaseFactorMax = 1025; // 102.5%
 
     //@dev ETH is an ERC20 token on polygon
+    // Sets the value for minting factory, eth, carbonMembership and root for the AdminRole
     constructor(
         address _mintingFactory,
         address _eth,
@@ -58,6 +59,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     event OrderUncancelled(address nftContract, uint256 tokenId, address buyer);
     event CarbonFeeVaultSet(address carbonFeeVault);
 
+    // @dev Validates the seller of the NFT by checking if the user address owns the token and had approved the exchange to transfer it on its behalf
     function validateSeller(
         address _nftContract,
         uint256 _tokenId,
@@ -83,6 +85,9 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         return true;
     }
 
+    // @dev
+    // Validates the buyer if he has enough tokens in his wallet to buy the NFT and also if he has approved the tokens for transfer to the exchange
+
     function validateBuyer(address _buyer, uint256 _amount)
         internal
         view
@@ -98,6 +103,11 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         );
         return true;
     }
+
+    // @dev
+    // Executes the order, can be called by the admin only.
+    // Checks and validates the order details before execution.
+    // Calculates carbon and creator royalties, and then calling _executeOrder function
 
     function executeOrder(
         address _nftContract,
