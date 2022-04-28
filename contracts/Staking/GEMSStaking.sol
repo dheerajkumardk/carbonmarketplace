@@ -6,7 +6,7 @@ import "./../Interface/IERC20.sol";
 import "./GEMSNFTReceipt.sol";
 
 contract GEMSStaking {
-    address public GEMSToken;
+    address public immutable GEMSToken;
     address public GEMSNFTAddress;
     uint256 tokensToStake = 100000 * 10**18;
 

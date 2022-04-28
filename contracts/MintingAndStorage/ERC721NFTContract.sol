@@ -28,10 +28,12 @@ contract ERC721NFTContract is ERC721URIStorage {
     constructor(
         string memory _name,
         string memory _symbol,
-        address _admin
+        address _admin,
+        uint256 _tokenId
     ) ERC721(_name, _symbol) {
         admin = _admin;
         factory = msg.sender;
+        _tokenIds._value = _tokenId;
     }
 
     function mint() public onlyFactory returns (uint256) {

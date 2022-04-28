@@ -11,7 +11,7 @@ contract MintingFactory is AdminRole {
     // keeps track of all NFT contracts for the users
 
     address public exchangeAddress;
-    address public ETH;
+    address public immutable ETH;
     address public carbonMintingFactoryFeeVault;
 
     constructor(address _eth, address root) AdminRole(root) {
@@ -33,6 +33,7 @@ contract MintingFactory is AdminRole {
     event NFTMinted(address nftContract, uint256 tokenId);
     event OwnerUpdated(address nftContract, uint256 tokenId, address newOwner);
     event ExchangeAddressChanged(address oldExchange, address newExchange);
+    event CarbonMintingFactoryFeeVaultSet(address carbonMintingFactoryFeeVault);
 
     modifier onlyCreatorAdmin(address _nftContract) {
         require(
@@ -47,14 +48,15 @@ contract MintingFactory is AdminRole {
         _;
     }
 
-    function createNFTContract(
+    function createCollection(
         string memory _name,
         string memory _symbol,
-        address _creator
+        address _creator,
+        uint256 _tokenId
     ) external onlyAdmin returns (address _nftcontract) {
         // create new contract
         address nftContract = address(
-            new ERC721NFTContract(_name, _symbol, msg.sender)
+            new ERC721NFTContract(_name, _symbol, msg.sender, _tokenId)
         );
         // update mapping of owner to NFTContracts
         ownerToNFTs[_creator].push(nftContract);
@@ -110,10 +112,10 @@ contract MintingFactory is AdminRole {
         return ERC721NFTContract(_nftContract).getTotalNFTs();
     }
 
-    function transferFunds() external onlyAdmin {
-        uint256 totalBalance = IERC20(ETH).balanceOf(address(this));
-        IERC20(ETH).transfer(carbonMintingFactoryFeeVault, totalBalance);
-    }
+    // function transferFunds() external onlyAdmin {
+    //     uint256 totalBalance = IERC20(ETH).balanceOf(address(this));
+    //     IERC20(ETH).transfer(carbonMintingFactoryFeeVault, totalBalance);
+    // }
 
     function setCarbonMintingFactoryFeeVault(address _mintingFactoryVault)
         external
@@ -124,5 +126,7 @@ contract MintingFactory is AdminRole {
             "Vault address cannot be zero"
         );
         carbonMintingFactoryFeeVault = _mintingFactoryVault;
+
+        emit CarbonMintingFactoryFeeVaultSet(_mintingFactoryVault);
     }
 }

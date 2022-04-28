@@ -118,11 +118,11 @@ describe("All Carbon Tests Handled", () => {
     it('Should mint NFT contract in Minting Factory', async () => {
 
         try {
-            let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
+            let tx = await mintingFactory.connect(account).createCollection("Royal Challengers Bangalore", "RCB", account.address, ethers.utils.parseEther(100));
 
-            mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
+            mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract, _tokenId) => {
                 nftContractAddress = _nftContract;
-                console.log(_name, _symbol, _nftContract);
+                console.log(_name, _symbol, _nftContract, _tokenId);
             });
             await new Promise(res => setTimeout(() => res(null), 5000));
 

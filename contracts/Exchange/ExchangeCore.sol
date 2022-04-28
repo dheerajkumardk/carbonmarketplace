@@ -18,7 +18,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
 
     address public mintingFactory;
-    address public ETH;
+    address public immutable ETH;
     address public carbonMembership;
 
     address public carbonFeeVault;
@@ -56,6 +56,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
 
     event OrderCancelled(address nftContract, uint256 tokenId, address buyer);
     event OrderUncancelled(address nftContract, uint256 tokenId, address buyer);
+    event CarbonFeeVaultSet(address carbonFeeVault);
 
     function validateSeller(
         address _nftContract,
@@ -238,6 +239,11 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     {
         require(_carbonFeeVault != address(0), "Vault address cannot be zero");
         carbonFeeVault = _carbonFeeVault;
+        emit CarbonFeeVaultSet(_carbonFeeVault);
+    }
+
+    function setBUYERS_PREMIUM_FEES(uint256 _buyersFee) external onlyAdmin {
+        BUYERS_PREMIUM_FEES = _buyersFee;
     }
 
     function pause() public onlyAdmin {

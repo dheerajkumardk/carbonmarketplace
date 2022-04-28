@@ -15,9 +15,7 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
     string baseURI = "https://carbon.xyz";
     address public membershipTrader;
 
-    constructor(string memory _name, string memory _symbol)
-        ERC721("Carbon Membership Pass", "CMEM")
-    {}
+    constructor() ERC721("Carbon Membership Pass", "CMEM") {}
 
     modifier onlyMembershipTrader() {
         require(
