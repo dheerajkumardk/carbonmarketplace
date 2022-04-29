@@ -26,6 +26,14 @@ contract GEMSStaking {
     event Staked(address user, uint256 amount);
     event UnStaked(address user, uint256 amount);
 
+    /*
+     * @dev User stakes their funds into the contract and get the Receipt as NFT for this
+     * @param user - address of the user
+     * @param _amount - amount of tokens to stake
+     * transfers the tokens from the user to the contract
+     * mints the NFT Receipt for the user
+     * Emits an event {Staked} indicating user and amount staked
+     */
     function stake(address user, uint256 _amount) public {
         uint256 amountStaked = userData[user].tokensStaked;
         require(amountStaked == 0, "User had already staked tokens");
@@ -48,6 +56,12 @@ contract GEMSStaking {
         emit Staked(user, _amount);
     }
 
+    /*
+     * @dev To unstake the previously staked funds
+     * transfers the staked tokens back to the user
+     * burns the NFT Receipt
+     * Emits an event {UnStaked} indicating user and the amount unstaked
+     */
     function unstake() public {
         uint256 amount = userData[msg.sender].tokensStaked;
         uint256 tokenId = userData[msg.sender].tokenId;
@@ -56,7 +70,7 @@ contract GEMSStaking {
 
         userData[msg.sender].tokensStaked = 0;
         GEMSNFTReceipt(GEMSNFTAddress).burnNFT(tokenId);
-        
+
         IERC20(GEMSToken).transfer(msg.sender, amount);
         emit UnStaked(msg.sender, amount);
     }

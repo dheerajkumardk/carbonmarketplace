@@ -25,6 +25,11 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
         _;
     }
 
+    /*
+     * @dev Mints new NFT for the user
+     * @param user - user address for whom the nft is to be minted
+     * @returns the token id of the nft minted
+     */
     function mintNewNFT(address user)
         public
         onlyMembershipTrader
@@ -42,6 +47,9 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
         return newItemId;
     }
 
+    /*
+     * @dev Sets the address of the Membership Trader contract
+     */
     function setMembershipTrader(address _newMembershipTrader)
         public
         onlyOwner
@@ -57,6 +65,9 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
         _unpause();
     }
 
+    /*
+     * @dev transfers the ownership of the contract to the new owner
+     */
     function updateOwner(address _newOwner) public onlyOwner {
         _transferOwnership(_newOwner);
     }

@@ -16,19 +16,30 @@ contract AdminRole is AccessControlEnumerable {
         _;
     }
 
+    /*
+     * @dev Checks if the given address is the admin
+     */
     function isAdmin(address account) internal view returns (bool) {
         return hasRole(DEFAULT_ADMIN_ROLE, account);
     }
 
+    /*
+     * @dev Adds the admin role for the given address
+     */
     function addAdmin(address account) external onlyAdmin {
         grantRole(DEFAULT_ADMIN_ROLE, account);
     }
 
-    /// @dev Remove oneself as a member of the community.
+    /*
+     * @dev Removes oneself as the admin member of th community
+     */
     function leaveRole() external {
         renounceRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
+    /*
+     * @dev Removes the given address from the admin role
+     */
     function removeAdmin(address account) external onlyAdmin {
         revokeRole(DEFAULT_ADMIN_ROLE, account);
     }

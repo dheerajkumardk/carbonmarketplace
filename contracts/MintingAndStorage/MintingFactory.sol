@@ -14,6 +14,7 @@ contract MintingFactory is AdminRole {
     address public immutable ETH;
     address public carbonMintingFactoryFeeVault;
 
+    // @param - root - address to be set as the admin for the AdminRole contract
     constructor(address _eth, address root) AdminRole(root) {
         ETH = _eth;
     }
@@ -48,6 +49,15 @@ contract MintingFactory is AdminRole {
         _;
     }
 
+    /*
+    * @notice Creates a new Collection, or deploys a new NFT contract
+    * @param _name - name of the ERC721 contract
+    * @param _symbol - symbol of the ERC721 contract
+    * @param _creator - address of the creator for whom the collection is being created
+    * @param _tokenId - starting token id for the collection
+    * @returns the address of the newly minted NFT collection contract
+    * Emits an event {NFTContractCreated} indicating the contract name, symbol, contract address and the creator addres
+    */
     function createCollection(
         string memory _name,
         string memory _symbol,
@@ -68,6 +78,12 @@ contract MintingFactory is AdminRole {
         return nftContract;
     }
 
+    /*
+    * @notice Mints an NFT for any NFT contract
+    * @param _nftContract - address of the nft contract for which you want to mint a new NFT
+    * Emits an event {NFTMinted} indicating the address of the nft contract and the 
+    * token id of minted tokens
+    */
     function mintNFT(address _nftContract)
         public
         onlyCreatorAdmin(_nftContract)
@@ -77,7 +93,14 @@ contract MintingFactory is AdminRole {
         emit NFTMinted(_nftContract, _tokenId);
     }
 
-    // updating owner in our factory records => book-keeping
+    /*
+    * @notice Updates the owner of the NFT in factory records - on-chain book-keeping purposes 
+    * @param _nftContract - address of the nft contract
+    * @param _tokenId - token id of the NFT
+    * @param _newOwner - address of the user who's the new owner of the NFT
+    * Emits an event {OwnerUpdates} indicating address of nft contract, token id 
+    * and the new owner of the token
+    */
     function updateOwner(
         address _nftContract,
         uint256 _tokenId,
@@ -88,13 +111,21 @@ contract MintingFactory is AdminRole {
         emit OwnerUpdated(_nftContract, _tokenId, _newOwner);
     }
 
+    /*
+    * @notice Updates the address of the Exchange
+    * @param _newExchange - address of the new exchange
+    * Emits an event {ExchangeAddressChanged} depicting the address of old exchange contract 
+    * and the new exchange contract
+    */
     function updateExchangeAddress(address _newExchange) public onlyAdmin {
         address oldExchange = exchangeAddress;
         exchangeAddress = _newExchange;
         emit ExchangeAddressChanged(oldExchange, exchangeAddress);
     }
 
-    // lists all NFT collections for a owner
+    /*
+    * @dev lists all collections of a owner 
+    */
     function getNFTsForOwner(address user)
         public
         view
@@ -103,7 +134,9 @@ contract MintingFactory is AdminRole {
         return ownerToNFTs[user];
     }
 
-    // get total NFTs minted for a contract
+    /*
+    * @dev get total NFTs minted for a contract
+    */
     function getTotalNFTsMinted(address _nftContract)
         public
         view
@@ -117,6 +150,11 @@ contract MintingFactory is AdminRole {
     //     IERC20(ETH).transfer(carbonMintingFactoryFeeVault, totalBalance);
     // }
 
+    /*
+    * @notice set the address of the carbon minting factory fee vault
+    * Emits the event {CarbonMintingFactoryFeeVaultSet} indicating the new address 
+    * of the minting factory fee vault 
+    */
     function setCarbonMintingFactoryFeeVault(address _mintingFactoryVault)
         external
         onlyAdmin

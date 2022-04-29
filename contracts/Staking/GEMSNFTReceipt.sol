@@ -30,6 +30,9 @@ contract GEMSNFTReceipt is ERC721URIStorage {
         _;
     }
 
+    /*
+     * @dev Mints a NFT Receipt for the user
+     */
     function mintNewNFT(address user) public onlyAuthorised returns (uint256) {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
@@ -42,14 +45,23 @@ contract GEMSNFTReceipt is ERC721URIStorage {
         return newItemId;
     }
 
+    /*
+     * @returns total number of NFT receipts minted
+     */
     function getTotalNFTs() public view returns (uint256) {
         return _tokenIds.current();
     }
 
+    /*
+     * @dev burn the token with given token Id
+     */
     function burnNFT(uint256 tokenId) public {
         _burn(tokenId);
     }
 
+    /*
+     * @dev sets the address of the staking pool
+     */
     function setStakingPool(address _stakingPool) public onlyAuthorised {
         stakingPool = _stakingPool;
     }
