@@ -118,11 +118,11 @@ describe("All Carbon Tests Handled", () => {
     it('Should mint NFT contract in Minting Factory', async () => {
 
         try {
-            let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
+            let tx = await mintingFactory.connect(account).createCollection("Royal Challengers Bangalore", "RCB", account.address, 100);
 
-            mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
+            mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract, _tokenId) => {
                 nftContractAddress = _nftContract;
-                console.log(_name, _symbol, _nftContract);
+                console.log(_name, _symbol, _nftContract, _tokenId);
             });
             await new Promise(res => setTimeout(() => res(null), 5000));
 
@@ -337,7 +337,7 @@ describe("All Carbon Tests Handled", () => {
 
     it('Should Approve nft with given tokenId for Sell Order', async () => {
         // approves the nft with given token id
-        let tx = await nftContract.connect(account).getApproved(tokenId);
+        let tx = await nftContract.connect(account).getApproved(101);
         // console.log(tx);
 
     })
@@ -351,7 +351,7 @@ describe("All Carbon Tests Handled", () => {
         let userBalance = await eth.balanceOf(account.address);
 
         // check nft allowance
-        let allowanceNFT = await nftContract.getApproved(tokenId);
+        let allowanceNFT = await nftContract.getApproved(101);
 
     })
 
@@ -500,27 +500,6 @@ describe("All Carbon Tests Handled", () => {
         }
     })
 
-    it('Should withdraw fees collected from the Exchange', async () => {
-        try {
-
-            // tradingFee = await WETH.balanceOf(exchangeAddress);
-            let tx = await exchange.connect(account).redeemTotalFeesCollected();
-            // console.log(tx);
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal("Error: VM Exception while processing transaction: reverted with reason string 'Restricted to admin.'");
-        }
-
-        try {
-
-            // tradingFee = await WETH.balanceOf(exchangeAddress);
-            let tx = await exchange.connect(account).redeemTotalFeesCollected();
-            // console.log(tx);
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Pausable: paused'`);
-        }
-    })
 
     it('Should set the carbon fee vault address in Exchange', async () => {
         try {
@@ -606,17 +585,6 @@ describe("All Carbon Tests Handled", () => {
         }
     })
 
-    it('Should redeem GEMS from Membership Trader Contract', async () => {
-        try {
-            let tx = await membershipTrader.connect(account3).withdrawGEMS();
-            console.log(await gemsToken.balanceOf(membershipTraderAddress));
-            console.log(await gemsToken.balanceOf(account.address));
-        } catch (error) {
-            console.log(error.message);
-            expect(error.message).to.equal(`Error: VM Exception while processing transaction: reverted with reason string 'Ownable: caller is not the owner'`);
-        }
-
-    })
 
     it('Should unpause the Carbon Membership Contract', async () => {
 

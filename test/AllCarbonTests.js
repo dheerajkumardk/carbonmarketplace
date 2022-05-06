@@ -69,11 +69,11 @@ describe("All Carbon Tests", () => {
     })
 
     it('Should mint NFT contract in Minting Factory', async () => {
-        let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
+        let tx = await mintingFactory.connect(account).createCollection("Royal Challengers Bangalore", "RCB", account.address, 100);
 
-        mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
+        mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract, _tokenId) => {
             nftContractAddress = _nftContract;
-            console.log(_name, _symbol, _nftContract);
+            console.log(_name, _symbol, _nftContract, _tokenId);
         });
         await new Promise(res => setTimeout(() => res(null), 5000));
 
@@ -190,25 +190,25 @@ describe("Staking", () => {
 
         console.log(user, " has unstaken ", amount.toString(), " tokens.");
     })
-    it('Approve user GEMS tokens to Staking contract', async () => {
-        let userBalance = await gemsToken.balanceOf(account.address);
-        // console.log("user bal", userBalance.toString());
+    // it('Approve user GEMS tokens to Staking contract', async () => {
+    //     let userBalance = await gemsToken.balanceOf(account.address);
+    //     // console.log("user bal", userBalance.toString());
 
-        let tx = await gemsToken.connect(account).approve(gemsStakingAddress, ethers.utils.parseEther(amount));
-        // console.log(tx);
-    })
-    it('Should call stake function in GEMS Staking Contract', async () => {
-        let staketxn = await gemsStaking.connect(account).stake(account.address, ethers.utils.parseEther(amount));
+    //     let tx = await gemsToken.connect(account).approve(gemsStakingAddress, ethers.utils.parseEther(amount));
+    //     // console.log(tx);
+    // })
+    // it('Should call stake function in GEMS Staking Contract', async () => {
+    //     let staketxn = await gemsStaking.connect(account).stake(account.address, ethers.utils.parseEther(amount));
 
-        let user, amountStaked;
-        gemsStaking.on("Staked", (_user, _amount) => {
-            user = _user;
-            amountStaked = _amount;
-        });
-        await new Promise(res => setTimeout(() => res(null), 5000));
+    //     let user, amountStaked;
+    //     gemsStaking.on("Staked", (_user, _amount) => {
+    //         user = _user;
+    //         amountStaked = _amount;
+    //     });
+    //     await new Promise(res => setTimeout(() => res(null), 5000));
 
-        console.log(user, " has staked ", amountStaked.toString(), " tokens.");
-    })
+    //     console.log(user, " has staked ", amountStaked.toString(), " tokens.");
+    // })
     it('Should verify NFT burning in GEMS NFT Receipt', async () => {
         // let txn = await gemsNFTReceipt.ownerOf(tokenId);
         // console.log(txn);
@@ -234,7 +234,7 @@ describe("Exchange", () => {
 
     it('Should Approve nft with given tokenId for Sell Order', async () => {
         // approves the nft with given token id
-        let tx = await nftContract.connect(account).getApproved(tokenId);
+        let tx = await nftContract.connect(account).getApproved(101);
         // console.log(tx);
     })
 
@@ -247,7 +247,7 @@ describe("Exchange", () => {
         let userBalance = await eth.balanceOf(account.address);
 
         // check nft allowance
-        let allowanceNFT = await nftContract.getApproved(tokenId);
+        let allowanceNFT = await nftContract.getApproved(101);
         // console.log(allowanceNFT);
 
         // check auction time

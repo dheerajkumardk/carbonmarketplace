@@ -19,6 +19,10 @@ contract MembershipTrader is Ownable {
         carbonMembershipNFT = _carbonMembershipNFT;
     }
 
+    /*
+     * @dev Validates the token allowance of the user to the membership trader contract
+     * @returns true if token allowance is valid and sender is not the contract
+     */
     function validate(address user) internal view returns (bool) {
         uint256 allowanceAmt = IERC20(gemsToken).allowance(user, address(this));
         require(
@@ -32,6 +36,11 @@ contract MembershipTrader is Ownable {
         return true;
     }
 
+    /*
+     * @notice Executes the order, once token allowance is valid,
+     * transfers the tokens from the user to the carbon Fee Vault and
+     * mints a Membership Pass (NFT) for the user
+     */
     function executeOrder(address user) public {
         // validate
         bool valid = validate(msg.sender);
@@ -43,10 +52,16 @@ contract MembershipTrader is Ownable {
         // emit event
     }
 
+    /*
+     * @dev Sets the carbon fee vault address
+     */
     function setCarbonFeeVault(address _carbonfeevault) public onlyOwner {
         carbonFeeVault = _carbonfeevault;
     }
 
+    /*
+     * @dev Updates the owner of the membership trader contract
+     */
     function updateOwner(address _newOwner) public onlyOwner {
         _transferOwnership(_newOwner);
     }

@@ -35,7 +35,7 @@ const main = async () => {
 
 
     const CarbonMembership = await hre.ethers.getContractFactory("CarbonMembership");
-    const carbonMembership = await CarbonMembership.deploy("CARBON MEMBERSHIP PASS", "CMEM");
+    const carbonMembership = await CarbonMembership.deploy();
     await carbonMembership.deployed();
     console.log("Carbon Membership deployed at: ", carbonMembership.address);
 

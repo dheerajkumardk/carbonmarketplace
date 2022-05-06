@@ -18,7 +18,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
 
     address public mintingFactory;
-    address public ETH;
+    address public immutable ETH;
     address public carbonMembership;
 
     address public carbonFeeVault;
@@ -27,6 +27,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     uint256 public constant BaseFactorMax = 1025; // 102.5%
 
     //@dev ETH is an ERC20 token on polygon
+    // Sets the value for minting factory, eth, carbonMembership and root for the AdminRole
     constructor(
         address _mintingFactory,
         address _eth,
@@ -56,7 +57,12 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
 
     event OrderCancelled(address nftContract, uint256 tokenId, address buyer);
     event OrderUncancelled(address nftContract, uint256 tokenId, address buyer);
+    event CarbonFeeVaultSet(address carbonFeeVault);
 
+    // @dev Validates the seller of the NFT by checking if the user address owns the token and had approved the exchange to transfer it on its behalf
+    // @param _nftContract - address of the NFT contract user intends to sell
+    // @param _tokenId - token id of the NFT on sale
+    // @param _seller - address of the user who wishes to sell his NFT
     function validateSeller(
         address _nftContract,
         uint256 _tokenId,
@@ -82,6 +88,10 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         return true;
     }
 
+    // @dev
+    // Validates the buyer if he has enough tokens in his wallet to buy the NFT and also if he has approved the tokens for transfer to the exchange
+    // @param _buyer - address of the user who places bids to buy the NFT
+    // @param _amount - amount of tokens the NFT costs
     function validateBuyer(address _buyer, uint256 _amount)
         internal
         view
@@ -98,6 +108,19 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         return true;
     }
 
+    /*
+     * @dev
+     * Executes the order, can be called by the admin only.
+     * Checks and validates the order details before execution.
+     * Calculates carbon and creator royalties, and then calling _executeOrder function
+     * @param _nftContract - address of the nft contract which is on sale
+     * @param _tokenId - token id of the token on sale
+     * @param _buyer - address of the user who wishes to buy the NFT
+     * @param _seller - address of the user who wishes to sell the NFT
+     * @param _amount - the total price (in ETH) of the NFT
+     * @param _auctionEndTime - time when the auction will end
+     * @param _mode - Mode represents how the royalties for the NFT will be distributed between  the creator and carbon
+     */
     function executeOrder(
         address _nftContract,
         uint256 _tokenId,
@@ -163,6 +186,14 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         }
     }
 
+    /*
+     * @dev - Executes the order
+     * transfers the NFT from the seller to the buyer
+     * transfer ETH tokens (fees and royalties) to carbon
+     * transfers ETH tokens (creator royalties) to the creator
+     * update ownership of the NFT on chain in the minting factory contract
+     * Emits the OrderExecuted event
+     */
     function _executeOrder(
         uint256 _totalCarbonFee,
         uint256 _creatorRoyalties,
@@ -201,6 +232,13 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         );
     }
 
+    /*
+     * @notice - Cancels the order for the buyer when he places bid for any NFT on sale
+     * @param _nftContract - address of the nft contract
+     * @param _tokenId - token id of the nft that was on sale
+     * @param _buyer - address of the user whose order is to be cancelled
+     * Emits an event, OrderCancelled
+     */
     function cancelOrder(
         address _nftContract,
         uint256 _tokenId,
@@ -215,6 +253,13 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         emit OrderCancelled(_nftContract, _tokenId, _buyer);
     }
 
+    /*
+     * @notice - Uncancels the order for the buyer who had earlier cancelled his order
+     * @param _nftContract - address of the nft contract
+     * @param _tokenId - token id of the nft that was on sale
+     * @param _buyer - address of the user whose order is to be uncancelled
+     * Emits an event, OrderUncancelled
+     */
     function uncancelOrder(
         address _nftContract,
         uint256 _tokenId,
@@ -228,16 +273,24 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         emit OrderUncancelled(_nftContract, _tokenId, _buyer);
     }
 
+    // @notice updates address of the minting factory
     function updateFactory(address _factory) external onlyAdmin {
         mintingFactory = _factory;
     }
 
+    // @notice updates address of the carbon fee vault
     function setCarbonFeeVaultAddress(address _carbonFeeVault)
         external
         onlyAdmin
     {
         require(_carbonFeeVault != address(0), "Vault address cannot be zero");
         carbonFeeVault = _carbonFeeVault;
+        emit CarbonFeeVaultSet(_carbonFeeVault);
+    }
+
+    // @notice updates Buyer's premium fees factor
+    function setBUYERS_PREMIUM_FEES(uint256 _buyersFee) external onlyAdmin {
+        BUYERS_PREMIUM_FEES = _buyersFee;
     }
 
     function pause() public onlyAdmin {
