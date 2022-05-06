@@ -7,6 +7,7 @@
         "gemsNFTReceiptAddress": "0x1291Bbb5314565E4464BbFAeAb33aA46f1C724d7",
         "gemsStakingAddress": "0x34A2e56678db5cFf65cffd51709D462B1D881c7D",
         "carbonMembershipAddress": "0x6077A3da9660E8ba177fB0891126eFdeC79a0357",
-        "membershipTraderAddress": "0xc8cc1706C1eAc14E540B8Ec0a13C35d1C48fF73B"
+        "membershipTraderAddress": "0xc8cc1706C1eAc14E540B8Ec0a13C35d1C48fF73B",
+        "eip712": "0xcf5c4b05ad1d31959933bdca5b027dc805e3c0d1"
     }
 }
