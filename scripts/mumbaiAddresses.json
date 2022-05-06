@@ -1,0 +1,13 @@
+
+        {
+            "ethAddress" : "0x9cB7E249E5cB6F6CEC7d897A12E94710E67737DB",
+           "mintingFactoryAddress" : "0xF4d99672dAb8cc37F25501Ac69f919fCB1ef0334",
+           "exchangeAddress" : "0xeE70A3B02696D74CDB36775681d943750cE960eB",
+           "gemsTokenAddress" : "0xdb8301D159F11907fb6bb78b1d3E387377864012",
+           "gemsNFTReceiptAddress" : "0xc3b350913e056c3f0c3981Bc47e43E0283d42aa8",
+           "gemsStakingAddress" : "0x41c6D64E82Cc43637a9Ad62502CCB85380c39c18",
+           "carbonMembershipAddress" : "0xd41ac537DD890F1EB92Ca4Eff2E16224e87F9506",
+           "membershipTraderAddress" : "0xc0a1252bB9f9313b64A66c2936aDC7bDa9fe325c",
+           "eip712": "0xcf5C4b05AD1D31959933BDCA5B027DC805e3C0d1"
+         }
+        
