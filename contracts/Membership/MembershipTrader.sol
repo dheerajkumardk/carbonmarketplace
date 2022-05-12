@@ -3,8 +3,8 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./../Interface/IERC20.sol";
 import "./CarbonMembership.sol";
 
 contract MembershipTrader is Ownable {

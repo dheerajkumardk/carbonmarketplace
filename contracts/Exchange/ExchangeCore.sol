@@ -6,9 +6,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-// import required interfaces
-import "./../Interface/IERC20.sol";
 import "./../Interface/IERC721NFTContract.sol";
 import "./../Interface/IMintingFactory.sol";
 import "./../AdminRole.sol";

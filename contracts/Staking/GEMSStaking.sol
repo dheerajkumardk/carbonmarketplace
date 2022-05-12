@@ -2,31 +2,32 @@
 
 pragma solidity ^0.8.0;
 
-import "./../Interface/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import "./GEMSNFTReceipt.sol";
 
 contract GEMSStaking {
-    address public immutable GEMSToken;
-    address public GEMSNFTAddress;
-    uint256 tokensToStake = 100000 * 10**18;
-
-    constructor(address _gemsToken, address _gemsNFTAddress) {
-        GEMSToken = _gemsToken;
-        GEMSNFTAddress = _gemsNFTAddress;
-    }
-
     struct UserInfo {
         uint256 tokensStaked;
         uint256 tokenId;
         uint256 timestamp;
     }
 
-    mapping(address => UserInfo) public userData;
-
     event Staked(address user, uint256 amount);
     event UnStaked(address user, uint256 amount);
 
-    /*
+    address public immutable GEMSToken;
+    address public GEMSNFTAddress;
+    uint256 tokensToStake = 100000 * 10**18;
+
+    mapping(address => UserInfo) public userData;
+
+    constructor(address _gemsToken, address _gemsNFTAddress) {
+        GEMSToken = _gemsToken;
+        GEMSNFTAddress = _gemsNFTAddress;
+    }
+
+    /**
      * @dev User stakes their funds into the contract and get the Receipt as NFT for this
      * @param user - address of the user
      * @param _amount - amount of tokens to stake
@@ -56,7 +57,7 @@ contract GEMSStaking {
         emit Staked(user, _amount);
     }
 
-    /*
+    /**
      * @dev To unstake the previously staked funds
      * transfers the staked tokens back to the user
      * burns the NFT Receipt
@@ -74,7 +75,4 @@ contract GEMSStaking {
         IERC20(GEMSToken).transfer(msg.sender, amount);
         emit UnStaked(msg.sender, amount);
     }
-    // mapping => user -> Struct (stakedAmt, tokenId)
-    // stake fn => submits GEMS, mints NFT
-    // unstake fn => submit nft id => get back his GEMS, NFT burn
 }
