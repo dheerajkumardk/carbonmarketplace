@@ -145,11 +145,11 @@ contract MintingFactory is AdminRole {
         return ERC721NFTContract(_nftContract).getTotalNFTs();
     }
 
-    /*
-    * @notice set the address of the carbon minting factory fee vault
-    * Emits the event {CarbonMintingFactoryFeeVaultSet} indicating the new address 
-    * of the minting factory fee vault 
-    */
+    /**
+     * @notice set the address of the carbon minting factory fee vault
+     * Emits the event {CarbonMintingFactoryFeeVaultSet} indicating the new address 
+     * of the minting factory fee vault 
+     */
     function setCarbonMintingFactoryFeeVault(address _mintingFactoryVault)
         external
         onlyAdmin
@@ -161,5 +161,18 @@ contract MintingFactory is AdminRole {
         carbonMintingFactoryFeeVault = _mintingFactoryVault;
 
         emit CarbonMintingFactoryFeeVaultSet(_mintingFactoryVault);
+    }
+
+    /**
+     * @notice Used to get all the admins and access
+     */
+    function getRoleMembers() external view returns (
+        uint256 roleMemberCount,
+        address[] memory roleMembers
+    ) {
+        roleMemberCount = getRoleMemberCount(DEFAULT_ADMIN_ROLE);
+        for (uint256 index = 0; index < roleMemberCount; index++) {
+            roleMembers[index] = getRoleMember(DEFAULT_ADMIN_ROLE, index);
+        }
     }
 }
