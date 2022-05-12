@@ -145,11 +145,6 @@ contract MintingFactory is AdminRole {
         return ERC721NFTContract(_nftContract).getTotalNFTs();
     }
 
-    // function transferFunds() external onlyAdmin {
-    //     uint256 totalBalance = IERC20(ETH).balanceOf(address(this));
-    //     IERC20(ETH).transfer(carbonMintingFactoryFeeVault, totalBalance);
-    // }
-
     /*
     * @notice set the address of the carbon minting factory fee vault
     * Emits the event {CarbonMintingFactoryFeeVaultSet} indicating the new address 
