@@ -19,17 +19,14 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  defaultNetwork: "localhost",
+  defaultNetwork: "hardhat",
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545/"
     },
     hardhat: {
+      allowUnlimitedContractSize: false,
     },
-    // ropsten: {
-    //   url: "https://eth-ropsten.alchemyapi.io/v2/123abc123abc123abc123abc123abcde",
-    //   accounts: [process.env.PRIVATE_KEY]
-    // },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/1lo5rOEtPbYlohlrOYiNa9xTUc2Qm8uD`,
       accounts: [process.env.PRIVATE_KEY]

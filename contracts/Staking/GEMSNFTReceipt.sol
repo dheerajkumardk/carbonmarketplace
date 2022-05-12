@@ -14,13 +14,6 @@ contract GEMSNFTReceipt is ERC721URIStorage {
     address public stakingPool;
     address public admin;
 
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        address _admin
-    ) ERC721(_name, _symbol) {
-        admin = _admin;
-    }
 
     modifier onlyAuthorised() {
         require(
@@ -28,6 +21,14 @@ contract GEMSNFTReceipt is ERC721URIStorage {
             "Only Staking pool contract or admin can call this function"
         );
         _;
+    }
+
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _admin
+    ) ERC721(_name, _symbol) {
+        admin = _admin;
     }
 
     /*
