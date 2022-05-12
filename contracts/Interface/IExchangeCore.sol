@@ -17,7 +17,7 @@ interface IExchangeCore {
         uint256 _tokenId,
         address _buyer
     ) external;
- 
+
     function uncancelOrder(
         address _nftContract,
         uint256 _tokenId,
