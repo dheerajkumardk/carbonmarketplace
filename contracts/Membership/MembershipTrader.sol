@@ -9,6 +9,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract MembershipTrader is Ownable {
     using Address for address;
 
+    event CarbonFeeVaultSet(address indexed carbonFeeVault);
+
     address gemsToken;
     address carbonMembershipNFT;
     address carbonFeeVault;
@@ -57,6 +59,8 @@ contract MembershipTrader is Ownable {
      */
     function setCarbonFeeVault(address _carbonfeevault) public onlyOwner {
         carbonFeeVault = _carbonfeevault;
+
+        emit CarbonFeeVaultSet(_carbonfeevault);
     }
 
     /*
