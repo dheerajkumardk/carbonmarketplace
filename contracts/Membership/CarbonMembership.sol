@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-// import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -12,11 +11,15 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    string baseURI = "https://carbon.xyz";
+    event MembershipTraderSet(address indexed _membershipTrader);
+
+    string public baseURI = "https://carbon.xyz";
+    // Address of member ship trader contract
     address public membershipTrader;
 
-    constructor() ERC721("Carbon Membership Pass", "CMEM") {}
-
+    /**
+     * @notice Used to check the caller is membership trader
+     */
     modifier onlyMembershipTrader() {
         require(
             msg.sender == membershipTrader,
@@ -25,13 +28,15 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
         _;
     }
 
+    constructor() ERC721("Carbon Membership Pass", "CMEM") {}
+
     /*
      * @dev Mints new NFT for the user
      * @param user - user address for whom the nft is to be minted
      * @returns the token id of the nft minted
      */
     function mintNewNFT(address user)
-        public
+        external
         onlyMembershipTrader
         whenNotPaused
         returns (uint256)
@@ -47,35 +52,31 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
         return newItemId;
     }
 
-    /*
-     * @dev Sets the address of the Membership Trader contract
+    /**
+     * @notice Sets the address of the Membership Trader contract
+     *
+     * @param _newMembershipTrader Address of the MembershipTrader contract
      */
     function setMembershipTrader(address _newMembershipTrader)
-        public
+        external
         onlyOwner
     {
         membershipTrader = _newMembershipTrader;
+        emit MembershipTraderSet(_newMembershipTrader);
     }
 
-    function pause() public onlyOwner {
+    function pause() external onlyOwner {
         _pause();
     }
 
-    function unpause() public onlyOwner {
+    function unpause() external onlyOwner {
         _unpause();
     }
 
     /*
      * @dev transfers the ownership of the contract to the new owner
      */
-    function updateOwner(address _newOwner) public onlyOwner {
+    function updateOwner(address _newOwner) external onlyOwner {
         _transferOwnership(_newOwner);
     }
 }
-
-// erc 721
-// only thing, not called by contract
-// mint function pausable
-// no burn
-
-// mint => called by membership trader only
