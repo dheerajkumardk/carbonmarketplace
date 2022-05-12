@@ -8,11 +8,14 @@
     "chai": "^4.2.0",
     "dotenv": "^16.0.0",
     "ethereum-waffle": "^3.0.0",
-    "ethers": "^5.0.0"
+    "ethers": "^5.0.0",
+    "prettier": "^2.6.2",
+    "prettier-plugin-solidity": "^1.0.0-beta.19"
   },
   "scripts": {
     "deploy": "npx hardhat run scripts/deploy2.js",
-    "AllCarbonTests": "npx hardhat test test/AllCarbonTests.js"
+    "AllCarbonTests": "npx hardhat test test/AllCarbonTests.js",
+    "format": "yarn prettier --write contracts/**/*.sol"
   },
   "devDependencies": {
     "hardhat": "^2.9.0"
