@@ -221,6 +221,20 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     }
 
     /**
+     * @notice Used to get all the admins and access
+     */
+    function getRoleMembers()
+        external
+        view
+        returns (uint256 roleMemberCount, address[] memory roleMembers)
+    {
+        roleMemberCount = getRoleMemberCount(DEFAULT_ADMIN_ROLE);
+        for (uint256 index = 0; index < roleMemberCount; index++) {
+            roleMembers[index] = getRoleMember(DEFAULT_ADMIN_ROLE, index);
+        }
+    }
+
+    /**
      * @dev Validates the seller of the NFT by checking if the user address owns the token and had approved the exchange to transfer it on its behalf
      *
      * @param _nftContract address of the NFT contract user intends to sell

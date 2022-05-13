@@ -21,6 +21,11 @@ interface IExchangeCore {
         uint256 _tokenId
     ) external view returns (bool);
 
+    function getRoleMembers()
+        external
+        view
+        returns (uint256 roleMemberCount, address[] memory roleMembers);
+
     function executeOrder(
         address _nftContract,
         uint256 _tokenId,
