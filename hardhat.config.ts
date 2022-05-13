@@ -1,6 +1,8 @@
-require("@nomiclabs/hardhat-waffle");
-require("@nomiclabs/hardhat-etherscan");
-require("dotenv").config();
+import "@nomiclabs/hardhat-waffle"
+import "@nomiclabs/hardhat-etherscan";
+import { task } from "hardhat/config";
+import { config as dotEnvConfig } from "dotenv";
+dotEnvConfig();
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

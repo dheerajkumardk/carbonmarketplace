@@ -1,25 +1,22 @@
-const fs = require("fs");
-const hre = require("hardhat");
+import { ethers, run } from "hardhat";
 
-const main = async () => {
-  const [owner] = await hre.ethers.getSigners();
+const fs = require("fs");
+
+const deploy = async () => {
+  const [owner] = await ethers.getSigners();
   const admin = owner.address;
   console.log("Admin: ", admin);
   console.log("Balance: ", (await owner.getBalance()).toString());
 
-  const Eth = await hre.ethers.getContractFactory("ETHToken");
-  const MintingFactory = await hre.ethers.getContractFactory("MintingFactory");
-  const GEMSToken = await hre.ethers.getContractFactory("GEMSToken");
-  const GEMSNFTReceipt = await hre.ethers.getContractFactory("GEMSNFTReceipt");
-  const GEMSStaking = await hre.ethers.getContractFactory("GEMSStaking");
-  const CarbonMembership = await hre.ethers.getContractFactory(
-    "CarbonMembership"
-  );
-  const MembershipTrader = await hre.ethers.getContractFactory(
-    "MembershipTrader"
-  );
-  const ExchangeCore = await hre.ethers.getContractFactory("ExchangeCore");
-  const EIP712 = await hre.ethers.getContractFactory("EIP712");
+  const Eth = await ethers.getContractFactory("ETHToken");
+  const MintingFactory = await ethers.getContractFactory("MintingFactory");
+  const GEMSToken = await ethers.getContractFactory("GEMSToken");
+  const GEMSNFTReceipt = await ethers.getContractFactory("GEMSNFTReceipt");
+  const GEMSStaking = await ethers.getContractFactory("GEMSStaking");
+  const CarbonMembership = await ethers.getContractFactory("CarbonMembership");
+  const MembershipTrader = await ethers.getContractFactory("MembershipTrader");
+  const ExchangeCore = await ethers.getContractFactory("ExchangeCore");
+  const EIP712 = await ethers.getContractFactory("EIP712");
 
   const eth = await Eth.connect(owner).deploy();
   await eth.deployed();
@@ -111,7 +108,7 @@ const main = async () => {
   }
   // Contract Verification
   try {
-    await hre.run("verify:verify", {
+    await run("verify:verify", {
       address: eip712.address,
     });
   } catch (error) {
@@ -119,14 +116,9 @@ const main = async () => {
   }
 };
 
-const runMain = async () => {
-  try {
-    await main();
-    process.exit(0);
-  } catch (error) {
-    console.log(error);
+deploy()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("Error: ", error);
     process.exit(1);
-  }
-};
-
-runMain();
+  });
