@@ -28,7 +28,7 @@ module.exports = {
       allowUnlimitedContractSize: false,
     },
     mumbai: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/1lo5rOEtPbYlohlrOYiNa9xTUc2Qm8uD`,
+      url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.MUMBAI_API_KEY}`,
       accounts: [process.env.PRIVATE_KEY]
     }
   },
