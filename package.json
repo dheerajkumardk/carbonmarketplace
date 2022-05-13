@@ -2,7 +2,6 @@
   "name": "hardhat-project",
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
-    "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.0",
     "@openzeppelin/contracts": "^4.5.0",
     "chai": "^4.2.0",
@@ -14,12 +13,13 @@
   },
   "scripts": {
     "compile": "npx hardhat compile",
-    "deploy": "npx hardhat run scripts/deploy2.js",
+    "deploy": "npx hardhat run scripts/deploy2.js --network mumbai",
     "AllCarbonTests": "npx hardhat test test/AllCarbonTests.js",
     "format": "yarn prettier --write contracts/**/*.sol",
     "test": "npx hardhat test"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "hardhat": "^2.9.0"
   }
 }

@@ -1,13 +1,13 @@
 
         {
-            "ethAddress" : "0x9cB7E249E5cB6F6CEC7d897A12E94710E67737DB",
-           "mintingFactoryAddress" : "0xF4d99672dAb8cc37F25501Ac69f919fCB1ef0334",
-           "exchangeAddress" : "0xeE70A3B02696D74CDB36775681d943750cE960eB",
-           "gemsTokenAddress" : "0xdb8301D159F11907fb6bb78b1d3E387377864012",
-           "gemsNFTReceiptAddress" : "0xc3b350913e056c3f0c3981Bc47e43E0283d42aa8",
-           "gemsStakingAddress" : "0x41c6D64E82Cc43637a9Ad62502CCB85380c39c18",
-           "carbonMembershipAddress" : "0xd41ac537DD890F1EB92Ca4Eff2E16224e87F9506",
-           "membershipTraderAddress" : "0xc0a1252bB9f9313b64A66c2936aDC7bDa9fe325c",
-           "eip712": "0xcf5C4b05AD1D31959933BDCA5B027DC805e3C0d1"
+            "ethAddress" : "0xb1eA56ae70FD4b60d97be0161e8038cda0886837",
+            "mintingFactoryAddress" : "0xAb79F167CC5E64645A11B15b92a88Cb2b535b989",
+            "exchangeAddress" : "0x080EF1722C68a9f15215Bfb89D4ce68B34c0e978",
+            "gemsTokenAddress" : "0x48abDA00a9d1f2424cB595C1e2b3bb5Ea96Ba711",
+            "gemsNFTReceiptAddress" : "0x7Ce86cba11123b0fa7798C8537A65D2e1afc3093",
+            "gemsStakingAddress" : "0x4EB671c1E7266fBD83Ea19844B17B89f40F35AD4",
+            "carbonMembershipAddress" : "0x15ccF115A22Ebc8caDeDC2Fd7D25aab86e93Bea5",
+            "membershipTraderAddress" : "0xF6360864B3183E80AD6d4d54DC3AAFab9120EB5a",
+            "eip712": "0x7b22F17c719ff622328c821c810c95063021B1ba"
          }
         

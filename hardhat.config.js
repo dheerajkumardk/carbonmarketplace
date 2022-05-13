@@ -29,7 +29,12 @@ module.exports = {
     },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.MUMBAI_API_KEY}`,
-      accounts: [process.env.PRIVATE_KEY]
+      accounts: [process.env.PRIVATE_KEY],
+      throwOnTransactionFailures: true,
+      loggingEnabled: true,
+      gas: 5000000,
+      gasPrice: 10000000000,
+      blockGasLimit: 8000000,
     }
   },
   solidity: {
