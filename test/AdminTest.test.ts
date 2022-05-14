@@ -1,6 +1,5 @@
-//v1 develop
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+import { expect } from "chai";
+import { ethers } from "hardhat";
 import { Signer } from "ethers";
 const { expectRevert, time } = require("@openzeppelin/test-helpers");
 
