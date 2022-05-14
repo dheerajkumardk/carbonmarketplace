@@ -24,7 +24,7 @@ erc721MintingFactoryInstance = new ethers.Contract(mintingFactoryAddress, Mintin
 // }
 
 
-describe("ERC721MintingFactory", () => {
+describe("====>ERC721MintingFactory<====", () => {
 
 
     // calling the minting factory function to create its instance
@@ -50,7 +50,7 @@ describe("ERC721MintingFactory", () => {
         // console.log("Sender:", nftContractAddress.from);
 
         // listen contract creation event
-        erc721MintingFactoryInstance.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
+        erc721MintingFactoryInstance.on("CollectionCreated", (_name, _symbol, _nftContract) => {
             nftContract = _nftContract;
             console.log(_name, _symbol, _nftContract);
         });

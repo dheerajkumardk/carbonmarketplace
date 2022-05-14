@@ -36,7 +36,7 @@ let gemsToken = new ethers.Contract(gemsTokenAddress, GEMSTOKENABI.abi, provider
 let carbonMembership = new ethers.Contract(carbonMembershipAddress, CARBONMEMBERSHIPABI.abi, provider);
 let membershipTrader = new ethers.Contract(membershipTraderAddress, MEMBERSHIPTRADERABI.abi, provider);
 
-describe("Execute Order", () => {
+describe("====>Execute Order<====", () => {
 
     beforeEach(async () => {
         [account, account2] = await ethers.getSigners();
@@ -67,7 +67,7 @@ describe("Execute Order", () => {
     it('Should mint NFT contract in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).createNFTContract("Royal Challengers Bangalore", "RCB", account.address);
 
-        mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract) => {
+        mintingFactory.on("CollectionCreated", (_name, _symbol, _nftContract) => {
             nftContractAddress = _nftContract;
             console.log(_name, _symbol, _nftContract);
         });

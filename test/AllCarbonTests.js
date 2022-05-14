@@ -47,7 +47,7 @@ let gemsStaking = new ethers.Contract(gemsStakingAddress, GEMSSTAKINGABI.abi, pr
 let carbonMembership = new ethers.Contract(carbonMembershipAddress, CARBONMEMBERSHIPABI.abi, provider);
 let membershipTrader = new ethers.Contract(membershipTraderAddress, MEMBERSHIPTRADERABI.abi, provider);
 
-describe("All Carbon Tests", () => {
+describe("====>All Carbon Tests<====", () => {
 
 
 
@@ -71,7 +71,7 @@ describe("All Carbon Tests", () => {
     it('Should mint NFT contract in Minting Factory', async () => {
         let tx = await mintingFactory.connect(account).createCollection("Royal Challengers Bangalore", "RCB", account.address, 100);
 
-        mintingFactory.on("NFTContractCreated", (_name, _symbol, _nftContract, _tokenId) => {
+        mintingFactory.on("CollectionCreated", (_name, _symbol, _nftContract, _tokenId) => {
             nftContractAddress = _nftContract;
             console.log(_name, _symbol, _nftContract, _tokenId);
         });
