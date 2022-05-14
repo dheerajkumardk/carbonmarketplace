@@ -37,15 +37,21 @@ contract GEMSStaking {
      */
     function stake(address user, uint256 _amount) public {
         uint256 amountStaked = userData[user].tokensStaked;
-        require(amountStaked == 0, "User had already staked tokens");
+        require(
+            amountStaked == 0,
+            "GEMSStaking: User had already staked tokens"
+        );
         require(
             _amount == tokensToStake,
-            "Requires exactly 100,000 tokens for staking"
+            "GEMSStaking: Requires exactly 100,000 tokens for staking"
         );
-        require(user != address(0), "User address is zero");
+        require(user != address(0), "GEMSStaking: User address is zero");
         // on-chain approval
         uint256 allowanceAmt = IERC20(GEMSToken).allowance(user, address(this));
-        require(allowanceAmt == _amount, "Inadequate token allowance");
+        require(
+            allowanceAmt == _amount,
+            "GEMSStaking: Inadequate token allowance"
+        );
 
         IERC20(GEMSToken).transferFrom(user, address(this), _amount);
         // nft token generated
@@ -66,8 +72,11 @@ contract GEMSStaking {
     function unstake() public {
         uint256 amount = userData[msg.sender].tokensStaked;
         uint256 tokenId = userData[msg.sender].tokenId;
-        require(amount != 0, "User had no amount staked!");
-        require(msg.sender == GEMSNFTReceipt(GEMSNFTAddress).ownerOf(tokenId));
+        require(amount != 0, "GEMSStaking: User had no amount staked!");
+        require(
+            msg.sender == GEMSNFTReceipt(GEMSNFTAddress).ownerOf(tokenId),
+            "GEMSStaking: Caller is not the owner"
+        );
 
         userData[msg.sender].tokensStaked = 0;
         GEMSNFTReceipt(GEMSNFTAddress).burnNFT(tokenId);

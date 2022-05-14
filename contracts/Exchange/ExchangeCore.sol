@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-// make it pausable
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -94,14 +93,17 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         uint256 _mode
     ) external onlyAdmin whenNotPaused nonReentrant {
         // Validating all the requirements
-        require(_auctionEndTime > block.timestamp, "Auction has ended");
+        require(
+            _auctionEndTime > block.timestamp,
+            "ExchangeCore: Auction has ended"
+        );
         require(
             !cancelledOrders[_buyer][_nftContract][_tokenId],
-            "Order is cancelled"
+            "ExchangeCore: Order is cancelled"
         );
         require(
             IERC721NFTContract(_nftContract).factory() == mintingFactory,
-            "ERC721 Factory doesn't match with Exchange Factory"
+            "ExchangeCore: ERC721 Factory doesn't match with Exchange Factory"
         );
         require(_mode <= 2, "Invalid mode specified");
         bool validSeller = _validateSeller(_nftContract, _tokenId, _seller);
@@ -163,7 +165,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     ) external onlyAdmin whenNotPaused {
         require(
             !cancelledOrders[_buyer][_nftContract][_tokenId],
-            "Order already cancelled"
+            "ExchangeCore: Order already cancelled"
         );
 
         cancelledOrders[_buyer][_nftContract][_tokenId] = true;
@@ -184,7 +186,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     ) external onlyAdmin whenNotPaused {
         require(
             cancelledOrders[_buyer][_nftContract][_tokenId],
-            "Order was never cancelled"
+            "ExchangeCore: Order was never cancelled"
         );
         cancelledOrders[_buyer][_nftContract][_tokenId] = false;
         emit OrderUncancelled(_nftContract, _tokenId, _buyer);
@@ -201,7 +203,10 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         external
         onlyAdmin
     {
-        require(_carbonFeeVault != address(0), "Vault address cannot be zero");
+        require(
+            _carbonFeeVault != address(0),
+            "ExchangeCore: Vault address cannot be zero"
+        );
         carbonFeeVault = _carbonFeeVault;
         emit CarbonFeeVaultSet(_carbonFeeVault);
     }
@@ -248,7 +253,10 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     ) internal view returns (bool) {
         // check if he owns the token
         address tokenOwner = IERC721NFTContract(_nftContract).ownerOf(_tokenId);
-        require(_seller == tokenOwner, "Seller does not owns the token");
+        require(
+            _seller == tokenOwner,
+            "ExchangeCore: Seller does not owns the token"
+        );
 
         // check token approval
         address tokenApprovedAddress = IERC721NFTContract(_nftContract)
@@ -260,7 +268,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
                     _seller,
                     address(this)
                 ),
-            "Contract is not approved for this NFT"
+            "ExchangeCore: Contract is not approved for this NFT"
         );
 
         return true;
@@ -277,11 +285,11 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     {
         require(
             IERC20(ETH).allowance(_buyer, address(this)) > _amount,
-            "Allowance is less than the NFT's price."
+            "ExchangeCore: Allowance is less than the NFT's price."
         );
         require(
             IERC20(ETH).balanceOf(_buyer) > _amount,
-            "Buyer doesn't have sufficient funds"
+            "ExchangeCore: Buyer doesn't have sufficient funds"
         );
         return true;
     }

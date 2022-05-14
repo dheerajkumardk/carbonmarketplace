@@ -14,11 +14,10 @@ contract GEMSNFTReceipt is ERC721URIStorage {
     address public stakingPool;
     address public admin;
 
-
     modifier onlyAuthorised() {
         require(
             msg.sender == stakingPool || msg.sender == admin,
-            "Only Staking pool contract or admin can call this function"
+            "GEMSNFTReceipt: Only Staking pool contract or admin can call this function"
         );
         _;
     }

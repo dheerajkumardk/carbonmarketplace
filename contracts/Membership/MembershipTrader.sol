@@ -31,7 +31,7 @@ contract MembershipTrader is Ownable {
     function executeOrder(address user) external {
         // validate
         bool valid = _validate(msg.sender);
-        require(valid, "Order conditions not met");
+        require(valid, "MembershipTrader: Order conditions not met");
         // transfer token
         IERC20(gemsToken).transferFrom(user, carbonFeeVault, tokensToDeposit);
         // mint nft
@@ -63,11 +63,14 @@ contract MembershipTrader is Ownable {
         uint256 allowanceAmt = IERC20(gemsToken).allowance(user, address(this));
         require(
             allowanceAmt >= tokensToDeposit,
-            "Tokens are not approved to the Membership Trader"
+            "MembershipTrader: Tokens are not approved to the Membership Trader"
         );
 
         // validate for contract
-        require(!Address.isContract(msg.sender), "Sender is a contract");
+        require(
+            !Address.isContract(msg.sender),
+            "MembershipTrader: Sender is a contract"
+        );
 
         return true;
     }

@@ -23,7 +23,7 @@ contract CarbonMembership is ERC721URIStorage, Ownable, Pausable {
     modifier onlyMembershipTrader() {
         require(
             msg.sender == membershipTrader,
-            "Only Membership Trader can call this function"
+            "CarbonMembership: Only Membership Trader can call this function"
         );
         _;
     }

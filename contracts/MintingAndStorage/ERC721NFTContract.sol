@@ -15,12 +15,18 @@ contract ERC721NFTContract is ERC721URIStorage {
     string baseURI = "https://carbon.xyz";
 
     modifier onlyFactory() {
-        require(msg.sender == factory, "Only factory can mint NFT");
+        require(
+            msg.sender == factory,
+            "ERC721NFTContract: Only factory can mint NFT"
+        );
         _;
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "Only admin can call this");
+        require(
+            msg.sender == admin,
+            "ERC721NFTContract: Only admin can call this"
+        );
         _;
     }
 
@@ -70,7 +76,10 @@ contract ERC721NFTContract is ERC721URIStorage {
      * @dev changes the admin for this contract
      */
     function changeAdmin(address _newAdmin) public onlyAdmin {
-        require(_newAdmin != address(0), "Zero address cannot be set");
+        require(
+            _newAdmin != address(0),
+            "ERC721NFTContract: Zero address cannot be set"
+        );
         admin = _newAdmin;
     }
 

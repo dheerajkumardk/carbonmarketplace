@@ -12,7 +12,7 @@ import "./../AdminRole.sol";
  * @dev This contract is used to mint NFT and keep track of all the NFT by users
  */
 contract MintingFactory is AdminRole {
-    event NFTContractCreated(
+    event CollectionCreated(
         string name,
         string symbol,
         address nftContract,
@@ -46,7 +46,7 @@ contract MintingFactory is AdminRole {
     modifier onlyCreatorAdmin(address _nftContract) {
         require(
             nftToOwner[_nftContract] == msg.sender || isAdmin(msg.sender),
-            "Only Creator or Admin can call this!"
+            "MintingFactory: Only Creator or Admin can call this!"
         );
         _;
     }
@@ -55,7 +55,10 @@ contract MintingFactory is AdminRole {
      * @notice Used to check the caller is exchange contract
      */
     modifier onlyExchange() {
-        require(msg.sender == exchangeAddress, "Only Exchange can call this!");
+        require(
+            msg.sender == exchangeAddress,
+            "MintingFactory: Only Exchange can call this!"
+        );
         _;
     }
 
@@ -76,7 +79,7 @@ contract MintingFactory is AdminRole {
      * @param _creator - address of the creator for whom the collection is being created
      * @param _tokenId - starting token id for the collection
      * @return _nftcontract address of the newly minted NFT collection contract
-     * Emits an event {NFTContractCreated} indicating the contract name, symbol, contract address and the creator addres
+     * Emits an event {CollectionCreated} indicating the contract name, symbol, contract address and the creator addres
      */
     function createCollection(
         string memory _name,
@@ -93,7 +96,7 @@ contract MintingFactory is AdminRole {
         nftToOwner[nftContract] = _creator;
         ERC721NFTContract(nftContract).setApprovalForAll(exchangeAddress, true);
 
-        emit NFTContractCreated(_name, _symbol, nftContract, _creator);
+        emit CollectionCreated(_name, _symbol, nftContract, _creator);
         // return address of new contract
         return nftContract;
     }
@@ -154,7 +157,7 @@ contract MintingFactory is AdminRole {
     {
         require(
             _mintingFactoryVault != address(0),
-            "Vault address cannot be zero"
+            "MintingFactory: Vault address cannot be zero"
         );
         carbonMintingFactoryFeeVault = _mintingFactoryVault;
 

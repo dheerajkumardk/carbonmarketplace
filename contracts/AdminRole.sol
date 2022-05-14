@@ -12,7 +12,7 @@ contract AdminRole is AccessControlEnumerable {
     }
 
     modifier onlyAdmin() {
-        require(isAdmin(msg.sender), "Restricted to admin.");
+        require(isAdmin(msg.sender), "AdminRole: Restricted to admin.");
         _;
     }
 
