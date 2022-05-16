@@ -34,7 +34,7 @@ interface IMintingFactory {
     function getRoleMembers()
         external
         view
-        returns (uint256 roleMemberCount, address[] memory roleMembers);
+        returns (uint256, address[] memory);
 
     function mintNFT(address _nftContract) external;
 
