@@ -4,12 +4,13 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "./../Interface/IAdminRegistry.sol";
 
 contract ERC721NFTContract is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    address public admin;
+    address public adminRegistry;
     address public factory;
 
     string baseURI = "https://carbon.xyz";
@@ -22,9 +23,9 @@ contract ERC721NFTContract is ERC721URIStorage {
         _;
     }
 
-    modifier onlyAdmin() {
+    modifier onlyAdminRegistry() {
         require(
-            msg.sender == admin,
+            IAdminRegistry(adminRegistry).isAdmin(msg.sender),
             "ERC721NFTContract: Only admin can call this"
         );
         _;
@@ -39,10 +40,10 @@ contract ERC721NFTContract is ERC721URIStorage {
     constructor(
         string memory _name,
         string memory _symbol,
-        address _admin,
+        address _adminRegistry,
         uint256 _tokenId
     ) ERC721(_name, _symbol) {
-        admin = _admin;
+        adminRegistry = _adminRegistry;
         factory = msg.sender;
         _tokenIds._value = _tokenId;
     }
@@ -59,7 +60,7 @@ contract ERC721NFTContract is ERC721URIStorage {
             abi.encodePacked(baseURI, Strings.toString(newItemId))
         );
 
-        _mint(admin, newItemId);
+        _mint(adminRegistry, newItemId);
         _setTokenURI(newItemId, tokenURI);
 
         return newItemId;
@@ -75,18 +76,18 @@ contract ERC721NFTContract is ERC721URIStorage {
     /*
      * @dev changes the admin for this contract
      */
-    function changeAdmin(address _newAdmin) public onlyAdmin {
-        require(
-            _newAdmin != address(0),
-            "ERC721NFTContract: Zero address cannot be set"
-        );
-        admin = _newAdmin;
-    }
+    // function changeAdmin(address _newAdmin) public onlyAdminRegistry {
+    //     require(
+    //         _newAdmin != address(0),
+    //         "ERC721NFTContract: Zero address cannot be set"
+    //     );
+    //     admin = _newAdmin;
+    // }
 
     /*
      * @dev updates the address of the minting factory
      */
-    function updateFactory(address _factory) external onlyAdmin {
+    function updateFactory(address _factory) external onlyAdminRegistry {
         factory = _factory;
     }
 }

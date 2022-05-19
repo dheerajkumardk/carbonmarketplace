@@ -1,3 +1,4 @@
+import { log } from "console";
 import { ethers, run } from "hardhat";
 
 const fs = require("fs");
@@ -17,6 +18,13 @@ const deploy = async () => {
   const MembershipTrader = await ethers.getContractFactory("MembershipTrader");
   const ExchangeCore = await ethers.getContractFactory("ExchangeCore");
   const EIP712 = await ethers.getContractFactory("EIP712");
+  // demo
+  const AdminRegistry = await ethers.getContractFactory("AdminRegistry");
+
+  const adminRegistry = await AdminRegistry.deploy(admin);
+  await adminRegistry.deployed();
+  console.log("Admin Registry deployed at: ", adminRegistry.address);
+  
 
   const eth = await Eth.connect(owner).deploy();
   await eth.deployed();
@@ -62,7 +70,8 @@ const deploy = async () => {
     mintingFactory.address,
     eth.address,
     carbonMembership.address,
-    admin
+    admin,
+    adminRegistry.address
   );
   await exchangeCore.deployed();
   console.log("Exchange Core deployed at: ", exchangeCore.address);
@@ -70,6 +79,7 @@ const deploy = async () => {
   const eip712 = await EIP712.deploy();
   await eip712.deployed();
   console.log("EIP712 deployed at", eip712.address);
+
 
   if (eth.deployTransaction.chainId == 80001) {
     fs.writeFileSync(

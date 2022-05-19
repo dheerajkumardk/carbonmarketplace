@@ -14,6 +14,7 @@ const GEMSSTAKINGABI = require("./../artifacts/contracts/Staking/GEMSStaking.sol
 const CARBONMEMBERSHIPABI = require("./../artifacts/contracts/Membership/CarbonMembership.sol/CarbonMembership.json");
 const MEMBERSHIPTRADERABI = require("./../artifacts/contracts/Membership/MembershipTrader.sol/MembershipTrader.json");
 const NFTCONTRACTABI = require("./../artifacts/contracts/MintingAndStorage/ERC721NFTContract.sol/ERC721NFTContract.json");
+const ADMINREGISTRYABI = require("./../artifacts/contracts/AdminRegistry.sol/AdminRegistry.json");
 
 let nftContract; // NFT_CONTRACT
 let newAdmin; // owner of Minting Factory
@@ -31,7 +32,7 @@ let gemsStakingAddress = Address.gemsStakingAddress;
 let carbonMembershipAddress = Address.carbonMembershipAddress;
 let membershipTraderAddress = Address.membershipTraderAddress;
 let nftContractAddress;
-
+let adminRegistryAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 let account, account2;
 let newExchangeAddress;
 let provider = ethers.getDefaultProvider("http://localhost:8545");
@@ -46,7 +47,7 @@ let gemsNFTReceipt = new ethers.Contract(gemsNFTReceiptAddress, GEMSNFTRECEIPTAB
 let gemsStaking = new ethers.Contract(gemsStakingAddress, GEMSSTAKINGABI.abi, provider);
 let carbonMembership = new ethers.Contract(carbonMembershipAddress, CARBONMEMBERSHIPABI.abi, provider);
 let membershipTrader = new ethers.Contract(membershipTraderAddress, MEMBERSHIPTRADERABI.abi, provider);
-
+let adminRegistry = new ethers.Contract(adminRegistryAddress, ADMINREGISTRYABI.abi, provider);
 describe("====>All Carbon Tests<====", () => {
 
 
@@ -274,10 +275,18 @@ describe("Exchange", () => {
         //    console.log(tx);
     })
 
+    it("Should update Factory in Exchange", async () => {
+        let tx = await exchange.connect(account2).updateFactory(account.address);
+    });
+
     it('Should remove an admin for Exchange', async () => {
         let tx = await exchange.connect(account).removeAdmin(account2.address);
         // console.log(tx); 
     })
+
+    it("Should update Factory in Exchange", async () => {
+        let tx = await exchange.connect(account2).updateFactory(account.address);
+    });
 })
 
 describe("Membership", () => {
@@ -325,4 +334,19 @@ describe("Membership", () => {
     it('Should update owner for Membership Trader', async () => {
         let tx = membershipTrader.connect(account).updateOwner(account2.address)
     })
+})
+
+
+describe("Admin Registry", () => {
+
+    beforeEach(async () => {
+        [account, account2] = await ethers.getSigners();
+        admin = account.address;
+    })
+
+    it('Returns all admins in the registry', async () => {
+        let tx = await adminRegistry.connect(account).getRoleMembers();
+        console.log(tx);
+    })
+
 })

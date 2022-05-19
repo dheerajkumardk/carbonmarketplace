@@ -4,14 +4,15 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./ERC721NFTContract.sol";
-import "./../AdminRole.sol";
+import "./../Interface/IAdminRegistry.sol";
+// import "./../AdminRole.sol";
 
 /**
  * @title Minting Factory Contract
  *
  * @dev This contract is used to mint NFT and keep track of all the NFT by users
  */
-contract MintingFactory is AdminRole {
+contract MintingFactory {
     event CollectionCreated(
         string name,
         string symbol,
@@ -31,6 +32,8 @@ contract MintingFactory is AdminRole {
     // Address of the carbon minting vault
     address public carbonMintingFactoryFeeVault;
 
+    address public adminRegistry;
+
     // Stores the NFTs per user
     mapping(address => address[]) public ownerToNFTs;
     // nft contract => (token id => owner)
@@ -45,12 +48,19 @@ contract MintingFactory is AdminRole {
      */
     modifier onlyCreatorAdmin(address _nftContract) {
         require(
-            nftToOwner[_nftContract] == msg.sender || isAdmin(msg.sender),
+            nftToOwner[_nftContract] == msg.sender || IAdminRegistry(adminRegistry).isAdmin(msg.sender),
             "MintingFactory: Only Creator or Admin can call this!"
         );
         _;
     }
 
+    modifier onlyAdminRegistry() {
+        require(
+            IAdminRegistry(adminRegistry).isAdmin(msg.sender),
+            "AdminRegistry: Restricted to admin."
+        );
+        _;
+    }
     /**
      * @notice Used to check the caller is exchange contract
      */
@@ -66,10 +76,11 @@ contract MintingFactory is AdminRole {
      * @notice Constructs the contract
      *
      * @param _eth Address of the wrapped ETH token
-     * @param _root Address of the default admin
+     * @param _adminRegistry Address of the Admin Registry contract
      */
-    constructor(address _eth, address _root) AdminRole(_root) {
+    constructor(address _eth, address _adminRegistry) {
         ETH = _eth;
+        adminRegistry = _adminRegistry;
     }
 
     /**
@@ -86,7 +97,7 @@ contract MintingFactory is AdminRole {
         string memory _symbol,
         address _creator,
         uint256 _tokenId
-    ) external onlyAdmin returns (address _nftcontract) {
+    ) external onlyAdminRegistry returns (address _nftcontract) {
         // create new contract
         address nftContract = address(
             new ERC721NFTContract(_name, _symbol, msg.sender, _tokenId)
@@ -140,7 +151,7 @@ contract MintingFactory is AdminRole {
      * Emits an event {ExchangeAddressChanged} depicting the address of old exchange contract
      * and the new exchange contract
      */
-    function updateExchangeAddress(address _newExchange) external onlyAdmin {
+    function updateExchangeAddress(address _newExchange) external onlyAdminRegistry {
         address oldExchange = exchangeAddress;
         exchangeAddress = _newExchange;
         emit ExchangeAddressChanged(oldExchange, exchangeAddress);
@@ -153,7 +164,7 @@ contract MintingFactory is AdminRole {
      */
     function setCarbonMintingFactoryFeeVault(address _mintingFactoryVault)
         external
-        onlyAdmin
+        onlyAdminRegistry
     {
         require(
             _mintingFactoryVault != address(0),
@@ -194,13 +205,27 @@ contract MintingFactory is AdminRole {
         view
         returns (uint256, address[] memory)
     {
-        uint256 roleMemberCount = getRoleMemberCount(DEFAULT_ADMIN_ROLE);
+        bytes32 DEFAULT_ADMIN_ROLE = keccak256("DEFAULT_ADMIN_ROLE");
+
+        uint256 roleMemberCount = IAdminRegistry(adminRegistry).getRoleMemberCount(DEFAULT_ADMIN_ROLE);
         address[] memory roleMembers = new address[](roleMemberCount);
 
         for (uint256 index = 0; index < roleMemberCount; index++) {
-            roleMembers[index] = getRoleMember(DEFAULT_ADMIN_ROLE, index);
+            roleMembers[index] = IAdminRegistry(adminRegistry).getRoleMember(DEFAULT_ADMIN_ROLE, index);
         }
 
         return (roleMemberCount, roleMembers);
+    }
+
+    function addAdminToRegistry(address _account) external {
+        IAdminRegistry(adminRegistry).addAdmin(_account);
+    }
+
+    function removeAdminFromRegistry(address _account) external {
+        IAdminRegistry(adminRegistry).removeAdmin(_account);
+    }
+
+    function leaveFromAdminRegistry() external {
+        IAdminRegistry(adminRegistry).leaveRole();
     }
 }
