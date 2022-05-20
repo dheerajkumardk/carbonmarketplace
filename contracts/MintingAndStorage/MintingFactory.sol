@@ -4,8 +4,10 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./ERC721NFTContract.sol";
-import "./../Interface/IAdminRegistry.sol";
+import "../Interface/IAdminRegistry.sol";
+import "../Interface/IERC721NFTContract.sol";
 // import "./../AdminRole.sol";
+import "../Library/Clones.sol";
 
 /**
  * @title Minting Factory Contract
@@ -26,6 +28,7 @@ contract MintingFactory {
 
     // Address of the wrapped ETH token
     address public immutable ETH;
+    address public implementation;
 
     // Address of the exchange contract
     address public exchangeAddress;
@@ -34,8 +37,10 @@ contract MintingFactory {
 
     address public adminRegistry;
 
+    uint256 public indexCount = 0;
+
     // Stores the NFTs per user
-    mapping(address => address[]) public ownerToNFTs;
+    mapping(address => address[]) public creatorToNFTs;
     // nft contract => (token id => owner)
     mapping(address => mapping(uint256 => address)) public nftToIdToOwner;
     // nftContract => ownerAddress
@@ -78,9 +83,10 @@ contract MintingFactory {
      * @param _eth Address of the wrapped ETH token
      * @param _adminRegistry Address of the Admin Registry contract
      */
-    constructor(address _eth, address _adminRegistry) {
+    constructor(address _eth, address _adminRegistry, address _implementation) {
         ETH = _eth;
         adminRegistry = _adminRegistry;
+        implementation = _implementation;
     }
 
     /**
@@ -96,14 +102,20 @@ contract MintingFactory {
         string memory _name,
         string memory _symbol,
         address _creator,
-        uint256 _tokenId
+        uint256 _tokenId    
     ) external onlyAdminRegistry returns (address _nftcontract) {
         // create new contract
-        address nftContract = address(
-            new ERC721NFTContract(_name, _symbol, msg.sender, _tokenId)
-        );
+        // address nftContract = address(
+            // new ERC721NFTContract(_name, _symbol, msg.sender, _tokenId)
+        // );
+        bytes32 _salt = keccak256(abi.encodePacked(indexCount, _name, _symbol, _creator, _tokenId));
+
+        address nftContract = Clones.cloneDeterministic(implementation, _salt);
+        IERC721NFTContract(nftContract).initialize(_name, _symbol, _creator, _tokenId);
+        indexCount++;
+
         // update mapping of owner to NFTContracts
-        ownerToNFTs[_creator].push(nftContract);
+        creatorToNFTs[_creator].push(nftContract);
         nftToOwner[nftContract] = _creator;
         ERC721NFTContract(nftContract).setApprovalForAll(exchangeAddress, true);
 
@@ -183,7 +195,7 @@ contract MintingFactory {
         view
         returns (address[] memory)
     {
-        return ownerToNFTs[user];
+        return creatorToNFTs[user];
     }
 
     /**
