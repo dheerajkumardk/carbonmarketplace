@@ -44,6 +44,9 @@ contract AdminRegistry is AccessControlEnumerable {
         revokeRole(DEFAULT_ADMIN_ROLE, account);
     }
 
+    /*
+    * @dev Lists out the list of all the admin addresses
+    */
     function getRoleMembers()
         external
         view
