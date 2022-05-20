@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./../Interface/IERC721NFTContract.sol";
 import "./../Interface/IMintingFactory.sol";
-// import "./../AdminRole.sol";
 import "./../Interface/ICarbonMembership.sol";
 
 import "./../Interface/IAdminRegistry.sol";
@@ -43,7 +42,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     address public carbonFeeVault;
     // Sets in 1000 decimal precision
     uint256 public buyerPremiumFees; // 2.5%
-
+    // address of admin registry
     address public adminRegistry;
 
     // One who bids for an nft, can cancel it anytime before auction ends
@@ -74,7 +73,9 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         adminRegistry = _adminRegistry;
     }
 
-
+    /*
+    * @dev only addresses in admin registry can call this
+    */
     modifier onlyAdminRegistry() {
         require(IAdminRegistry(adminRegistry).isAdmin(msg.sender), "AdminRegistry: Restricted to admin.");
         _;
@@ -203,12 +204,14 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     }
 
     // @notice updates address of the minting factory
+    // @param address of minting factory
     function updateFactory(address _factory) external onlyAdminRegistry {
         mintingFactory = _factory;
         emit MintingFactoryUpdate(_factory);
     }
 
     // @notice updates address of the carbon fee vault
+    // @param address of carbon fee vault
     function setCarbonFeeVaultAddress(address _carbonFeeVault)
         external
         onlyAdminRegistry
@@ -222,6 +225,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     }
 
     // @notice updates Buyer's premium fees factor
+    // @param buyers fee 
     function setBuyerPremiumFees(uint256 _buyersFee) external onlyAdminRegistry {
         buyerPremiumFees = _buyersFee;
         emit BuyerPremiumFeesSet(_buyersFee);
@@ -235,8 +239,9 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         _unpause();
     }
 
-    /**
+    /*
      * @notice Used to get all the admins and access
+     * @returns total number of admins and list of admin addresses
      */
     function getRoleMembers()
         external
@@ -356,14 +361,25 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         );
     }
 
+     /*
+     * @dev adds the given address for the admin role
+     * @param address of the user
+     */
     function addAdminToRegistry(address _account) external {
         IAdminRegistry(adminRegistry).addAdmin(_account);
     }
 
+     /*
+     * @dev Removes the given address from the admin role
+     * @param address of the user
+     */
     function removeAdminFromRegistry(address _account) external {
         IAdminRegistry(adminRegistry).removeAdmin(_account);
     }
 
+     /*
+     * @dev leaves the admin role
+     */
     function leaveFromAdminRegistry() external {
         IAdminRegistry(adminRegistry).leaveRole();
     }

@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 contract AdminRegistry is AccessControlEnumerable {
-    // bytes32 public constant override DEFAULT_ADMIN_ROLE = keccak256("DEFAULT_ADMIN_ROLE");
 
     constructor(address account) {
         _setupRole(DEFAULT_ADMIN_ROLE, account);
@@ -18,6 +17,7 @@ contract AdminRegistry is AccessControlEnumerable {
 
     /*
      * @dev Checks if the given address is the admin
+     * @param address of the user
      */
     function isAdmin(address account) public view returns (bool) {
         return hasRole(DEFAULT_ADMIN_ROLE, account);
@@ -25,6 +25,7 @@ contract AdminRegistry is AccessControlEnumerable {
 
     /*
      * @dev Adds the admin role for the given address
+     * @param address of the user
      */
     function addAdmin(address account) external onlyAdmin {
         grantRole(DEFAULT_ADMIN_ROLE, account);
@@ -39,6 +40,7 @@ contract AdminRegistry is AccessControlEnumerable {
 
     /*
      * @dev Removes the given address from the admin role
+     * @param address of the user
      */
     function removeAdmin(address account) external onlyAdmin {
         revokeRole(DEFAULT_ADMIN_ROLE, account);
@@ -46,6 +48,7 @@ contract AdminRegistry is AccessControlEnumerable {
 
     /*
     * @dev Lists out the list of all the admin addresses
+    * @returns total number of admins and list of admin addresses
     */
     function getRoleMembers()
         external

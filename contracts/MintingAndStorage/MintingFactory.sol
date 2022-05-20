@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ERC721NFTContract.sol";
 import "../Interface/IAdminRegistry.sol";
 import "../Interface/IERC721NFTContract.sol";
-// import "./../AdminRole.sol";
 import "../Library/Clones.sol";
 
 /**
@@ -104,10 +103,7 @@ contract MintingFactory {
         address _creator,
         uint256 _tokenId    
     ) external onlyAdminRegistry returns (address _nftcontract) {
-        // create new contract
-        // address nftContract = address(
-            // new ERC721NFTContract(_name, _symbol, msg.sender, _tokenId)
-        // );
+
         bytes32 _salt = keccak256(abi.encodePacked(indexCount, _name, _symbol, _creator, _tokenId));
 
         address nftContract = Clones.cloneDeterministic(implementation, _salt);
@@ -187,8 +183,10 @@ contract MintingFactory {
         emit CarbonMintingFactoryFeeVaultSet(_mintingFactoryVault);
     }
 
-    /**
+    /*
      * @dev lists all collections of a owner
+     * @param address of the user
+     * @returns lists of user nft collections
      */
     function getNFTsForOwner(address user)
         external
@@ -198,8 +196,10 @@ contract MintingFactory {
         return creatorToNFTs[user];
     }
 
-    /**
+    /*
      * @dev get total NFTs minted for a contract
+     * @param address of nft contract
+     * @returns number of nfts minted for the contract
      */
     function getTotalNFTsMinted(address _nftContract)
         external
@@ -209,8 +209,9 @@ contract MintingFactory {
         return ERC721NFTContract(_nftContract).getTotalNFTs();
     }
 
-    /**
+    /*
      * @notice Used to get all the admins and access
+     * @returns total number of admins and list of admin addresses
      */
     function getRoleMembers()
         external
@@ -229,14 +230,25 @@ contract MintingFactory {
         return (roleMemberCount, roleMembers);
     }
 
+    /*
+     * @dev Adds the admin role for the given address
+     * @param address of the user
+     */
     function addAdminToRegistry(address _account) external {
         IAdminRegistry(adminRegistry).addAdmin(_account);
     }
 
+    /*
+     * @dev Removes the given address from the admin role
+     * @param address of the user
+     */
     function removeAdminFromRegistry(address _account) external {
         IAdminRegistry(adminRegistry).removeAdmin(_account);
     }
 
+    /*
+     * @dev Removes oneself as the admin member of th community
+     */
     function leaveFromAdminRegistry() external {
         IAdminRegistry(adminRegistry).leaveRole();
     }
