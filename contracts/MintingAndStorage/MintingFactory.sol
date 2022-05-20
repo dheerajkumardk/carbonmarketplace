@@ -27,6 +27,7 @@ contract MintingFactory {
 
     // Address of the wrapped ETH token
     address public immutable ETH;
+    // address of the ERC721 NFT Contract
     address public implementation;
 
     // Address of the exchange contract
@@ -34,8 +35,10 @@ contract MintingFactory {
     // Address of the carbon minting vault
     address public carbonMintingFactoryFeeVault;
 
+    // address of admin registry contract
     address public adminRegistry;
 
+    // index to track number of nft contract deployed
     uint256 public indexCount = 0;
 
     // Stores the NFTs per user
@@ -58,6 +61,7 @@ contract MintingFactory {
         _;
     }
 
+    // @notice only admin registry members can call this
     modifier onlyAdminRegistry() {
         require(
             IAdminRegistry(adminRegistry).isAdmin(msg.sender),

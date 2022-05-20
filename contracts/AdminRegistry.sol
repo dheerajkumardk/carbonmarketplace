@@ -10,6 +10,7 @@ contract AdminRegistry is AccessControlEnumerable {
         _setupRole(DEFAULT_ADMIN_ROLE, account);
     }
 
+    // @notice only admin registered in admin registry contract can call it
     modifier onlyAdmin() {
         require(isAdmin(msg.sender), "AdminRegistry: Restricted to admin.");
         _;

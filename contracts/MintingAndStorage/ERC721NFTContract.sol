@@ -80,7 +80,7 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
 
     /*
      * @dev updates the address of the minting factory
-     * @param address of minting 
+     * @param address of minting factory
      */
     function updateFactory(address _factory) external onlyAdminRegistry {
         factory = _factory;
