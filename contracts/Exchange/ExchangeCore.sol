@@ -9,10 +9,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./../Interface/IERC721NFTContract.sol";
 import "./../Interface/IMintingFactory.sol";
-import "./../AdminRole.sol";
 import "./../Interface/ICarbonMembership.sol";
 
-contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
+import "./../Interface/IAdminRegistry.sol";
+
+contract ExchangeCore is Pausable, ReentrancyGuard {
     using SafeMath for uint256;
 
     event OrderExecuted(
@@ -41,6 +42,8 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     address public carbonFeeVault;
     // Sets in 1000 decimal precision
     uint256 public buyerPremiumFees; // 2.5%
+    // address of admin registry
+    address public adminRegistry;
 
     // One who bids for an nft, can cancel it anytime before auction ends
     // cancelledOrders[userAddress][nftContract][nft_id] => returns bool
@@ -56,18 +59,26 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
      * @param _mintingFactory Address of MintingFactory contract
      * @param _eth Address of the wrapped ETH token
      * @param _carbonMembership Address of carbon membership contract
-     * @param _root Address of default admin
      */
     constructor(
         address _mintingFactory,
         address _eth,
         address _carbonMembership,
-        address _root
-    ) AdminRole(_root) {
+        address _adminRegistry
+    ) {
         mintingFactory = _mintingFactory;
         ETH = _eth;
         carbonMembership = _carbonMembership;
         buyerPremiumFees = 25;
+        adminRegistry = _adminRegistry;
+    }
+
+    /*
+    * @dev only addresses in admin registry can call this
+    */
+    modifier onlyAdminRegistry() {
+        require(IAdminRegistry(adminRegistry).isAdmin(msg.sender), "AdminRegistry: Restricted to admin.");
+        _;
     }
 
     /*
@@ -91,7 +102,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         uint256 _amount,
         uint256 _auctionEndTime,
         uint256 _mode
-    ) external onlyAdmin whenNotPaused nonReentrant {
+    ) external onlyAdminRegistry whenNotPaused nonReentrant {
         // Validating all the requirements
         require(
             _auctionEndTime > block.timestamp,
@@ -162,7 +173,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         address _nftContract,
         uint256 _tokenId,
         address _buyer
-    ) external onlyAdmin whenNotPaused {
+    ) external onlyAdminRegistry whenNotPaused {
         require(
             !cancelledOrders[_buyer][_nftContract][_tokenId],
             "ExchangeCore: Order already cancelled"
@@ -183,7 +194,7 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
         address _nftContract,
         uint256 _tokenId,
         address _buyer
-    ) external onlyAdmin whenNotPaused {
+    ) external onlyAdminRegistry whenNotPaused {
         require(
             cancelledOrders[_buyer][_nftContract][_tokenId],
             "ExchangeCore: Order was never cancelled"
@@ -193,15 +204,17 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     }
 
     // @notice updates address of the minting factory
-    function updateFactory(address _factory) external onlyAdmin {
+    // @param address of minting factory
+    function updateFactory(address _factory) external onlyAdminRegistry {
         mintingFactory = _factory;
         emit MintingFactoryUpdate(_factory);
     }
 
     // @notice updates address of the carbon fee vault
+    // @param address of carbon fee vault
     function setCarbonFeeVaultAddress(address _carbonFeeVault)
         external
-        onlyAdmin
+        onlyAdminRegistry
     {
         require(
             _carbonFeeVault != address(0),
@@ -212,32 +225,36 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
     }
 
     // @notice updates Buyer's premium fees factor
-    function setBuyerPremiumFees(uint256 _buyersFee) external onlyAdmin {
+    // @param buyers fee 
+    function setBuyerPremiumFees(uint256 _buyersFee) external onlyAdminRegistry {
         buyerPremiumFees = _buyersFee;
         emit BuyerPremiumFeesSet(_buyersFee);
     }
 
-    function pause() external onlyAdmin {
+    function pause() external onlyAdminRegistry {
         _pause();
     }
 
-    function unpause() external onlyAdmin {
+    function unpause() external onlyAdminRegistry {
         _unpause();
     }
 
-    /**
+    /*
      * @notice Used to get all the admins and access
+     * @returns total number of admins and list of admin addresses
      */
     function getRoleMembers()
         external
         view
         returns (uint256, address[] memory)
     {
-        uint256 roleMemberCount = getRoleMemberCount(DEFAULT_ADMIN_ROLE);
+        bytes32 DEFAULT_ADMIN_ROLE = keccak256("DEFAULT_ADMIN_ROLE");
+
+        uint256 roleMemberCount = IAdminRegistry(adminRegistry).getRoleMemberCount(DEFAULT_ADMIN_ROLE);
         address[] memory roleMembers = new address[](roleMemberCount);
 
         for (uint256 index = 0; index < roleMemberCount; index++) {
-            roleMembers[index] = getRoleMember(DEFAULT_ADMIN_ROLE, index);
+            roleMembers[index] = IAdminRegistry(adminRegistry).getRoleMember(DEFAULT_ADMIN_ROLE, index);
         }
 
         return (roleMemberCount, roleMembers);
@@ -342,5 +359,28 @@ contract ExchangeCore is AdminRole, Pausable, ReentrancyGuard {
             _creatorRoyalties,
             _mode
         );
+    }
+
+     /*
+     * @dev adds the given address for the admin role
+     * @param address of the user
+     */
+    function addAdminToRegistry(address _account) external {
+        IAdminRegistry(adminRegistry).addAdmin(_account);
+    }
+
+     /*
+     * @dev Removes the given address from the admin role
+     * @param address of the user
+     */
+    function removeAdminFromRegistry(address _account) external {
+        IAdminRegistry(adminRegistry).removeAdmin(_account);
+    }
+
+     /*
+     * @dev leaves the admin role
+     */
+    function leaveFromAdminRegistry() external {
+        IAdminRegistry(adminRegistry).leaveRole();
     }
 }
