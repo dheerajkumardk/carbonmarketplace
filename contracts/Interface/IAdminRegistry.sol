@@ -7,6 +7,11 @@ interface IAdminRegistry {
 
     function getRoleMemberCount(bytes32 role) external view returns (uint256);
 
+    function getRoleMembers()
+        external
+        view
+        returns (uint256, address[] memory);
+
     function isAdmin(address user) external view returns(bool);
 
     function leaveRole() external;
