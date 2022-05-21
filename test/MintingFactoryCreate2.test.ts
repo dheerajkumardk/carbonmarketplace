@@ -50,5 +50,32 @@ describe("====>Minting Factory Create2<====", function () {
     });
     await new Promise(res => setTimeout(() => res(null), 5000));
     
-})
+  });
+  
+  it ("Should mint NFT for the contract", async () => {
+      let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
+      const receipt = tx.wait();
+      let nftContract: any;
+
+      mintingFactory.on("CollectionCreated", (_name: any, _symbol: any, _nftContract: any, _creator: any) => {
+          nftContract = _nftContract;
+        console.log(_name, _symbol, _nftContract, _creator);
+    });
+    await new Promise(res => setTimeout(() => res(null), 5000));
+
+    // minting nft for this collection
+    let tx2 = await mintingFactory.mintNFT(nftContract);
+    // console.log(tx2);
+
+    // get NFTs for owner
+    let tx3 = await mintingFactory.getNFTsForOwner(ownerAddress);
+    console.log(tx3);
+
+    let tx4 = await mintingFactory.getTotalNFTsMinted(nftContract);
+    console.log(tx4);
+    
+    
+    
+  }); 
+
 });
