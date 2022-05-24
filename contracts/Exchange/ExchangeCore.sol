@@ -30,6 +30,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     event CarbonFeeVaultSet(address carbonFeeVault);
     event BuyerPremiumFeesSet(uint256 _feePercent);
     event MintingFactoryUpdate(address indexed _mintingFactory);
+    event CharityWalletUpdate(address indexed _newCharity);
 
     uint256 public constant MAX_BASE_FACTOR = 1025; // 102.5%
     address public immutable WETH;
@@ -44,12 +45,25 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     uint256 public buyerPremiumFees; // 2.5%
     // address of admin registry
     address public adminRegistry;
+    // address of the charity wallet
+    address public charity;
 
     // One who bids for an nft, can cancel it anytime before auction ends
     // cancelledOrders[userAddress][nftContract][nft_id] => returns bool
     // returns true if order is cancelled
     mapping(address => mapping(address => mapping(uint256 => bool)))
         public cancelledOrders;
+
+    /**
+     * @dev only addresses in admin registry can call this
+     */
+    modifier onlyAdminRegistry() {
+        require(
+            IAdminRegistry(adminRegistry).isAdmin(msg.sender),
+            "AdminRegistry: Restricted to admin."
+        );
+        _;
+    }
 
     //@dev WETH is an ERC20 token on polygon
     // Sets the value for minting factory, eth, carbonMembership and root for the AdminRole
@@ -64,24 +78,19 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         address _mintingFactory,
         address _weth,
         address _carbonMembership,
-        address _adminRegistry
+        address _adminRegistry,
+        address _charity
     ) {
         mintingFactory = _mintingFactory;
         WETH = _weth;
         carbonMembership = _carbonMembership;
         buyerPremiumFees = 25;
         adminRegistry = _adminRegistry;
-    }
-
-    /**
-     * @dev only addresses in admin registry can call this
-     */
-    modifier onlyAdminRegistry() {
         require(
-            IAdminRegistry(adminRegistry).isAdmin(msg.sender),
-            "AdminRegistry: Restricted to admin."
+            _charity != address(0),
+            "ExchangeCore: Zero address of charity"
         );
-        _;
+        charity = _charity;
     }
 
     /**
@@ -136,7 +145,9 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
             // 10/10/80 split (Charity)
             carbonRoyaltyFee = _amount.mul(800).div(MAX_BASE_FACTOR);
             creatorRoyalties = _amount.mul(100).div(MAX_BASE_FACTOR);
-            charityFees = isCarbonMember ? 0 : _amount.mul(100).div(MAX_BASE_FACTOR);
+            charityFees = isCarbonMember
+                ? 0
+                : _amount.mul(100).div(MAX_BASE_FACTOR);
         } else if (_mode == 2) {
             // 50/50 split
             carbonRoyaltyFee = _amount.mul(500).div(MAX_BASE_FACTOR);
@@ -240,6 +251,20 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     {
         buyerPremiumFees = _buyersFee;
         emit BuyerPremiumFeesSet(_buyersFee);
+    }
+
+    /**
+     * @notice Sets the address of charity wallet
+     * @param _newCharity address of the charity
+     */
+    function updateCharity(address _newCharity) external onlyAdminRegistry {
+        require(
+            _newCharity != address(0),
+            "ExchangeCore: Zero address of charity"
+        );
+        charity = _newCharity;
+
+        emit CharityWalletUpdate(_newCharity);
     }
 
     function pause() external onlyAdminRegistry {
