@@ -157,16 +157,14 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
             carbonRoyaltyFee = _amount.mul(300).div(MAX_BASE_FACTOR);
             creatorRoyalties = _amount.mul(700).div(MAX_BASE_FACTOR);
         }
-        // transfer Royalties to the exchange
-
-        uint256 carbonTradeFee = _amount.mul(buyerPremiumFees).div(
-            MAX_BASE_FACTOR
-        );
 
         uint256 totalCarbonFee;
         if (_isCarbonMember) {
             totalCarbonFee = carbonRoyaltyFee;
         } else {
+            uint256 carbonTradeFee = _amount.mul(buyerPremiumFees).div(
+                MAX_BASE_FACTOR
+            );
             totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
         }
 
