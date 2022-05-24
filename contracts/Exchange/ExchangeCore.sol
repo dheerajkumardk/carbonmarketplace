@@ -73,15 +73,18 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         adminRegistry = _adminRegistry;
     }
 
-    /*
-    * @dev only addresses in admin registry can call this
-    */
+    /**
+     * @dev only addresses in admin registry can call this
+     */
     modifier onlyAdminRegistry() {
-        require(IAdminRegistry(adminRegistry).isAdmin(msg.sender), "AdminRegistry: Restricted to admin.");
+        require(
+            IAdminRegistry(adminRegistry).isAdmin(msg.sender),
+            "AdminRegistry: Restricted to admin."
+        );
         _;
     }
 
-    /*
+    /**
      * @dev
      * Executes the order, can be called by the admin only.
      * Checks and validates the order details before execution.
@@ -116,53 +119,51 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
             IERC721NFTContract(_nftContract).factory() == mintingFactory,
             "ExchangeCore: ERC721 Factory doesn't match with Exchange Factory"
         );
-        require(_mode <= 2, "Invalid mode specified");
-        bool validSeller = _validateSeller(_nftContract, _tokenId, _seller);
-        bool validBuyer = _validateBuyer(_buyer, _amount);
+        require(_mode <= 3, "Invalid mode specified");
+        _validateSeller(_nftContract, _tokenId, _seller);
+        _validateBuyer(_buyer, _amount);
 
-        if (validSeller && validBuyer) {
-            uint256 carbonRoyaltyFee;
-            uint256 creatorRoyalties;
+        uint256 carbonRoyaltyFee;
+        uint256 creatorRoyalties;
 
-            if (_mode == 0) {
-                // 90-10
-                carbonRoyaltyFee = _amount.mul(100).div(MAX_BASE_FACTOR);
-                creatorRoyalties = _amount.mul(900).div(MAX_BASE_FACTOR);
-            } else if (_mode == 1) {
-                // 60-40
-                carbonRoyaltyFee = _amount.mul(400).div(MAX_BASE_FACTOR);
-                creatorRoyalties = _amount.mul(600).div(MAX_BASE_FACTOR);
-            } else {
-                // 50-50
-                carbonRoyaltyFee = _amount.mul(500).div(MAX_BASE_FACTOR);
-                creatorRoyalties = _amount.mul(500).div(MAX_BASE_FACTOR);
-            }
-            // transfer Royalties to the exchange
-
-            uint256 carbonTradeFee = _amount.mul(buyerPremiumFees).div(
-                MAX_BASE_FACTOR
-            );
-
-            uint256 totalCarbonFee;
-            if (ICarbonMembership(carbonMembership).balanceOf(_buyer) >= 1) {
-                totalCarbonFee = carbonRoyaltyFee;
-            } else {
-                totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
-            }
-
-            _executeOrder(
-                totalCarbonFee,
-                creatorRoyalties,
-                _nftContract,
-                _tokenId,
-                _buyer,
-                _seller,
-                _mode
-            );
+        if (_mode == 0) {
+            // 90-10
+            carbonRoyaltyFee = _amount.mul(100).div(MAX_BASE_FACTOR);
+            creatorRoyalties = _amount.mul(900).div(MAX_BASE_FACTOR);
+        } else if (_mode == 1) {
+            // 60-40
+            carbonRoyaltyFee = _amount.mul(400).div(MAX_BASE_FACTOR);
+            creatorRoyalties = _amount.mul(600).div(MAX_BASE_FACTOR);
+        } else {
+            // 50-50
+            carbonRoyaltyFee = _amount.mul(500).div(MAX_BASE_FACTOR);
+            creatorRoyalties = _amount.mul(500).div(MAX_BASE_FACTOR);
         }
+        // transfer Royalties to the exchange
+
+        uint256 carbonTradeFee = _amount.mul(buyerPremiumFees).div(
+            MAX_BASE_FACTOR
+        );
+
+        uint256 totalCarbonFee;
+        if (ICarbonMembership(carbonMembership).balanceOf(_buyer) >= 1) {
+            totalCarbonFee = carbonRoyaltyFee;
+        } else {
+            totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
+        }
+
+        _executeOrder(
+            totalCarbonFee,
+            creatorRoyalties,
+            _nftContract,
+            _tokenId,
+            _buyer,
+            _seller,
+            _mode
+        );
     }
 
-    /*
+    /**
      * @notice - Cancels the order for the buyer when he places bid for any NFT on sale
      * @param _nftContract - address of the nft contract
      * @param _tokenId - token id of the nft that was on sale
@@ -183,7 +184,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         emit OrderCancelled(_nftContract, _tokenId, _buyer);
     }
 
-    /*
+    /**
      * @notice - Uncancels the order for the buyer who had earlier cancelled his order
      * @param _nftContract - address of the nft contract
      * @param _tokenId - token id of the nft that was on sale
@@ -225,8 +226,11 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     }
 
     // @notice updates Buyer's premium fees factor
-    // @param buyers fee 
-    function setBuyerPremiumFees(uint256 _buyersFee) external onlyAdminRegistry {
+    // @param buyers fee
+    function setBuyerPremiumFees(uint256 _buyersFee)
+        external
+        onlyAdminRegistry
+    {
         buyerPremiumFees = _buyersFee;
         emit BuyerPremiumFeesSet(_buyersFee);
     }
@@ -239,9 +243,9 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         _unpause();
     }
 
-    /*
+    /**
      * @notice Used to get all the admins and access
-     * @returns total number of admins and list of admin addresses
+     * @return memberCount number of admins and list of admin addresses
      */
     function getRoleMembers()
         external
@@ -250,11 +254,15 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     {
         bytes32 DEFAULT_ADMIN_ROLE = keccak256("DEFAULT_ADMIN_ROLE");
 
-        uint256 roleMemberCount = IAdminRegistry(adminRegistry).getRoleMemberCount(DEFAULT_ADMIN_ROLE);
+        uint256 roleMemberCount = IAdminRegistry(adminRegistry)
+            .getRoleMemberCount(DEFAULT_ADMIN_ROLE);
         address[] memory roleMembers = new address[](roleMemberCount);
 
         for (uint256 index = 0; index < roleMemberCount; index++) {
-            roleMembers[index] = IAdminRegistry(adminRegistry).getRoleMember(DEFAULT_ADMIN_ROLE, index);
+            roleMembers[index] = IAdminRegistry(adminRegistry).getRoleMember(
+                DEFAULT_ADMIN_ROLE,
+                index
+            );
         }
 
         return (roleMemberCount, roleMembers);
@@ -315,7 +323,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         return true;
     }
 
-    /*
+    /**
      * @dev - Executes the order
      * transfers the NFT from the seller to the buyer
      * transfer WETH tokens (fees and royalties) to carbon
@@ -361,23 +369,23 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         );
     }
 
-     /*
+    /**
      * @dev adds the given address for the admin role
-     * @param address of the user
+     * @param _account address of the user
      */
     function addAdminToRegistry(address _account) external {
         IAdminRegistry(adminRegistry).addAdmin(_account);
     }
 
-     /*
+    /**
      * @dev Removes the given address from the admin role
-     * @param address of the user
+     * @param _account address of the user
      */
     function removeAdminFromRegistry(address _account) external {
         IAdminRegistry(adminRegistry).removeAdmin(_account);
     }
 
-     /*
+    /**
      * @dev leaves the admin role
      */
     function leaveFromAdminRegistry() external {
