@@ -173,6 +173,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         _executeOrder(
             totalCarbonFee,
             creatorRoyalties,
+            charityFees,
             _nftContract,
             _tokenId,
             _buyer,
@@ -366,6 +367,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     function _executeOrder(
         uint256 _totalCarbonFee,
         uint256 _creatorRoyalties,
+        uint256 _charityFees,
         address _nftContract,
         uint256 _tokenId,
         address _buyer,
@@ -376,6 +378,9 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
 
         // transferring the amount to the seller
         IERC20(WETH).transferFrom(_buyer, _seller, _creatorRoyalties);
+        if (_charityFees != 0) {
+            IERC20(WETH).transferFrom(_buyer, charity, _charityFees);
+        }
 
         // transferring the NFT to the buyer
         IERC721NFTContract(_nftContract).transferFrom(
