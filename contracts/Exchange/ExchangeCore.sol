@@ -32,7 +32,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     event MintingFactoryUpdate(address indexed _mintingFactory);
 
     uint256 public constant MAX_BASE_FACTOR = 1025; // 102.5%
-    address public immutable ETH;
+    address public immutable WETH;
 
     // Address of minting factory
     address public mintingFactory;
@@ -51,23 +51,23 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     mapping(address => mapping(address => mapping(uint256 => bool)))
         public cancelledOrders;
 
-    //@dev ETH is an ERC20 token on polygon
+    //@dev WETH is an ERC20 token on polygon
     // Sets the value for minting factory, eth, carbonMembership and root for the AdminRole
     /**
      * @notice Constructs the ExchangeCore
      *
      * @param _mintingFactory Address of MintingFactory contract
-     * @param _eth Address of the wrapped ETH token
+     * @param _weth Address of the wrapped ETH token
      * @param _carbonMembership Address of carbon membership contract
      */
     constructor(
         address _mintingFactory,
-        address _eth,
+        address _weth,
         address _carbonMembership,
         address _adminRegistry
     ) {
         mintingFactory = _mintingFactory;
-        ETH = _eth;
+        WETH = _weth;
         carbonMembership = _carbonMembership;
         buyerPremiumFees = 25;
         adminRegistry = _adminRegistry;
@@ -90,7 +90,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
      * @param _tokenId - token id of the token on sale
      * @param _buyer - address of the user who wishes to buy the NFT
      * @param _seller - address of the user who wishes to sell the NFT
-     * @param _amount - the total price (in ETH) of the NFT
+     * @param _amount - the total price (in WETH) of the NFT
      * @param _auctionEndTime - time when the auction will end
      * @param _mode - Mode represents how the royalties for the NFT will be distributed between  the creator and carbon
      */
@@ -305,11 +305,11 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         returns (bool)
     {
         require(
-            IERC20(ETH).allowance(_buyer, address(this)) > _amount,
+            IERC20(WETH).allowance(_buyer, address(this)) > _amount,
             "ExchangeCore: Allowance is less than the NFT's price."
         );
         require(
-            IERC20(ETH).balanceOf(_buyer) > _amount,
+            IERC20(WETH).balanceOf(_buyer) > _amount,
             "ExchangeCore: Buyer doesn't have sufficient funds"
         );
         return true;
@@ -318,8 +318,8 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     /*
      * @dev - Executes the order
      * transfers the NFT from the seller to the buyer
-     * transfer ETH tokens (fees and royalties) to carbon
-     * transfers ETH tokens (creator royalties) to the creator
+     * transfer WETH tokens (fees and royalties) to carbon
+     * transfers WETH tokens (creator royalties) to the creator
      * update ownership of the NFT on chain in the minting factory contract
      * Emits the OrderExecuted event
      */
@@ -332,10 +332,10 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         address _seller,
         uint256 _mode
     ) internal {
-        IERC20(ETH).transferFrom(_buyer, carbonFeeVault, _totalCarbonFee);
+        IERC20(WETH).transferFrom(_buyer, carbonFeeVault, _totalCarbonFee);
 
         // transferring the amount to the seller
-        IERC20(ETH).transferFrom(_buyer, _seller, _creatorRoyalties);
+        IERC20(WETH).transferFrom(_buyer, _seller, _creatorRoyalties);
 
         // transferring the NFT to the buyer
         IERC721NFTContract(_nftContract).transferFrom(
