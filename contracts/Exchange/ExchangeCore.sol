@@ -114,7 +114,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         uint256 _amount,
         uint256 _auctionEndTime,
         uint256 _mode,
-        bool isCarbonMember
+        bool _isCarbonMember
     ) external onlyAdminRegistry whenNotPaused nonReentrant {
         // Validating all the requirements
         require(
@@ -145,7 +145,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
             // 10/10/80 split (Charity)
             carbonRoyaltyFee = _amount.mul(800).div(MAX_BASE_FACTOR);
             creatorRoyalties = _amount.mul(100).div(MAX_BASE_FACTOR);
-            charityFees = isCarbonMember
+            charityFees = _isCarbonMember
                 ? 0
                 : _amount.mul(100).div(MAX_BASE_FACTOR);
         } else if (_mode == 2) {
@@ -164,7 +164,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         );
 
         uint256 totalCarbonFee;
-        if (isCarbonMember) {
+        if (_isCarbonMember) {
             totalCarbonFee = carbonRoyaltyFee;
         } else {
             totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
