@@ -104,7 +104,8 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         address _seller,
         uint256 _amount,
         uint256 _auctionEndTime,
-        uint256 _mode
+        uint256 _mode,
+        bool isCarbonMember
     ) external onlyAdminRegistry whenNotPaused nonReentrant {
         // Validating all the requirements
         require(
@@ -119,25 +120,31 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
             IERC721NFTContract(_nftContract).factory() == mintingFactory,
             "ExchangeCore: ERC721 Factory doesn't match with Exchange Factory"
         );
-        require(_mode <= 3, "Invalid mode specified");
+        require(_mode <= 3, "ExchangeCore: Invalid mode specified");
         _validateSeller(_nftContract, _tokenId, _seller);
         _validateBuyer(_buyer, _amount);
 
         uint256 carbonRoyaltyFee;
         uint256 creatorRoyalties;
+        uint256 charityFees;
 
         if (_mode == 0) {
-            // 90-10
-            carbonRoyaltyFee = _amount.mul(100).div(MAX_BASE_FACTOR);
-            creatorRoyalties = _amount.mul(900).div(MAX_BASE_FACTOR);
+            // 75/25 split (TBC)
+            carbonRoyaltyFee = _amount.mul(250).div(MAX_BASE_FACTOR);
+            creatorRoyalties = _amount.mul(750).div(MAX_BASE_FACTOR);
         } else if (_mode == 1) {
-            // 60-40
-            carbonRoyaltyFee = _amount.mul(400).div(MAX_BASE_FACTOR);
-            creatorRoyalties = _amount.mul(600).div(MAX_BASE_FACTOR);
-        } else {
-            // 50-50
+            // 10/10/80 split (Charity)
+            carbonRoyaltyFee = _amount.mul(800).div(MAX_BASE_FACTOR);
+            creatorRoyalties = _amount.mul(100).div(MAX_BASE_FACTOR);
+            charityFees = isCarbonMember ? 0 : _amount.mul(100).div(MAX_BASE_FACTOR);
+        } else if (_mode == 2) {
+            // 50/50 split
             carbonRoyaltyFee = _amount.mul(500).div(MAX_BASE_FACTOR);
             creatorRoyalties = _amount.mul(500).div(MAX_BASE_FACTOR);
+        } else {
+            // 70/30 split (i.e. WeirdCore)
+            carbonRoyaltyFee = _amount.mul(300).div(MAX_BASE_FACTOR);
+            creatorRoyalties = _amount.mul(700).div(MAX_BASE_FACTOR);
         }
         // transfer Royalties to the exchange
 
@@ -146,7 +153,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         );
 
         uint256 totalCarbonFee;
-        if (ICarbonMembership(carbonMembership).balanceOf(_buyer) >= 1) {
+        if (isCarbonMember) {
             totalCarbonFee = carbonRoyaltyFee;
         } else {
             totalCarbonFee = carbonTradeFee + carbonRoyaltyFee;
