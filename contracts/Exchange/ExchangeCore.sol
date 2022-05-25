@@ -23,7 +23,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         address indexed buyer,
         uint256 totalCarbonRoyalties,
         uint256 creatorRoyalties,
-        uint256 mode
+        uint8 mode
     );
     event OrderCancelled(address nftContract, uint256 tokenId, address buyer);
     event OrderUncancelled(address nftContract, uint256 tokenId, address buyer);
@@ -113,7 +113,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         address _seller,
         uint256 _amount,
         uint256 _auctionEndTime,
-        uint256 _mode,
+        uint8 _mode,
         bool _isCarbonMember
     ) external onlyAdminRegistry whenNotPaused nonReentrant {
         // Validating all the requirements
@@ -370,7 +370,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         uint256 _tokenId,
         address _buyer,
         address _seller,
-        uint256 _mode
+        uint8 _mode
     ) internal {
         IERC20(WETH).transferFrom(_buyer, carbonFeeVault, _totalCarbonFee);
 
