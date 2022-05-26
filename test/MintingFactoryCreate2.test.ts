@@ -73,9 +73,6 @@ describe("====>Minting Factory Create2<====", function () {
 
     let tx4 = await mintingFactory.getTotalNFTsMinted(nftContract);
     console.log(tx4);
-    
-    
-    
   }); 
 
 });
