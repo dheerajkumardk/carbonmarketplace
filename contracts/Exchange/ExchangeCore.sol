@@ -27,7 +27,6 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     );
     event OrderCancelled(address nftContract, uint256 tokenId, address buyer);
     event OrderUncancelled(address nftContract, uint256 tokenId, address buyer);
-    event CarbonFeeVaultSet(address carbonFeeVault);
     event BuyerPremiumFeesSet(uint256 _feePercent);
     event MintingFactoryUpdate(address indexed _mintingFactory);
     event CharityWalletUpdate(address indexed _newCharity);
@@ -39,8 +38,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     address public mintingFactory;
     // Address of carbon membership
     address public carbonMembership;
-    // Address of carbon fee vault
-    address public carbonFeeVault;
+    
     // Sets in 1000 decimal precision
     uint256 public buyerPremiumFees; // 2.5%
     // address of admin registry
@@ -57,7 +55,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
     /**
      * @dev only addresses in admin registry can call this
      */
-    modifier onlyAdminRegistry() {
+    modifier onlyAdmin() {
         require(
             IAdminRegistry(adminRegistry).isAdmin(msg.sender),
             "AdminRegistry: Restricted to admin."
@@ -115,7 +113,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         uint256 _auctionEndTime,
         uint8 _mode,
         bool _isCarbonMember
-    ) external onlyAdminRegistry whenNotPaused nonReentrant {
+    ) external onlyAdmin whenNotPaused nonReentrant {
         // Validating all the requirements
         require(
             _auctionEndTime > block.timestamp,
@@ -191,7 +189,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         address _nftContract,
         uint256 _tokenId,
         address _buyer
-    ) external onlyAdminRegistry whenNotPaused {
+    ) external onlyAdmin whenNotPaused {
         require(
             !cancelledOrders[_buyer][_nftContract][_tokenId],
             "ExchangeCore: Order already cancelled"
@@ -212,7 +210,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         address _nftContract,
         uint256 _tokenId,
         address _buyer
-    ) external onlyAdminRegistry whenNotPaused {
+    ) external onlyAdmin whenNotPaused {
         require(
             cancelledOrders[_buyer][_nftContract][_tokenId],
             "ExchangeCore: Order was never cancelled"
@@ -223,30 +221,16 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
 
     // @notice updates address of the minting factory
     // @param address of minting factory
-    function updateFactory(address _factory) external onlyAdminRegistry {
+    function updateFactory(address _factory) external onlyAdmin {
         mintingFactory = _factory;
         emit MintingFactoryUpdate(_factory);
-    }
-
-    // @notice updates address of the carbon fee vault
-    // @param address of carbon fee vault
-    function setCarbonFeeVaultAddress(address _carbonFeeVault)
-        external
-        onlyAdminRegistry
-    {
-        require(
-            _carbonFeeVault != address(0),
-            "ExchangeCore: Vault address cannot be zero"
-        );
-        carbonFeeVault = _carbonFeeVault;
-        emit CarbonFeeVaultSet(_carbonFeeVault);
     }
 
     // @notice updates Buyer's premium fees factor
     // @param buyers fee
     function setBuyerPremiumFees(uint256 _buyersFee)
         external
-        onlyAdminRegistry
+        onlyAdmin
     {
         buyerPremiumFees = _buyersFee;
         emit BuyerPremiumFeesSet(_buyersFee);
@@ -256,7 +240,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
      * @notice Sets the address of charity wallet
      * @param _newCharity address of the charity
      */
-    function updateCharity(address _newCharity) external onlyAdminRegistry {
+    function updateCharity(address _newCharity) external onlyAdmin {
         require(
             _newCharity != address(0),
             "ExchangeCore: Zero address of charity"
@@ -266,11 +250,11 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         emit CharityWalletUpdate(_newCharity);
     }
 
-    function pause() external onlyAdminRegistry {
+    function pause() external onlyAdmin {
         _pause();
     }
 
-    function unpause() external onlyAdminRegistry {
+    function unpause() external onlyAdmin {
         _unpause();
     }
 
@@ -372,6 +356,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         address _seller,
         uint8 _mode
     ) internal {
+        address carbonFeeVault = IAdminRegistry(adminRegistry).getCarbonVault();
         IERC20(WETH).transferFrom(_buyer, carbonFeeVault, _totalCarbonFee);
 
         // transferring the amount to the seller
@@ -408,7 +393,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
      * @dev adds the given address for the admin role
      * @param _account address of the user
      */
-    function addAdminToRegistry(address _account) external {
+    function addAdmin(address _account) external {
         IAdminRegistry(adminRegistry).addAdmin(_account);
     }
 
@@ -416,14 +401,14 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
      * @dev Removes the given address from the admin role
      * @param _account address of the user
      */
-    function removeAdminFromRegistry(address _account) external {
+    function removeAdmin(address _account) external {
         IAdminRegistry(adminRegistry).removeAdmin(_account);
     }
 
     /**
      * @dev leaves the admin role
      */
-    function leaveFromAdminRegistry() external {
+    function leaveRole() external {
         IAdminRegistry(adminRegistry).leaveRole();
     }
 }

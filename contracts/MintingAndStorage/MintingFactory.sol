@@ -23,17 +23,14 @@ contract MintingFactory {
     event NFTMinted(address nftContract, uint256 tokenId);
     event OwnerUpdated(address nftContract, uint256 tokenId, address newOwner);
     event ExchangeAddressChanged(address oldExchange, address newExchange);
-    event CarbonMintingFactoryFeeVaultSet(address carbonMintingFactoryFeeVault);
 
     // Address of the wrapped ETH token
-    address public immutable ETH;
+    address public immutable WETH;
     // address of the ERC721 NFT Contract
     address public implementation;
 
     // Address of the exchange contract
     address public exchangeAddress;
-    // Address of the carbon minting vault
-    address public carbonMintingFactoryFeeVault;
 
     // address of admin registry contract
     address public adminRegistry;
@@ -49,11 +46,12 @@ contract MintingFactory {
     mapping(address => address) public nftToOwner;
 
     /**
-     * @notice Used to check caller is the owner of that NFT
+     * @notice Used to check caller is the owner of that NFT or
+     * is an admin registered in Admin Registry
      *
      * @param _nftContract Address of the NFT
      */
-    modifier onlyCreatorAdmin(address _nftContract) {
+    modifier onlyCreatorAndAdmin(address _nftContract) {
         require(
             nftToOwner[_nftContract] == msg.sender || IAdminRegistry(adminRegistry).isAdmin(msg.sender),
             "MintingFactory: Only Creator or Admin can call this!"
@@ -62,7 +60,7 @@ contract MintingFactory {
     }
 
     // @notice only admin registry members can call this
-    modifier onlyAdminRegistry() {
+    modifier onlyAdmin() {
         require(
             IAdminRegistry(adminRegistry).isAdmin(msg.sender),
             "AdminRegistry: Restricted to admin."
@@ -83,11 +81,11 @@ contract MintingFactory {
     /**
      * @notice Constructs the contract
      *
-     * @param _eth Address of the wrapped ETH token
+     * @param _weth Address of the wrapped WETH token
      * @param _adminRegistry Address of the Admin Registry contract
      */
-    constructor(address _eth, address _adminRegistry, address _implementation) {
-        ETH = _eth;
+    constructor(address _weth, address _adminRegistry, address _implementation) {
+        WETH = _weth;
         adminRegistry = _adminRegistry;
         implementation = _implementation;
     }
@@ -106,12 +104,12 @@ contract MintingFactory {
         string memory _symbol,
         address _creator,
         uint256 _tokenId    
-    ) external onlyAdminRegistry returns (address _nftcontract) {
+    ) external onlyAdmin returns (address _nftcontract) {
 
         bytes32 _salt = keccak256(abi.encodePacked(indexCount, _name, _symbol, _creator, _tokenId));
 
         address nftContract = Clones.cloneDeterministic(implementation, _salt);
-        IERC721NFTContract(nftContract).initialize(_name, _symbol, _creator, _tokenId);
+        IERC721NFTContract(nftContract).initialize(_name, _symbol, adminRegistry, _tokenId);
         indexCount++;
 
         // update mapping of owner to NFTContracts
@@ -132,9 +130,10 @@ contract MintingFactory {
      */
     function mintNFT(address _nftContract)
         external
-        onlyCreatorAdmin(_nftContract)
+        onlyCreatorAndAdmin(_nftContract)
     {
-        uint256 _tokenId = ERC721NFTContract(_nftContract).mint();
+        address carbonVault = IAdminRegistry(adminRegistry).getCarbonVault();
+        uint256 _tokenId = ERC721NFTContract(_nftContract).mint(carbonVault);
 
         emit NFTMinted(_nftContract, _tokenId);
     }
@@ -163,28 +162,10 @@ contract MintingFactory {
      * Emits an event {ExchangeAddressChanged} depicting the address of old exchange contract
      * and the new exchange contract
      */
-    function updateExchangeAddress(address _newExchange) external onlyAdminRegistry {
+    function updateExchangeAddress(address _newExchange) external onlyAdmin {
         address oldExchange = exchangeAddress;
         exchangeAddress = _newExchange;
         emit ExchangeAddressChanged(oldExchange, exchangeAddress);
-    }
-
-    /**
-     * @notice set the address of the carbon minting factory fee vault
-     * Emits the event {CarbonMintingFactoryFeeVaultSet} indicating the new address
-     * of the minting factory fee vault
-     */
-    function setCarbonMintingFactoryFeeVault(address _mintingFactoryVault)
-        external
-        onlyAdminRegistry
-    {
-        require(
-            _mintingFactoryVault != address(0),
-            "MintingFactory: Vault address cannot be zero"
-        );
-        carbonMintingFactoryFeeVault = _mintingFactoryVault;
-
-        emit CarbonMintingFactoryFeeVaultSet(_mintingFactoryVault);
     }
 
     /*
@@ -229,7 +210,7 @@ contract MintingFactory {
      * @dev Adds the admin role for the given address
      * @param address of the user
      */
-    function addAdminToRegistry(address _account) external {
+    function addAdmin(address _account) external {
         IAdminRegistry(adminRegistry).addAdmin(_account);
     }
 
@@ -237,14 +218,14 @@ contract MintingFactory {
      * @dev Removes the given address from the admin role
      * @param address of the user
      */
-    function removeAdminFromRegistry(address _account) external {
+    function removeAdmin(address _account) external {
         IAdminRegistry(adminRegistry).removeAdmin(_account);
     }
 
     /*
      * @dev Removes oneself as the admin member of th community
      */
-    function leaveFromAdminRegistry() external {
+    function leaveRole() external {
         IAdminRegistry(adminRegistry).leaveRole();
     }
 }
