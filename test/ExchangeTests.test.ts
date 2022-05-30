@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Signer } from "ethers";
+import { Signer, BigNumber } from "ethers";
 import { log } from "console";
 const { expectRevert, time } = require("@openzeppelin/test-helpers");
 
@@ -99,11 +99,35 @@ describe("====>Minting Factory Tests<====", function () {
 
     it('Minting Factory set approval for Exchange Contract', async () => {
         let nftContract: any;
-        let tx = await nftContract.connect(owner).setApprovalForAll(exchangeCore.address, true);
+
+        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
+        const receipt = tx1.wait();
+    
+        mintingFactory.on("CollectionCreated", (_name: any, _symbol: any, _nftContract: any, _creator: any) => {
+            nftContract = _nftContract;
+            console.log(_name, _symbol, _nftContract, _creator);
+        });
+        await new Promise(res => setTimeout(() => res(null), 5000));
+
+        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let tx = await nftContractInst.connect(owner).setApprovalForAll(exchangeCore.address, true);
     });
     it('Check set Approval of Minting Factory minted contracts to Exchange', async () => {
         let nftContract: any;
-        let tx = await nftContract.isApprovedForAll(adminRegistry.address, exchangeCore.address);
+
+        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
+        const receipt = tx1.wait();
+    
+        mintingFactory.on("CollectionCreated", (_name: any, _symbol: any, _nftContract: any, _creator: any) => {
+            nftContract = _nftContract;
+            console.log(_name, _symbol, _nftContract, _creator);
+        });
+        await new Promise(res => setTimeout(() => res(null), 5000));
+
+        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let tx2 = await nftContractInst.connect(owner).setApprovalForAll(exchangeCore.address, true);
+        
+        let tx = await nftContractInst.isApprovedForAll(ownerAddress, exchangeCore.address);
         console.log(tx);
     });
 
@@ -134,13 +158,32 @@ describe("====>Minting Factory Tests<====", function () {
 
     it('Should execute the order in Exchange - Mode 0', async () => {
         let nftContract: any;
-        let tokenId: any;
-
+        let tokenId = 100;
         let auctionTime = 1748203441;
+        const time = BigNumber.from(3441);
         let amount = "1025";
 
+        // mint collection
+        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
+        mintingFactory.on("CollectionCreated", (_name: any, _symbol: any, _nftContract: any, _creator: any) => {
+            nftContract = _nftContract;
+            console.log(_name, _symbol, _nftContract, _creator);
+        });
+        await new Promise(res => setTimeout(() => res(null), 5000));
+        // mint token
+        let tx2 = await mintingFactory.mintNFT(nftContract);
+        // approval to exchange
+        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let tx3 = await nftContractInst.connect(owner).setApprovalForAll(exchangeCore.address, true);
+        // token allowance
+        let allowanceAmt = "100000"; // 1 ETH
+        let tx4 = await eth.connect(owner).approve(exchangeCore.address, ethers.utils.parseEther(allowanceAmt));
+        let tx5 = await exchangeCore.connect(owner).setCarbonFeeVaultAddress(userAddress);
+        let tx6 = await mintingFactory.connect(owner).updateExchangeAddress(exchangeCore.address);
+
         console.log("user bal before execute order:", (await eth.balanceOf(ownerAddress)).toString());
-        let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, userAddress, ethers.utils.parseEther(amount), auctionTime, 0);
+        let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, userAddress, ethers.utils.parseEther(amount), auctionTime, 0, true);
+
         console.log("user bal after execute order:", (await eth.balanceOf(ownerAddress)).toString());
     });
 

@@ -6,9 +6,13 @@ import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 contract AdminRegistry is AccessControlEnumerable {
 
+    address public carbonVault;
+
     constructor(address account) {
         _setupRole(DEFAULT_ADMIN_ROLE, account);
     }
+
+    event CarbonVaultSet(address carbonVault);
 
     // @notice only admin registered in admin registry contract can call it
     modifier onlyAdmin() {
@@ -47,6 +51,18 @@ contract AdminRegistry is AccessControlEnumerable {
         revokeRole(DEFAULT_ADMIN_ROLE, account);
     }
 
+    function setCarbonVault(address _carbonVault)
+        external
+        onlyAdmin
+    {
+        require(
+            _carbonVault != address(0),
+            "ExchangeCore: Vault address cannot be zero"
+        );
+        carbonVault = _carbonVault;
+        emit CarbonVaultSet(_carbonVault);
+    }
+
     /*
     * @dev Lists out the list of all the admin addresses
     * @returns total number of admins and list of admin addresses
@@ -64,5 +80,9 @@ contract AdminRegistry is AccessControlEnumerable {
         }
 
         return (roleMemberCount, roleMembers);
+    }
+
+    function getCarbonVault() external view returns (address) {
+        return carbonVault;
     }
 }

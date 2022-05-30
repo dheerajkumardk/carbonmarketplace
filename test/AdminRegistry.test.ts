@@ -9,14 +9,21 @@ describe("====>Admin Registry<====", function () {
   let user: Signer;
   let ownerAddress: string;
   let userAddress: string;
+  let userAddress2: string;
   let AdminRegistryFactory: any;
   let adminRegistry: any;
   let MintingFactoryFactory: any;
   let mintingFactory: any;
+  let ETHTokenFactory: any;
+  let ETHToken: any;
+  let ERC721NFTContractFactory: any;
+  let erc721nftContract: any;
 
   this.beforeAll(async function () {
     accounts = await ethers.getSigners();
 
+    ERC721NFTContractFactory = await ethers.getContractFactory("ERC721NFTContract");
+    ETHTokenFactory = await ethers.getContractFactory("ETHToken");
     AdminRegistryFactory = await ethers.getContractFactory("AdminRegistry");
     MintingFactoryFactory = await ethers.getContractFactory("MintingFactory");
   });
@@ -25,39 +32,49 @@ describe("====>Admin Registry<====", function () {
     owner = accounts[0];
     user = accounts[1];
     ownerAddress = await accounts[0].getAddress();
-    userAddress = await accounts[0].getAddress();
+    userAddress = await accounts[1].getAddress();
+    userAddress2 = await accounts[2].getAddress();
 
+    ETHToken = await ETHTokenFactory.deploy();
+    await ETHToken.deployed();
+    erc721nftContract = await ERC721NFTContractFactory.deploy();
+    await erc721nftContract.deployed();
     adminRegistry = await AdminRegistryFactory.deploy(ownerAddress);
     await adminRegistry.deployed();
-    mintingFactory = await MintingFactoryFactory.deploy('0x259989150c6302D5A7AeEc4DA49ABfe1464C58fE', adminRegistry.address, '0x259989150c6302D5A7AeEc4DA49ABfe1464C58fE');
+    mintingFactory = await MintingFactoryFactory.deploy(ETHToken.address, adminRegistry.address, erc721nftContract.address);
     await mintingFactory.deployed();
   });
 
-  it ("All common tests for minting admin operations", async () => {
+  it ("All tests for minting admin operations", async () => {
+    console.log("List of admins");
     let tx = await mintingFactory.connect(owner).getRoleMembers();
-    console.log("MF", tx);
+    console.log("Minting Factory admins", tx);
     let tx2 = await adminRegistry.connect(owner).getRoleMembers();
-    console.log("AR", tx2);
+    console.log("Admin Registry admins", tx2);
 
+    console.log("Adding admins");
     let tx3 = await adminRegistry.connect(owner).addAdmin(mintingFactory.address);
     const receipt = await tx3.wait();
-    let tx6 = await mintingFactory.connect(owner).addAdminToRegistry(user.getAddress());
+    let tx6 = await mintingFactory.connect(owner).addAdmin(await user.getAddress());
     const receipt2 = await tx6.wait();
 
-    let tx9 = await mintingFactory.connect(owner).addAdminToRegistry('0x259989150c6302D5A7AeEc4DA49ABfe1464C58fE');
+    let tx9 = await mintingFactory.connect(owner).addAdmin(userAddress2);
 
-
+    console.log("list of admins");
     let tx4 = await mintingFactory.getRoleMembers();
-    console.log("MF", tx4);
+    console.log("Minting Factory admins", tx4);
     let tx5 = await adminRegistry.connect(owner).getRoleMembers();
-    console.log("AR", tx5);
+    console.log("Admin Registry admins", tx5);
 
-    let tx7 = await mintingFactory.connect(owner).removeAdminFromRegistry(userAddress);
+    console.log("remove admin from minting interface");
+    let tx7 = await mintingFactory.connect(owner).removeAdmin(userAddress);
 
+    console.log("lists admin addresses");
+    
     let tx10 = await mintingFactory.getRoleMembers();
-    console.log("MF", tx10);
+    console.log("Minting Factory admins", tx10);
     let tx8 = await adminRegistry.connect(owner).getRoleMembers();
-    console.log("AR", tx8);
+    console.log("Admin Registry admins", tx8);
 
   });
 
@@ -90,7 +107,7 @@ describe("====>Admin Registry<====", function () {
   it("Should add an admin from minting factory", async () => {
     let tx3 = await adminRegistry.connect(owner).addAdmin(mintingFactory.address);
 
-    let tx = await mintingFactory.connect(owner).addAdminToRegistry(user.getAddress());
+    let tx = await mintingFactory.connect(owner).addAdmin(userAddress);
     const receipt = await tx.wait();
     // console.log(receipt);
   });
@@ -102,12 +119,12 @@ describe("====>Admin Registry<====", function () {
 
   it("Should remove an admin from minting factory", async () => {
     let tx3 = await adminRegistry.connect(owner).addAdmin(mintingFactory.address);
-    let tx = await mintingFactory.connect(owner).removeAdminFromRegistry(userAddress);
+    let tx = await mintingFactory.connect(owner).removeAdmin(userAddress);
     const receipt = await tx.wait();
   });
 
   it("Should leave admin role from minting factory", async () => {
-    let tx = await mintingFactory.connect(owner).leaveFromAdminRegistry();
+    let tx = await mintingFactory.connect(owner).leaveRole();
     const receipt = await tx.wait();
   });
 

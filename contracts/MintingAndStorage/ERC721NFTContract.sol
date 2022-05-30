@@ -30,7 +30,7 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
     }
 
     // @dev only admin registry can call this
-    modifier onlyAdminRegistry() {
+    modifier onlyAdmin() {
         require(
             IAdminRegistry(adminRegistry).isAdmin(msg.sender),
             "ERC721NFTContract: Only admin can call this"
@@ -57,7 +57,7 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
      * @notice mints new token for the NFT contract
      * @returns the token id of the token minted
      */
-    function mint() public onlyFactory returns (uint256) {
+    function mint(address _owner) public onlyFactory returns (uint256) {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
 
@@ -65,7 +65,7 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
             abi.encodePacked(baseURI, StringsUpgradeable.toString(newItemId))
         );
 
-        _mint(adminRegistry, newItemId);
+        _mint(_owner, newItemId);
         _setTokenURI(newItemId, tokenURI);
 
         return newItemId;
@@ -82,7 +82,7 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
      * @dev updates the address of the minting factory
      * @param address of minting factory
      */
-    function updateFactory(address _factory) external onlyAdminRegistry {
+    function updateFactory(address _factory) external onlyAdmin {
         factory = _factory;
     }
 }
