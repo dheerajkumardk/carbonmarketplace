@@ -9,7 +9,8 @@ const deploy = async () => {
   console.log("Admin: ", admin);
   console.log("Balance: ", (await owner.getBalance()).toString());
 
-  const Eth = await ethers.getContractFactory("ETHToken");
+  const Weth = await ethers.getContractFactory("ETHToken");
+  const ERC721NFTContractFactory = await ethers.getContractFactory("ERC721NFTContract");
   const MintingFactory = await ethers.getContractFactory("MintingFactory");
   const GEMSToken = await ethers.getContractFactory("GEMSToken");
   const GEMSNFTReceipt = await ethers.getContractFactory("GEMSNFTReceipt");
@@ -18,19 +19,21 @@ const deploy = async () => {
   const MembershipTrader = await ethers.getContractFactory("MembershipTrader");
   const ExchangeCore = await ethers.getContractFactory("ExchangeCore");
   const EIP712 = await ethers.getContractFactory("EIP712");
-  // demo
   const AdminRegistry = await ethers.getContractFactory("AdminRegistry");
 
   const adminRegistry = await AdminRegistry.deploy(admin);
   await adminRegistry.deployed();
   console.log("Admin Registry deployed at: ", adminRegistry.address);
   
+  const erc721nftContract = await ERC721NFTContractFactory.deploy();
+  await erc721nftContract.deployed();
+  console.log("Implementation deployed at: ", erc721nftContract.address);
+  
+  const weth = await Weth.connect(owner).deploy();
+  await weth.deployed();
+  console.log("WETH address: ", weth.address);
 
-  const eth = await Eth.connect(owner).deploy();
-  await eth.deployed();
-  console.log("WETH address: ", eth.address);
-
-  const mintingFactory = await MintingFactory.deploy(eth.address, admin);
+  const mintingFactory = await MintingFactory.deploy(weth.address, adminRegistry.address, erc721nftContract.address);
   await mintingFactory.deployed();
   console.log("Minting Factory deployed at: ", mintingFactory.address);
 
@@ -68,10 +71,10 @@ const deploy = async () => {
 
   const exchangeCore = await ExchangeCore.deploy(
     mintingFactory.address,
-    eth.address,
+    weth.address,
     carbonMembership.address,
-    admin,
-    adminRegistry.address
+    adminRegistry.address,
+    admin
   );
   await exchangeCore.deployed();
   console.log("Exchange Core deployed at: ", exchangeCore.address);
@@ -81,12 +84,14 @@ const deploy = async () => {
   console.log("EIP712 deployed at", eip712.address);
 
 
-  if (eth.deployTransaction.chainId == 80001) {
+  if (weth.deployTransaction.chainId == 80001) {
     fs.writeFileSync(
       __dirname + "/mumbaiAddresses.json",
       `
         {
-            "ethAddress" : "${eth.address}",
+            "adminRegistryAddress" : "${adminRegistry.address}",
+            "wethAddress" : "${weth.address}",
+            "erc721 implementation" : "${erc721nftContract.address}",
             "mintingFactoryAddress" : "${mintingFactory.address}",
             "exchangeAddress" : "${exchangeCore.address}",
             "gemsTokenAddress" : "${gemsToken.address}",
@@ -103,7 +108,9 @@ const deploy = async () => {
       __dirname + "/../test/Addresses.json",
       `
         {
-            "ethAddress" : "${eth.address}",
+            "adminRegistryAddress" : "${adminRegistry.address}",
+            "wethAddress" : "${weth.address}",
+            "erc721 implementation" : "${erc721nftContract.address}",
             "mintingFactoryAddress" : "${mintingFactory.address}",
             "exchangeAddress" : "${exchangeCore.address}",
             "gemsTokenAddress" : "${gemsToken.address}",
