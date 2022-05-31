@@ -23,7 +23,7 @@ describe("====>Minting Factory Tests<====", function () {
   let MembershipTraderFactory: any;
   let membershipTrader: any;
   let ETHTokenFactory: any;
-  let eth: any;
+  let weth: any;
   let ERC721NFTContractFactory: any;
   let erc721nftContract: any;
 
@@ -45,26 +45,30 @@ describe("====>Minting Factory Tests<====", function () {
     owner = accounts[0];
     user = accounts[1];
     ownerAddress = await accounts[0].getAddress();
-    userAddress = await accounts[0].getAddress();
+    userAddress = await accounts[1].getAddress();
 
     adminRegistry = await AdminRegistryFactory.deploy(ownerAddress);
     await adminRegistry.deployed();
+
     erc721nftContract = await ERC721NFTContractFactory.deploy();
     await erc721nftContract.deployed();
+
+    weth = await ETHTokenFactory.deploy();
+    await weth.deployed();
     
-    mintingFactory = await MintingFactoryFactory.deploy('0x259989150c6302D5A7AeEc4DA49ABfe1464C58fE', adminRegistry.address, erc721nftContract.address);
+    mintingFactory = await MintingFactoryFactory.deploy(weth.address, adminRegistry.address, erc721nftContract.address);
     await mintingFactory.deployed();
-    eth = await ETHTokenFactory.deploy();
-    await eth.deployed();
+    
     carbonMembership = await CarbonMembershipFactory.deploy();
     await carbonMembership.deployed();
+
     gemsToken = await GEMSTokenFactory.deploy();
     await gemsToken.deployed();
 
     membershipTrader = await MembershipTraderFactory.deploy(gemsToken.address, carbonMembership.address);
     await membershipTrader.deployed();
     
-    exchangeCore = await ExchangeCoreFactory.deploy(mintingFactory.address, eth.address, carbonMembership.address, adminRegistry.address, '0x259989150c6302D5A7AeEc4DA49ABfe1464C58fE');
+    exchangeCore = await ExchangeCoreFactory.deploy(mintingFactory.address, weth.address, carbonMembership.address, adminRegistry.address, userAddress);
     await exchangeCore.deployed();
   });
 
@@ -78,8 +82,8 @@ describe("====>Minting Factory Tests<====", function () {
         await new Promise(res => setTimeout(() => res(null), 5000));
     });
 
-    it('Should set Carbon Vault Fee Address in Exchange', async () => {
-        let tx = await exchangeCore.connect(owner).setCarbonFeeVaultAddress(userAddress);
+    it('Should set Carbon Vault in Admin Registry', async () => {
+        let tx = await adminRegistry.connect(owner).setCarbonVault(userAddress);
         // console.log(tx);
     });
 
@@ -153,7 +157,7 @@ describe("====>Minting Factory Tests<====", function () {
 
     it('Should Approve some tokens for Buy Order to the Exchange', async () => {
         let allowanceAmt = "100000"; // 1 ETH
-        let tx = await eth.connect(owner).approve(exchangeCore.address, ethers.utils.parseEther(allowanceAmt));
+        let tx = await weth.connect(owner).approve(exchangeCore.address, ethers.utils.parseEther(allowanceAmt));
     })
 
     it('Should execute the order in Exchange - Mode 0', async () => {
@@ -177,14 +181,14 @@ describe("====>Minting Factory Tests<====", function () {
         let tx3 = await nftContractInst.connect(owner).setApprovalForAll(exchangeCore.address, true);
         // token allowance
         let allowanceAmt = "100000"; // 1 ETH
-        let tx4 = await eth.connect(owner).approve(exchangeCore.address, ethers.utils.parseEther(allowanceAmt));
+        let tx4 = await weth.connect(owner).approve(exchangeCore.address, ethers.utils.parseEther(allowanceAmt));
         let tx5 = await exchangeCore.connect(owner).setCarbonFeeVaultAddress(userAddress);
         let tx6 = await mintingFactory.connect(owner).updateExchangeAddress(exchangeCore.address);
 
-        console.log("user bal before execute order:", (await eth.balanceOf(ownerAddress)).toString());
+        console.log("user bal before execute order:", (await weth.balanceOf(ownerAddress)).toString());
         let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, userAddress, ethers.utils.parseEther(amount), auctionTime, 0, true);
 
-        console.log("user bal after execute order:", (await eth.balanceOf(ownerAddress)).toString());
+        console.log("user bal after execute order:", (await weth.balanceOf(ownerAddress)).toString());
     });
 
     it('Should set Membership Trader in Carbon Membership Contract', async () => {
@@ -214,9 +218,9 @@ describe("====>Minting Factory Tests<====", function () {
         let amount = "1025";
         let tokenId: any;
 
-        console.log("user bal before execute order:", (await eth.balanceOf(ownerAddress)).toString());
+        console.log("user bal before execute order:", (await weth.balanceOf(ownerAddress)).toString());
         let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, userAddress, ethers.utils.parseEther(amount), auctionTime, 0);
-        console.log("user bal after execute order:", (await eth.balanceOf(ownerAddress)).toString());
+        console.log("user bal after execute order:", (await weth.balanceOf(ownerAddress)).toString());
 
     });
 
@@ -233,9 +237,9 @@ describe("====>Minting Factory Tests<====", function () {
         let amount = "1025";
         let tokenId: any;
 
-        console.log("user bal before execute order:", (await eth.balanceOf(ownerAddress)).toString());
+        console.log("user bal before execute order:", (await weth.balanceOf(ownerAddress)).toString());
         let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, userAddress, adminRegistry.address, ethers.utils.parseEther(amount), auctionTime, 0);
-        console.log("user bal after execute order:", (await eth.balanceOf(ownerAddress)).toString());
+        console.log("user bal after execute order:", (await weth.balanceOf(ownerAddress)).toString());
 
     });
 
@@ -251,9 +255,9 @@ describe("====>Minting Factory Tests<====", function () {
         let auctionTime = 1748203441;
         let amount = "1025";
 
-        console.log("user bal before execute order:", (await eth.balanceOf(ownerAddress)).toString());
+        console.log("user bal before execute order:", (await weth.balanceOf(ownerAddress)).toString());
         let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, userAddress, ownerAddress, ethers.utils.parseEther(amount), auctionTime, 0);
-        console.log("user bal after execute order:", (await eth.balanceOf(ownerAddress)).toString());
+        console.log("user bal after execute order:", (await weth.balanceOf(ownerAddress)).toString());
 
     });
 

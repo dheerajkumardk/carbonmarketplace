@@ -103,13 +103,14 @@ contract MintingFactory {
         string memory _name,
         string memory _symbol,
         address _creator,
-        uint256 _tokenId    
+        uint256 _tokenId,
+        string memory _baseURI    
     ) external onlyAdmin returns (address _nftcontract) {
 
         bytes32 _salt = keccak256(abi.encodePacked(indexCount, _name, _symbol, _creator, _tokenId));
 
         address nftContract = Clones.cloneDeterministic(implementation, _salt);
-        IERC721NFTContract(nftContract).initialize(_name, _symbol, adminRegistry, _tokenId);
+        IERC721NFTContract(nftContract).initialize(_name, _symbol, adminRegistry, _tokenId, _baseURI);
         indexCount++;
 
         // update mapping of owner to NFTContracts

@@ -25,7 +25,8 @@ interface IERC721NFTContract {
         string memory _name,
         string memory _symbol,
         address _adminRegistry,
-        uint256 _tokenId
+        uint256 _tokenId,
+        string memory _baseURI
     ) external;
 
     function balanceOf(address _owner) external view returns (uint256);
