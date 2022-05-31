@@ -12,6 +12,8 @@ interface IAdminRegistry {
         view
         returns (uint256, address[] memory);
 
+    function getCarbonVault() external view returns (address);
+
     function isAdmin(address user) external view returns(bool);
 
     function leaveRole() external;
@@ -19,5 +21,7 @@ interface IAdminRegistry {
     function addAdmin(address account) external;
 
     function removeAdmin(address account) external;
+
+    function setCarbonVault(address _carbonVault) external;
 
 }
