@@ -49,34 +49,54 @@ describe("====>ERC 721 Tests<====", function () {
   });
 
   it ("Should create new NFT collection", async () => {
-    let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 0, "https://carbon.xyz");
-        const receipt = tx.wait();
-        let nftContract: any;
+    console.log("creating nft collection...");
     
-        mintingFactory.on("CollectionCreated", (_name: any, _symbol: any, _nftContract: any, _creator: any) => {
-            nftContract = _nftContract;
-            console.log(_name, _symbol, _nftContract, _creator);
-        });
-        await new Promise(res => setTimeout(() => res(null), 5000));
+    let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 0, "https://carbon.xyz/");
+        const receipt = await tx.wait();
+        let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
+        console.log("name: ", event?.args?.name);
+        console.log("symbol: ", event?.args?.symbol);
+        console.log("contract: ", event?.args?.nftContract);
+        console.log("creator: ", event?.args?.creator);
+
+        console.log("\n");
+        
+        let nftContract: any;
+        nftContract = event?.args?.nftContract;
 
         let tx3 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
-
+        console.log("minting nfts...");
+        
         let tx2 = await mintingFactory.mintNFT(nftContract);
+        const receipt2 = await tx2.wait();
+        let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");
+        console.log("contract: ", event2?.args.nftContract);
+        console.log("token id: ", event2?.args.tokenId.toString());
+
         let tx5 = await mintingFactory.mintNFT(nftContract);
+        const receipt5 = await tx5.wait();
+        let event5 = receipt5.events?.find((event: any) => event.event === "NFTMinted");
+        console.log("contract: ", event5?.args.nftContract);
+        console.log("token id: ", event5?.args.tokenId.toString());
+
         let tx6 = await mintingFactory.mintNFT(nftContract);
+        const receipt6 = await tx6.wait();
+        let event6 = receipt6.events?.find((event: any) => event.event === "NFTMinted");
+        console.log("contract: ", event6?.args.nftContract);
+        console.log("token id: ", event6?.args.tokenId.toString());
 
-        mintingFactory.on("NFTMinted", (_nftContract: any, _tokenId: any) => {
-            console.log(_nftContract, _tokenId);
-        });
-        await new Promise(res => setTimeout(() => res(null), 5000));
-
-
+        console.log("\n");
+        
         // querying for base uri
         let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
-        let tx4 = await nftContractInst.tokenURI(2);
+        let tokenId = 3;
+        let tx4 = await nftContractInst.tokenURI(tokenId);
+        console.log("token uri for token id ", tokenId, ":", tx4);
+        expect(tx4).to.equal(`https://carbon.xyz/${tokenId}`);
+
         let tx7 = await nftContractInst.baseURI();
-        console.log(tx4);
         console.log("base uri", tx7);
+        expect(tx7).to.equal("https://carbon.xyz/");
         
         
         
