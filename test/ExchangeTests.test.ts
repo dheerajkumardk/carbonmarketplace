@@ -4,7 +4,7 @@ import { Signer, BigNumber } from "ethers";
 import { log } from "console";
 const { expectRevert, time } = require("@openzeppelin/test-helpers");
 
-describe("====>Minting Factory Tests<====", function () {
+describe("====>Exchange Tests<====", function () {
   let accounts: Signer[];
   let owner: Signer;
   let user: Signer;
@@ -74,12 +74,11 @@ describe("====>Minting Factory Tests<====", function () {
 
     it('Should be able to change Exchange Address in Minting Factory', async () => {
         let tx = await mintingFactory.connect(owner).updateExchangeAddress(exchangeCore.address);
-        await tx.wait();
+        const receipt = await tx.wait();
 
-        mintingFactory.on("ExchangeAddressChanged", (_oldAddress: any, _newAddress: any) => {
-            console.log(_oldAddress, _newAddress);
-        });
-        await new Promise(res => setTimeout(() => res(null), 5000));
+        let event = receipt.events?.find((event: any) => event.event === "ExchangeAddressChanged");
+        console.log("old exchange: ", event?.args?.oldExchange);
+        console.log("new exchange: ", event?.args?.newExchange);
     });
 
     it('Should set Carbon Vault in Admin Registry', async () => {
@@ -93,12 +92,14 @@ describe("====>Minting Factory Tests<====", function () {
 
     it('Should mint NFT contract in Minting Factory', async () => {
         let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
-        const receipt = tx.wait();
+        const receipt = await tx.wait();
     
-        mintingFactory.on("CollectionCreated", (_name: any, _symbol: any, _nftContract: any, _creator: any) => {
-            console.log(_name, _symbol, _nftContract, _creator);
-        });
-        await new Promise(res => setTimeout(() => res(null), 5000));
+        let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
+        console.log("name: ", event?.args?.name);
+        console.log("symbol: ", event?.args?.symbol);
+        console.log("contract: ", event?.args?.nftContract);
+        console.log("creator: ", event?.args?.creator);
+        
     });
 
     it('Minting Factory set approval for Exchange Contract', async () => {

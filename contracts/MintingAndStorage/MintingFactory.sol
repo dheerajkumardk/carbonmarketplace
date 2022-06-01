@@ -169,6 +169,14 @@ contract MintingFactory {
         emit ExchangeAddressChanged(oldExchange, exchangeAddress);
     }
 
+     /*
+     * @notice sets base uri for the nft collection
+     * @param base uri for the collection
+     */
+    function setBaseURI(address _nftContract, string memory _baseURI) external onlyAdmin {
+        ERC721NFTContract(_nftContract).setBaseURI(_baseURI);
+    }
+
     /*
      * @dev lists all collections of a owner
      * @param address of the user

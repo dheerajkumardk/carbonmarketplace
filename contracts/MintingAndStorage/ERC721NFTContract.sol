@@ -72,6 +72,14 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
     }
 
     /*
+     * @notice sets base uri for the nft collection
+     * @param base uri for the collection
+     */
+    function setBaseURI(string memory _baseURI) external onlyFactory {
+        baseURI = _baseURI;
+    }
+
+    /*
      * @dev returns the current token id for this contract
      */
     function getTotalNFTs() public view returns (uint256) {
