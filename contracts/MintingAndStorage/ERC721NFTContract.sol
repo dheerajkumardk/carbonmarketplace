@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
 import "./../Interface/IAdminRegistry.sol";
+import "hardhat/console.sol";
 
 contract ERC721NFTContract is ERC721URIStorageUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -18,7 +19,7 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
     // starting token id
     uint256 public startTokenId;
 
-    string baseURI = "https://carbon.xyz";
+    string public baseURI;// = "https://carbon.xyz";
 
     // @dev only minting factory can call this
     modifier onlyFactory() {
@@ -45,12 +46,13 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
      * @param _tokenId - starting token id for the contract
      */
 
-    function initialize(string memory _name, string memory _symbol, address _adminRegistry, uint256 _tokenId) external initializer {
+    function initialize(string memory _name, string memory _symbol, address _adminRegistry, uint256 _tokenId, string memory _baseURI) external initializer {
         __ERC721_init(_name, _symbol);
         adminRegistry = _adminRegistry;
         factory = msg.sender;
         _tokenIds._value = _tokenId;
         startTokenId = _tokenId + 1;
+        baseURI = _baseURI;
     }
 
     /*
@@ -60,11 +62,11 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
     function mint(address _owner) public onlyFactory returns (uint256) {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
-
+    
         string memory tokenURI = string(
             abi.encodePacked(baseURI, StringsUpgradeable.toString(newItemId))
         );
-
+        console.log("token uri", tokenURI);
         _mint(_owner, newItemId);
         _setTokenURI(newItemId, tokenURI);
 
