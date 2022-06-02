@@ -364,7 +364,11 @@ describe("====>Exchange Tests<====", function () {
         console.log("order cancelled.");
 
         console.log("executing order...");
-        let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, userAddress, ethers.utils.parseEther(amount), auctionTime, 0, true);
+        try {
+            let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, userAddress, ethers.utils.parseEther(amount), auctionTime, 0, true);
+        } catch (error: any) {
+            expect(error.message).to.equal(`VM Exception while processing transaction: reverted with reason string 'ExchangeCore: Order is cancelled'`);
+        }
     });
 
     it('Should uncancel the order in Exchange', async () => {
