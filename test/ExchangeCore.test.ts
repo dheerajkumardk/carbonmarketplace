@@ -69,7 +69,7 @@ describe("ExchangeCore - executeOrder", function () {
     );
     await exchange.deployed();
 
-    await (await exchange.setCarbonFeeVaultAddress(admin)).wait();
+    await (await adminRegistry.setCarbonVault(admin)).wait();
     await (await mintingFactory.updateExchangeAddress(exchange.address)).wait();
   });
 
@@ -78,7 +78,8 @@ describe("ExchangeCore - executeOrder", function () {
       "Carbon Basic",
       "CBN",
       admin,
-      1
+      1,
+      "https://carbon.xyz/"
     );
     let receipt = await tx.wait();
 

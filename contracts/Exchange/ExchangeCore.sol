@@ -267,20 +267,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         view
         returns (uint256, address[] memory)
     {
-        bytes32 DEFAULT_ADMIN_ROLE = keccak256("DEFAULT_ADMIN_ROLE");
-
-        uint256 roleMemberCount = IAdminRegistry(adminRegistry)
-            .getRoleMemberCount(DEFAULT_ADMIN_ROLE);
-        address[] memory roleMembers = new address[](roleMemberCount);
-
-        for (uint256 index = 0; index < roleMemberCount; index++) {
-            roleMembers[index] = IAdminRegistry(adminRegistry).getRoleMember(
-                DEFAULT_ADMIN_ROLE,
-                index
-            );
-        }
-
-        return (roleMemberCount, roleMembers);
+        return IAdminRegistry(adminRegistry).getRoleMembers();
     }
 
     /**
