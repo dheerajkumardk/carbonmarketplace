@@ -85,7 +85,9 @@ describe("====>Admin Registry<====", function () {
 
   it("Should add an admin", async () => {
     let tx = await adminRegistry.connect(owner).addAdmin(userAddress);
-    const receipt = await tx.wait();
+    await tx.wait();
+    console.log(userAddress, " has been given admin role");
+    
   });
 
   it("Should list all admins", async () => {
@@ -97,11 +99,15 @@ describe("====>Admin Registry<====", function () {
   it("Should remove an admin", async () => {
     let tx = await adminRegistry.connect(owner).removeAdmin(userAddress);
     const receipt = await tx.wait();
+    console.log(userAddress, " has been removed from admin access");
+    
 });
 
   it("Should leave admin role", async () => {
     let tx = await adminRegistry.connect(owner).leaveRole();
-    const receipt = await tx.wait();
+    await tx.wait();
+    console.log(ownerAddress, " has given up admin role");
+    
   });
 
   // Calling these from minting factory
@@ -110,7 +116,7 @@ describe("====>Admin Registry<====", function () {
 
     let tx = await mintingFactory.connect(owner).addAdmin(userAddress);
     const receipt = await tx.wait();
-    // console.log(receipt);
+    console.log(userAddress, " has been added as admin");
   });
 
   it("Should list all admins from Minting factory", async () => {
@@ -123,11 +129,14 @@ describe("====>Admin Registry<====", function () {
     let tx3 = await adminRegistry.connect(owner).addAdmin(mintingFactory.address);
     let tx = await mintingFactory.connect(owner).removeAdmin(userAddress);
     const receipt = await tx.wait();
+    console.log(userAddress, " has been removed from admin access");
   });
 
   it("Should leave admin role from minting factory", async () => {
     let tx = await mintingFactory.connect(owner).leaveRole();
     const receipt = await tx.wait();
+    console.log(ownerAddress, " has given up admin role");
+    
   });
 
 });

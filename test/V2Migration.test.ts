@@ -8,15 +8,18 @@ describe("====>Update Contracts<====", function () {
   let admin: string;
   let user: string;
   let ETH: any;
+  let weth: any;
+  let AdminRegistry: any;
+  let adminRegistry: any;
   let CarbonMemberShip: any;
-  let MintingFactory: any;
-  let Exchange: any;
-  let NFT: any;
-  let mintingFactory: any;
-  let nftContract: any;
-  let exchange: any;
-  let eth: any;
   let carbonMembership: any;
+  let MintingFactory: any;
+  let mintingFactory: any;
+  let Exchange: any;
+  let exchange: any;
+  let CollectionFactory: any;
+  let collection: any;
+  let nftContractInstance: any;
   let nftContracts: string[];
   let exchangeAddress: any;
   let nftContractAddress: string;
@@ -24,7 +27,6 @@ describe("====>Update Contracts<====", function () {
   let account2: Signer;
   let newExchangeAddress: string;
   let newFactoryAddress: string;
-  let nftContractAdmin: string;
 
   this.beforeAll(async function () {
     [account, account2] = await ethers.getSigners();
@@ -33,7 +35,8 @@ describe("====>Update Contracts<====", function () {
     CarbonMemberShip = await ethers.getContractFactory("CarbonMembership");
     MintingFactory = await ethers.getContractFactory("MintingFactory");
     Exchange = await ethers.getContractFactory("ExchangeCore");
-    NFT = await ethers.getContractFactory("ERC721NFTContract");
+    CollectionFactory = await ethers.getContractFactory("Collection");
+    AdminRegistry = await ethers.getContractFactory("AdminRegistry");
 
     nftContracts = [];
   });
@@ -41,10 +44,16 @@ describe("====>Update Contracts<====", function () {
     admin = await account.getAddress();
     user = await account2.getAddress();
 
-    eth = await ETH.deploy();
-    await eth.deployed();
+    adminRegistry = await AdminRegistry.deploy(admin);
+    await adminRegistry.deployed();
 
-    mintingFactory = await MintingFactory.deploy(eth.address, admin);
+    weth = await ETH.deploy();
+    await weth.deployed();
+
+    collection = await CollectionFactory.deploy();
+    collection.deployed();
+
+    mintingFactory = await MintingFactory.deploy(weth.address, adminRegistry.address, collection.address);
     await mintingFactory.deployed();
 
     carbonMembership = await CarbonMemberShip.deploy();
@@ -52,139 +61,100 @@ describe("====>Update Contracts<====", function () {
 
     exchange = await Exchange.deploy(
       mintingFactory.address,
-      eth.address,
+      weth.address,
       carbonMembership.address,
-      admin
+      adminRegistry.address,
+      user
     );
     await exchange.deployed();
 
-    nftContract = await NFT.deploy("Lux Lame", "LLM", admin, 0);
-    nftContract.deployed();
   });
 
   it("Should be able to change Exchange Address in Minting Factory", async () => {
     let changeAddress = await mintingFactory
       .connect(account)
       .updateExchangeAddress(exchange.address);
-    await changeAddress.wait();
+    const receipt = await changeAddress.wait();
 
-    mintingFactory.on(
-      "ExchangeAddressChanged",
-      (_oldAddress: string, _newAddress: string) => {}
-    );
-    await new Promise((res) => setTimeout(() => res(null), 5000));
+    let events = receipt.events?.find((event: any) => event.event === "ExchangeAddressChanged");
+    console.log("old Exchange: ", events?.args?.oldExchange);
+    console.log("new Exchange: ", events?.args?.newExchange);
   });
 
   it("Should mint NFT contract in Minting Factory", async () => {
     let tx = await mintingFactory
       .connect(account)
-      .createCollection("Royal Challengers Bangalore", "RCB", admin, 0);
+      .createCollection("Gujarat Titans", "GT", admin, 0, "https://carbon.xyz/");
+    const receipt = await tx.wait();
 
-    mintingFactory.on(
-      "CollectionCreated",
-      (_name: string, _symbol: string, _nftContract: string) => {
-        nftContractAddress = _nftContract;
-      }
-    );
-    await new Promise((res) => setTimeout(() => res(null), 5000));
+    let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
+    console.log("name: ", event?.args?.name);
+    console.log("symbol: ", event?.args?.symbol);
+    console.log("contract: ", event?.args?.nftContract);
+    console.log("creator: ", event?.args?.creator);
+    
+    nftContractAddress = event?.args?.nftContract;
+    nftContracts.push(nftContractAddress);
+    nftContracts.push(nftContractAddress);
   });
+
   it("Should mint NFT contract in Minting Factory", async () => {
     let tx = await mintingFactory
       .connect(account)
-      .createCollection("Chennai Super Kings", "CSK", admin, 0);
+      .createCollection("Chennai Super Kings", "CSK", admin, 0, "https://carbon.xyz/");
+    const receipt = await tx.wait();
 
-    mintingFactory.on(
-      "CollectionCreated",
-      (_name: string, _symbol: string, _nftContract: string) => {
-        nftContractAddress = _nftContract;
-        //
-      }
-    );
-    await new Promise((res) => setTimeout(() => res(null), 5000));
-  });
-  it("Should mint NFT contract in Minting Factory", async () => {
-    let tx = await mintingFactory
-      .connect(account)
-      .createCollection("Mumbai Indians", "MI", admin, 0);
-
-    mintingFactory.on(
-      "CollectionCreated",
-      (_name: string, _symbol: string, _nftContract: string) => {
-        nftContractAddress = _nftContract;
-        //
-      }
-    );
-    await new Promise((res) => setTimeout(() => res(null), 5000));
-  });
-  it("Should mint NFT contract in Minting Factory", async () => {
-    let tx = await mintingFactory
-      .connect(account)
-      .createCollection("Rajasthan Royals", "RR", admin, 0);
-
-    mintingFactory.on(
-      "CollectionCreated",
-      (_name: string, _symbol: string, _nftContract: string) => {
-        nftContractAddress = _nftContract;
-        //
-      }
-    );
-    await new Promise((res) => setTimeout(() => res(null), 5000));
-  });
-  it("Should mint NFT contract in Minting Factory", async () => {
-    let tx = await mintingFactory
-      .connect(account)
-      .createCollection("Deccan Chargers", "DC", admin, 0);
-
-    mintingFactory.on(
-      "CollectionCreated",
-      (_name: string, _symbol: string, _nftContract: string) => {
-        nftContractAddress = _nftContract;
-        //
-      }
-    );
-    await new Promise((res) => setTimeout(() => res(null), 5000));
+    let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
+    console.log("name: ", event?.args?.name);
+    console.log("symbol: ", event?.args?.symbol);
+    console.log("contract: ", event?.args?.nftContract);
+    console.log("creator: ", event?.args?.creator);
+    
+    nftContractAddress = event?.args?.nftContract;
+    nftContracts.push(nftContractAddress);
   });
 
   it("Minting Factory set approval for Exchange Contract", async () => {
-    nftContract = await NFT.attach(nftContractAddress);
-    nftContractAdmin = await nftContract.admin();
+    nftContractInstance = await CollectionFactory.attach(nftContractAddress);
 
-    let tx = await nftContract
+    let tx = await nftContractInstance
       .connect(account)
       .setApprovalForAll(exchange.address, true);
   });
 
   it("Check set Approval of Minting Factory minted contracts to Exchange", async () => {
-    let tx = await nftContract.isApprovedForAll(
-      nftContractAdmin,
+    let tx = await nftContractInstance.isApprovedForAll(
+      admin,
       exchange.address
     );
+    console.log("approval", true);
+    
   });
 
   // display all old NFT Contracts
   it("Should list all old NFT contracts", async () => {
     let tx = await mintingFactory.getNFTsForOwner(admin);
-    nftContracts = tx;
+    // nftContracts = tx;
+    console.log("old contracts: ", nftContracts);
+    
   });
 
   // deploy new factory
   it("Should deploy new factory", async () => {
-    const MintingFactory = await ethers.getContractFactory("MintingFactory");
-    mintingFactory = await MintingFactory.deploy(eth.address, admin);
+    mintingFactory = await MintingFactory.deploy(weth.address, adminRegistry.address, collection.address);
     await mintingFactory.deployed();
 
     newFactoryAddress = mintingFactory.address;
-    //
   });
 
   // deploy new exchange
   it("Should deploy new exchange", async () => {
-    const ExchangeCore = await ethers.getContractFactory("ExchangeCore");
-    exchange = await ExchangeCore.deploy(
+    exchange = await Exchange.deploy(
       mintingFactory.address,
-      eth.address,
+      weth.address,
       carbonMembership.address,
-      admin
+      adminRegistry.address,
+      user
     );
     await exchange.deployed();
 
@@ -195,24 +165,23 @@ describe("====>Update Contracts<====", function () {
     let changeAddress = await mintingFactory
       .connect(account)
       .updateExchangeAddress(newExchangeAddress);
-    await changeAddress.wait();
+    const receipt = await changeAddress.wait();
 
-    mintingFactory.on(
-      "ExchangeAddressChanged",
-      (_oldAddress: string, _newAddress: string) => {
-        newExchangeAddress = _newAddress;
-      }
-    );
-    await new Promise((res) => setTimeout(() => res(null), 5000));
+    let events = receipt.events?.find((event: any) => event.event === "ExchangeAddressChanged");
+    console.log("old Exchange: ", events?.args?.oldExchange);
+    console.log("new Exchange: ", events?.args?.newExchange);
+    
+    newExchangeAddress = events?.args?.newExchange;
+    
   });
 
   // Should update factory in ERC-721 contract
   it("Should update factory in ERC721 NFT Contract", async () => {
     for (let i = 0; i < nftContracts.length; i++) {
       nftContractAddress = nftContracts[i];
-      nftContract = await NFT.attach(newFactoryAddress);
+      nftContractInstance = await CollectionFactory.attach(nftContractAddress);
 
-      let tx = await nftContract
+      let tx = await nftContractInstance
         .connect(account)
         .updateFactory(newFactoryAddress);
     }
@@ -222,7 +191,10 @@ describe("====>Update Contracts<====", function () {
   it("Should check if factory matches", async () => {
     for (let i = 0; i < nftContracts.length; i++) {
       nftContractAddress = nftContracts[i];
-      nftContract = await NFT.attach(newFactoryAddress);
+      nftContractInstance = await CollectionFactory.attach(nftContractAddress);
+      
+      expect(await nftContractInstance.factory()).to.equal(newFactoryAddress);
+      
     }
   });
 
@@ -233,10 +205,9 @@ describe("====>Update Contracts<====", function () {
   it("Minting Factory set approval for Exchange Contract", async () => {
     for (let i = 0; i < nftContracts.length; i++) {
       nftContractAddress = nftContracts[i];
-      nftContract = await NFT.attach(newFactoryAddress);
-      nftContractAdmin = await nftContract.admin();
+      nftContractInstance = await CollectionFactory.attach(nftContractAddress);
 
-      let tx = await nftContract
+      let tx = await nftContractInstance
         .connect(account)
         .setApprovalForAll(newExchangeAddress, true);
     }

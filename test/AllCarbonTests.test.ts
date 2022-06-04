@@ -98,7 +98,7 @@ describe("====>Minting Tests<====", function () {
         // setting carbon vault in admin registry
         let tx11 = await adminRegistry.connect(owner).setCarbonVault(userAddress); 
 
-        // minting nft for this collection
+        console.log("minting nft for the collection");        
         let tx2 = await mintingFactory.mintNFT(nftContract);
         const receipt2 = await tx2.wait();
         let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");
@@ -632,7 +632,7 @@ describe("====>Membership<====", function () {
 
     it('Should approve funds to membership trader', async () => {
         let tx = await gemsToken.connect(owner).approve(membershipTrader.address, 100000);
-        console.log((await gemsToken.allowance(ownerAddress, membershipTrader.address)).toString());
+        console.log("allowance of: ",(await gemsToken.allowance(ownerAddress, membershipTrader.address)).toString(), " tokens");
     });
 
     it('Should set Membership Trader', async () => {
@@ -699,12 +699,15 @@ describe("====>Admin Registry<====", function () {
     
     it("Should check if the address is an admin", async () => {
         let tx = await adminRegistry.isAdmin(ownerAddress);
-        console.log(tx);    
+        console.log(tx);  
+        expect(tx).to.equal(true);  
     });
     
     it("Should add an admin", async () => {
         let tx = await adminRegistry.connect(owner).addAdmin(userAddress);
         const receipt = await tx.wait();
+        console.log(userAddress, " has been given admin role");
+        
     });
     
     it("Should list all admins", async () => {
@@ -716,11 +719,15 @@ describe("====>Admin Registry<====", function () {
     it("Should remove an admin", async () => {
         let tx = await adminRegistry.connect(owner).removeAdmin(userAddress);
         const receipt = await tx.wait();
+        console.log(userAddress, " has been removed from admin role");
+
     });
     
     it("Should leave admin role", async () => {
         let tx = await adminRegistry.connect(owner).leaveRole();
         const receipt = await tx.wait();
+        console.log(ownerAddress, " has been given up their admin role");
+
     });
 
     it ('Should set up carbon vault', async () => {

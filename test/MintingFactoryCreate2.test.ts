@@ -68,10 +68,12 @@ describe("====>Minting Factory Create2<====", function () {
       console.log("creator: ", event?.args?.creator);
       nftContract = event?.args?.nftContract;
       
-      // minting nft for this collection
+      console.log("setting carbon vault...");
+      
       let tx11 = await adminRegistry.connect(owner).setCarbonVault(userAddress); 
 
-      // minting nft for this collection
+      console.log("minting nft for the collection");
+      
       let tx2 = await mintingFactory.mintNFT(nftContract);
       const receipt2 = await tx2.wait();
 

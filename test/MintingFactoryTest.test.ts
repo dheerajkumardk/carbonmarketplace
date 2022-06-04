@@ -70,7 +70,8 @@ describe("====>Minting Factory Tests<====", function () {
         // setting carbon vault in admin registry
         let tx11 = await adminRegistry.connect(owner).setCarbonVault(userAddress); 
 
-        // minting nft for this collection
+        console.log("minting nft for this collection");
+        
         let tx2 = await mintingFactory.mintNFT(nftContract);
         const receipt2 = await tx2.wait();
         let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");
@@ -94,10 +95,9 @@ describe("====>Minting Factory Tests<====", function () {
         let tx = await mintingFactory.connect(owner).updateExchangeAddress(userAddress);
         const receipt = await tx.wait();
 
-        mintingFactory.on("ExchangeAddressChanged", (_oldAddress: any, _newAddress: any) => {
-            console.log(_oldAddress, _newAddress);
-        });
-        await new Promise(res => setTimeout(() => res(null), 5000));
+        let event = receipt.events?.find((event: any) => event.event === "ExchangeAddressChanged");
+        console.log("old Exchange", event?.args?.oldExchange);
+        console.log("new Exchange", event?.args?.newExchange);
     });
 
     it ('Should get lists of all admin addresses', async () => {
