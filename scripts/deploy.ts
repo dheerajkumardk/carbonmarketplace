@@ -10,7 +10,7 @@ const deploy = async () => {
   console.log("Balance: ", (await owner.getBalance()).toString());
 
   const Weth = await ethers.getContractFactory("ETHToken");
-  const ERC721NFTContractFactory = await ethers.getContractFactory("ERC721NFTContract");
+  const CollectionFactory = await ethers.getContractFactory("Collection");
   const MintingFactory = await ethers.getContractFactory("MintingFactory");
   const GEMSToken = await ethers.getContractFactory("GEMSToken");
   const GEMSNFTReceipt = await ethers.getContractFactory("GEMSNFTReceipt");
@@ -25,15 +25,15 @@ const deploy = async () => {
   await adminRegistry.deployed();
   console.log("Admin Registry deployed at: ", adminRegistry.address);
   
-  const erc721nftContract = await ERC721NFTContractFactory.deploy();
-  await erc721nftContract.deployed();
-  console.log("Implementation deployed at: ", erc721nftContract.address);
+  const collection = await CollectionFactory.deploy();
+  await collection.deployed();
+  console.log("Implementation deployed at: ", collection.address);
   
   const weth = await Weth.connect(owner).deploy();
   await weth.deployed();
   console.log("WETH address: ", weth.address);
 
-  const mintingFactory = await MintingFactory.deploy(weth.address, adminRegistry.address, erc721nftContract.address);
+  const mintingFactory = await MintingFactory.deploy(weth.address, adminRegistry.address, collection.address);
   await mintingFactory.deployed();
   console.log("Minting Factory deployed at: ", mintingFactory.address);
 
@@ -83,7 +83,21 @@ const deploy = async () => {
   await eip712.deployed();
   console.log("EIP712 deployed at", eip712.address);
 
+    console.log("verifying minting factory...");
+    try {
+      await run("verify:verify", {
+        address: mintingFactory.address,
+        constructorArguments: [
+          weth.address,
+          adminRegistry.address,
+          collection.address,
+        ],
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
+    
   if (weth.deployTransaction.chainId == 80001) {
     fs.writeFileSync(
       __dirname + "/mumbaiAddresses.json",
@@ -91,7 +105,7 @@ const deploy = async () => {
         {
             "adminRegistryAddress" : "${adminRegistry.address}",
             "wethAddress" : "${weth.address}",
-            "erc721 implementation" : "${erc721nftContract.address}",
+            "erc721 implementation" : "${collection.address}",
             "mintingFactoryAddress" : "${mintingFactory.address}",
             "exchangeAddress" : "${exchangeCore.address}",
             "gemsTokenAddress" : "${gemsToken.address}",
@@ -110,7 +124,7 @@ const deploy = async () => {
         {
             "adminRegistryAddress" : "${adminRegistry.address}",
             "wethAddress" : "${weth.address}",
-            "erc721 implementation" : "${erc721nftContract.address}",
+            "erc721 implementation" : "${collection.address}",
             "mintingFactoryAddress" : "${mintingFactory.address}",
             "exchangeAddress" : "${exchangeCore.address}",
             "gemsTokenAddress" : "${gemsToken.address}",

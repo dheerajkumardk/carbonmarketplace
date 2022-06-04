@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./../Interface/IERC721NFTContract.sol";
+import "./../Interface/ICollection.sol";
 import "./../Interface/IMintingFactory.sol";
 import "./../Interface/ICarbonMembership.sol";
 
@@ -124,7 +124,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
             "ExchangeCore: Order is cancelled"
         );
         require(
-            IERC721NFTContract(_nftContract).factory() == mintingFactory,
+            ICollection(_nftContract).factory() == mintingFactory,
             "ExchangeCore: ERC721 Factory doesn't match with Exchange Factory"
         );
         require(_mode <= 3, "ExchangeCore: Invalid mode specified");
@@ -283,19 +283,19 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         address _seller
     ) internal view returns (bool) {
         // check if he owns the token
-        address tokenOwner = IERC721NFTContract(_nftContract).ownerOf(_tokenId);
+        address tokenOwner = ICollection(_nftContract).ownerOf(_tokenId);
         require(
             _seller == tokenOwner,
             "ExchangeCore: Seller does not owns the token"
         );
 
         // check token approval
-        address tokenApprovedAddress = IERC721NFTContract(_nftContract)
+        address tokenApprovedAddress = ICollection(_nftContract)
             .getApproved(_tokenId);
 
         require(
             tokenApprovedAddress == address(this) ||
-                IERC721NFTContract(_nftContract).isApprovedForAll(
+                ICollection(_nftContract).isApprovedForAll(
                     _seller,
                     address(this)
                 ),
@@ -353,7 +353,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         }
 
         // transferring the NFT to the buyer
-        IERC721NFTContract(_nftContract).transferFrom(
+        ICollection(_nftContract).transferFrom(
             _seller,
             _buyer,
             _tokenId

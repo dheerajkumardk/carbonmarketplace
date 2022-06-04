@@ -24,14 +24,14 @@ describe("====>Minting Tests<====", function () {
   let membershipTrader: any;
   let ETHTokenFactory: any;
   let weth: any;
-  let ERC721NFTContractFactory: any;
-  let erc721nftContract: any;
+  let CollectionFactory: any;
+  let collection: any;
 
 
   this.beforeAll(async function () {
     accounts = await ethers.getSigners();
 
-    ERC721NFTContractFactory = await ethers.getContractFactory("ERC721NFTContract");
+    CollectionFactory = await ethers.getContractFactory("Collection");
     MintingFactoryFactory = await ethers.getContractFactory("MintingFactory");
     ExchangeCoreFactory = await ethers.getContractFactory("ExchangeCore");
     GEMSTokenFactory = await ethers.getContractFactory("GEMSToken");
@@ -50,13 +50,13 @@ describe("====>Minting Tests<====", function () {
     adminRegistry = await AdminRegistryFactory.deploy(ownerAddress);
     await adminRegistry.deployed();
 
-    erc721nftContract = await ERC721NFTContractFactory.deploy();
-    await erc721nftContract.deployed();
+    collection = await CollectionFactory.deploy();
+    await collection.deployed();
 
     weth = await ETHTokenFactory.deploy();
     await weth.deployed();
     
-    mintingFactory = await MintingFactoryFactory.deploy(weth.address, adminRegistry.address, erc721nftContract.address);
+    mintingFactory = await MintingFactoryFactory.deploy(weth.address, adminRegistry.address, collection.address);
     await mintingFactory.deployed();
     
     carbonMembership = await CarbonMembershipFactory.deploy();
@@ -140,7 +140,7 @@ describe("====>Minting Tests<====", function () {
         // changing base uri
         let tx2 = await mintingFactory.connect(owner).setBaseURI(nftContract, "https://dheeraj.co/");
 
-        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let nftContractInst = await CollectionFactory.attach(nftContract);
         console.log("base uri",  await nftContractInst.baseURI());
     });
 
@@ -155,7 +155,7 @@ describe("====>Minting Tests<====", function () {
         console.log("creator: ", event?.args?.creator);
         let nftContract = event?.args?.nftContract;
 
-        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx2 = await nftContractInst.connect(owner).updateFactory(userAddress);
         console.log("factory updated.");
         
@@ -286,13 +286,13 @@ describe("====>Exchange<====", function () {
     let membershipTrader: any;
     let ETHTokenFactory: any;
     let weth: any;
-    let ERC721NFTContractFactory: any;
-    let erc721nftContract: any;
+    let CollectionFactory: any;
+    let collection: any;
   
     this.beforeAll(async function () {
       accounts = await ethers.getSigners();
   
-      ERC721NFTContractFactory = await ethers.getContractFactory("ERC721NFTContract");
+      CollectionFactory = await ethers.getContractFactory("Collection");
       MintingFactoryFactory = await ethers.getContractFactory("MintingFactory");
       ExchangeCoreFactory = await ethers.getContractFactory("ExchangeCore");
       GEMSTokenFactory = await ethers.getContractFactory("GEMSToken");
@@ -311,13 +311,13 @@ describe("====>Exchange<====", function () {
       adminRegistry = await AdminRegistryFactory.deploy(ownerAddress);
       await adminRegistry.deployed();
   
-      erc721nftContract = await ERC721NFTContractFactory.deploy();
-      await erc721nftContract.deployed();
+      collection = await CollectionFactory.deploy();
+      await collection.deployed();
   
       weth = await ETHTokenFactory.deploy();
       await weth.deployed();
       
-      mintingFactory = await MintingFactoryFactory.deploy(weth.address, adminRegistry.address, erc721nftContract.address);
+      mintingFactory = await MintingFactoryFactory.deploy(weth.address, adminRegistry.address, collection.address);
       await mintingFactory.deployed();
       
       carbonMembership = await CarbonMembershipFactory.deploy();
@@ -362,7 +362,7 @@ describe("====>Exchange<====", function () {
         // mint token
         let tx2 = await mintingFactory.mintNFT(nftContract);
         // approval to exchange
-        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
         let tx33 = await nftContractInst.isApprovedForAll(userAddress, exchangeCore.address);
         console.log("approval: ", tx33);
@@ -400,7 +400,7 @@ describe("====>Exchange<====", function () {
         // mint token
         let tx2 = await mintingFactory.mintNFT(nftContract);
         // approval to exchange
-        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
         let tx33 = await nftContractInst.isApprovedForAll(userAddress, exchangeCore.address);
         console.log("approval: ", tx33);
@@ -436,7 +436,7 @@ describe("====>Exchange<====", function () {
         // mint token
         let tx2 = await mintingFactory.mintNFT(nftContract);
         // approval to exchange
-        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
         let tx33 = await nftContractInst.isApprovedForAll(userAddress, exchangeCore.address);
         console.log("approval: ", tx33);
@@ -479,7 +479,7 @@ describe("====>Exchange<====", function () {
         // mint token
         let tx2 = await mintingFactory.mintNFT(nftContract);
         // approval to exchange
-        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
         let tx33 = await nftContractInst.isApprovedForAll(userAddress, exchangeCore.address);
         console.log("approval: ", tx33);
@@ -519,7 +519,7 @@ describe("====>Exchange<====", function () {
         // mint token
         let tx2 = await mintingFactory.mintNFT(nftContract);
         // approval to exchange
-        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
         let tx33 = await nftContractInst.isApprovedForAll(userAddress, exchangeCore.address);
         console.log("approval: ", tx33);

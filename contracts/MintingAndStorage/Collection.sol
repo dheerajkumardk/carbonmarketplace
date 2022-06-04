@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
 import "./../Interface/IAdminRegistry.sol";
 
-contract ERC721NFTContract is ERC721URIStorageUpgradeable {
+contract Collection is ERC721URIStorageUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     CountersUpgradeable.Counter private _tokenIds;
     
@@ -24,7 +24,7 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
     modifier onlyFactory() {
         require(
             msg.sender == factory,
-            "ERC721NFTContract: Only factory can mint NFT"
+            "Collection: Only factory can mint NFT"
         );
         _;
     }
@@ -33,7 +33,7 @@ contract ERC721NFTContract is ERC721URIStorageUpgradeable {
     modifier onlyAdmin() {
         require(
             IAdminRegistry(adminRegistry).isAdmin(msg.sender),
-            "ERC721NFTContract: Only admin can call this"
+            "Collection: Only admin can call this"
         );
         _;
     }
