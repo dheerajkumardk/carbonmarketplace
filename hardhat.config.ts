@@ -32,7 +32,7 @@ module.exports = {
     },
     mumbai: {
       url: `https://matic-mumbai.chainstacklabs.com`,
-      accounts: ['4fc7459f2cbdf22e0456f3e6fb980903bdcfa52ce068defba7bc73978069847a'],
+      accounts: [process.env.PRIVATE_KEY],
       throwOnTransactionFailures: true,
       loggingEnabled: true,
       gas: 5000000,
@@ -59,7 +59,6 @@ module.exports = {
     timeout: 40000
   },
   etherscan: {
-    apiKey: '2ZVVD7T3GP2KAFVMXHD5KES3RN67WI6456', 
-    // process.env.ETHERSCAN_API_KEY,
+    apiKey: process.env.ETHERSCAN_API_KEY,
   }
 };
