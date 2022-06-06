@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, run } from "hardhat";
 import { Signer } from "ethers";
 const { expectRevert, time } = require("@openzeppelin/test-helpers");
 
@@ -16,13 +16,13 @@ describe("====>ERC 721 Tests<====", function () {
   let mintingFactory: any;
   let WETHTokenFactory: any;
   let WETHToken: any;
-  let ERC721NFTContractFactory: any;
-  let erc721nftContract: any;
+  let CollectionFactory: any;
+  let collection: any;
 
   this.beforeAll(async function () {
     accounts = await ethers.getSigners();
 
-    ERC721NFTContractFactory = await ethers.getContractFactory("ERC721NFTContract");
+    CollectionFactory = await ethers.getContractFactory("Collection");
     WETHTokenFactory = await ethers.getContractFactory("ETHToken");
     AdminRegistryFactory = await ethers.getContractFactory("AdminRegistry");
     MintingFactoryFactory = await ethers.getContractFactory("MintingFactory");
@@ -38,13 +38,13 @@ describe("====>ERC 721 Tests<====", function () {
     WETHToken = await WETHTokenFactory.deploy();
     await WETHToken.deployed();
 
-    erc721nftContract = await ERC721NFTContractFactory.deploy();
-    await erc721nftContract.deployed();
+    collection = await CollectionFactory.deploy();
+    await collection.deployed();
 
     adminRegistry = await AdminRegistryFactory.deploy(ownerAddress);
     await adminRegistry.deployed();
 
-    mintingFactory = await MintingFactoryFactory.deploy(WETHToken.address, adminRegistry.address, erc721nftContract.address);
+    mintingFactory = await MintingFactoryFactory.deploy(WETHToken.address, adminRegistry.address, collection.address);
     await mintingFactory.deployed();
   });
 
@@ -88,7 +88,7 @@ describe("====>ERC 721 Tests<====", function () {
         console.log("\n");
         
         // querying for base uri
-        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let nftContractInst = await CollectionFactory.attach(nftContract);
         let tokenId = 3;
         let tx4 = await nftContractInst.tokenURI(tokenId);
         console.log("token uri for token id ", tokenId, ":", tx4);
@@ -133,7 +133,7 @@ describe("====>ERC 721 Tests<====", function () {
         console.log("\n");
         
         // querying for base uri
-        let nftContractInst = await ERC721NFTContractFactory.attach(nftContract);
+        let nftContractInst = await CollectionFactory.attach(nftContract);
         let tokenId = 2;
         let tx4 = await nftContractInst.tokenURI(tokenId);
         console.log("token uri for token id ", tokenId, ":", tx4);
@@ -160,6 +160,5 @@ describe("====>ERC 721 Tests<====", function () {
         
         
   });
-
 
 });

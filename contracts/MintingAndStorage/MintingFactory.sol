@@ -3,9 +3,9 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./ERC721NFTContract.sol";
+import "./Collection.sol";
 import "../Interface/IAdminRegistry.sol";
-import "../Interface/IERC721NFTContract.sol";
+import "../Interface/ICollection.sol";
 import "../Library/Clones.sol";
 
 /**
@@ -110,13 +110,13 @@ contract MintingFactory {
         bytes32 _salt = keccak256(abi.encodePacked(indexCount, _name, _symbol, _creator, _tokenId));
 
         address nftContract = Clones.cloneDeterministic(implementation, _salt);
-        IERC721NFTContract(nftContract).initialize(_name, _symbol, adminRegistry, _tokenId, _baseURI);
+        ICollection(nftContract).initialize(_name, _symbol, adminRegistry, _tokenId, _baseURI);
         indexCount++;
 
         // update mapping of owner to NFTContracts
         creatorToNFTs[_creator].push(nftContract);
         nftToOwner[nftContract] = _creator;
-        ERC721NFTContract(nftContract).setApprovalForAll(exchangeAddress, true);
+        Collection(nftContract).setApprovalForAll(exchangeAddress, true);
 
         emit CollectionCreated(_name, _symbol, nftContract, _creator);
         // return address of new contract
@@ -134,7 +134,7 @@ contract MintingFactory {
         onlyCreatorAndAdmin(_nftContract)
     {
         address carbonVault = IAdminRegistry(adminRegistry).getCarbonVault();
-        uint256 _tokenId = ERC721NFTContract(_nftContract).mint(carbonVault);
+        uint256 _tokenId = Collection(_nftContract).mint(carbonVault);
 
         emit NFTMinted(_nftContract, _tokenId);
     }
@@ -174,7 +174,7 @@ contract MintingFactory {
      * @param base uri for the collection
      */
     function setBaseURI(address _nftContract, string memory _baseURI) external onlyAdmin {
-        ERC721NFTContract(_nftContract).setBaseURI(_baseURI);
+        Collection(_nftContract).setBaseURI(_baseURI);
     }
 
     /*
@@ -200,7 +200,7 @@ contract MintingFactory {
         view
         returns (uint256)
     {
-        return ERC721NFTContract(_nftContract).getTotalNFTs();
+        return Collection(_nftContract).getTotalNFTs();
     }
 
     /*

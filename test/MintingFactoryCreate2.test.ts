@@ -13,8 +13,8 @@ describe("====>Minting Factory Create2<====", function () {
   let adminRegistry: any;
   let MintingFactoryFactory: any;
   let mintingFactory: any;
-  let ERC721NFTContractFactory: any;
-  let erc721nftContract: any;
+  let CollectionFactory: any;
+  let collection: any;
   let ETHTokenFactory: any;
   let weth: any;
 
@@ -23,7 +23,7 @@ describe("====>Minting Factory Create2<====", function () {
 
     AdminRegistryFactory = await ethers.getContractFactory("AdminRegistry");
     MintingFactoryFactory = await ethers.getContractFactory("MintingFactory");
-    ERC721NFTContractFactory = await ethers.getContractFactory("ERC721NFTContract");
+    CollectionFactory = await ethers.getContractFactory("Collection");
     ETHTokenFactory = await ethers.getContractFactory("ETHToken");
   });
 
@@ -37,10 +37,10 @@ describe("====>Minting Factory Create2<====", function () {
     await weth.deployed();
     adminRegistry = await AdminRegistryFactory.deploy(ownerAddress);
     await adminRegistry.deployed();
-    erc721nftContract = await ERC721NFTContractFactory.deploy();
-    await erc721nftContract.deployed();
+    collection = await CollectionFactory.deploy();
+    await collection.deployed();
 
-    mintingFactory = await MintingFactoryFactory.deploy(weth.address, adminRegistry.address, erc721nftContract.address);
+    mintingFactory = await MintingFactoryFactory.deploy(weth.address, adminRegistry.address, collection.address);
     await mintingFactory.deployed();
   });
 

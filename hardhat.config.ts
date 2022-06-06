@@ -1,5 +1,6 @@
 import "@nomiclabs/hardhat-waffle"
 import "@nomiclabs/hardhat-etherscan";
+import "@openzeppelin/hardhat-upgrades";
 import { task } from "hardhat/config";
 import { config as dotEnvConfig } from "dotenv";
 dotEnvConfig();
@@ -30,7 +31,7 @@ module.exports = {
       allowUnlimitedContractSize: false,
     },
     mumbai: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.MUMBAI_API_KEY}`,
+      url: `https://matic-mumbai.chainstacklabs.com`,
       accounts: [process.env.PRIVATE_KEY],
       throwOnTransactionFailures: true,
       loggingEnabled: true,

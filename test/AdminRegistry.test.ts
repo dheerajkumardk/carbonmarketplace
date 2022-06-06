@@ -16,13 +16,13 @@ describe("====>Admin Registry<====", function () {
   let mintingFactory: any;
   let WETHTokenFactory: any;
   let WETHToken: any;
-  let ERC721NFTContractFactory: any;
-  let erc721nftContract: any;
+  let CollectionFactory: any;
+  let collection: any;
 
   this.beforeAll(async function () {
     accounts = await ethers.getSigners();
 
-    ERC721NFTContractFactory = await ethers.getContractFactory("ERC721NFTContract");
+    CollectionFactory = await ethers.getContractFactory("Collection");
     WETHTokenFactory = await ethers.getContractFactory("ETHToken");
     AdminRegistryFactory = await ethers.getContractFactory("AdminRegistry");
     MintingFactoryFactory = await ethers.getContractFactory("MintingFactory");
@@ -37,11 +37,11 @@ describe("====>Admin Registry<====", function () {
 
     WETHToken = await WETHTokenFactory.deploy();
     await WETHToken.deployed();
-    erc721nftContract = await ERC721NFTContractFactory.deploy();
-    await erc721nftContract.deployed();
+    collection = await CollectionFactory.deploy();
+    await collection.deployed();
     adminRegistry = await AdminRegistryFactory.deploy(ownerAddress);
     await adminRegistry.deployed();
-    mintingFactory = await MintingFactoryFactory.deploy(WETHToken.address, adminRegistry.address, erc721nftContract.address);
+    mintingFactory = await MintingFactoryFactory.deploy(WETHToken.address, adminRegistry.address, collection.address);
     await mintingFactory.deployed();
   });
 

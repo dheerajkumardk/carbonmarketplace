@@ -34,7 +34,7 @@ describe("ExchangeCore - executeOrder", function () {
     MintingFactory = await ethers.getContractFactory("MintingFactory");
     CARBONMEMBERSHIP = await ethers.getContractFactory("CarbonMembership");
     EXCHANGE = await ethers.getContractFactory("ExchangeCore");
-    NFTCONTRACT = await ethers.getContractFactory("ERC721NFTContract");
+    NFTCONTRACT = await ethers.getContractFactory("Collection");
     AdminRegistry = await ethers.getContractFactory("AdminRegistry");
   });
 
