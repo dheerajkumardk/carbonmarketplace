@@ -28,7 +28,7 @@ describe("====>Membership Tests<====", function () {
     owner = accounts[0];
     user = accounts[1];
     ownerAddress = await accounts[0].getAddress();
-    userAddress = await accounts[0].getAddress();
+    userAddress = await accounts[1].getAddress();
 
     gemsToken = await GEMSTokenFactory.deploy();
     await gemsToken.deployed();
@@ -41,7 +41,7 @@ describe("====>Membership Tests<====", function () {
 
     it('Should approve funds to membership trader', async () => {
         let tx = await gemsToken.connect(owner).approve(membershipTrader.address, 100000);
-        console.log(await gemsToken.allowance(ownerAddress, membershipTrader.address));
+        console.log("allowance of: ", (await gemsToken.allowance(ownerAddress, membershipTrader.address)).toString(), " tokens.");
     });
 
     it('Should set Membership Trader', async () => {
