@@ -11,7 +11,7 @@ library Clones {
             mstore(add(ptr, 0x27), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
             instance := create2(0, ptr, 0x36, salt)
         }
-        require(instance != address(0), "ERC721NFTContract: create2 failed");
+        require(instance != address(0), "Collection: create2 failed");
     }
 
     /**

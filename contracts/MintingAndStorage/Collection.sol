@@ -45,13 +45,12 @@ contract Collection is ERC721URIStorageUpgradeable {
      * @param _tokenId - starting token id for the contract
      */
 
-    function initialize(string memory _name, string memory _symbol, address _adminRegistry, uint256 _tokenId, string memory _baseURI) external initializer {
+    function initialize(string memory _name, string memory _symbol, address _adminRegistry, uint256 _tokenId) external initializer {
         __ERC721_init(_name, _symbol);
         adminRegistry = _adminRegistry;
         factory = msg.sender;
         _tokenIds._value = _tokenId;
         startTokenId = _tokenId + 1;
-        baseURI = _baseURI;
     }
 
     /*
@@ -67,6 +66,15 @@ contract Collection is ERC721URIStorageUpgradeable {
         );
         _mint(_owner, newItemId);
         _setTokenURI(newItemId, tokenURI);
+        return newItemId;
+    }
+
+    function mint(address _owner, string memory _tokenURI) public onlyFactory returns (uint256) {
+        _tokenIds.increment();
+        uint256 newItemId = _tokenIds.current();
+    
+        _mint(_owner, newItemId);
+        _setTokenURI(newItemId, _tokenURI);
 
         return newItemId;
     }

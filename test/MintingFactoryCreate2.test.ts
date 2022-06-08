@@ -45,7 +45,7 @@ describe("====>Minting Factory Create2<====", function () {
   });
 
   it ("Should create NFT contract using CREATE2", async () => {
-    let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+    let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
     const receipt = await tx.wait();
     
     let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
@@ -57,7 +57,7 @@ describe("====>Minting Factory Create2<====", function () {
   });
   
   it ("Should mint NFT for the contract", async () => {
-      let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+      let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
       const receipt = await tx.wait();
       let nftContract: any;
 
@@ -74,7 +74,7 @@ describe("====>Minting Factory Create2<====", function () {
 
       console.log("minting nft for the collection");
       
-      let tx2 = await mintingFactory.mintNFT(nftContract);
+      let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
       const receipt2 = await tx2.wait();
 
       let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");

@@ -73,7 +73,7 @@ describe("====>Minting Tests<====", function () {
   });
 
     it('Should create new Collection', async () => {
-        let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+        let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
         const receipt = await tx.wait();
 
         let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
@@ -84,7 +84,7 @@ describe("====>Minting Tests<====", function () {
     });
 
     it('Should mint an NFT for a collection', async () => {
-        let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+        let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
         const receipt = await tx.wait();
         let nftContract: any;
 
@@ -99,7 +99,7 @@ describe("====>Minting Tests<====", function () {
         let tx11 = await adminRegistry.connect(owner).setCarbonVault(userAddress); 
 
         console.log("minting nft for the collection");        
-        let tx2 = await mintingFactory.mintNFT(nftContract);
+        let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         const receipt2 = await tx2.wait();
         let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");
         console.log("contract: ", event2?.args?.nftContract);
@@ -127,7 +127,7 @@ describe("====>Minting Tests<====", function () {
     });
 
     it ("Should set base URI for a collection", async () => {
-        let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+        let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
         const receipt = await tx.wait();
 
         let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
@@ -145,7 +145,7 @@ describe("====>Minting Tests<====", function () {
     });
 
     it ("should update factory for nft collection", async () => {
-        let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+        let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
         const receipt = await tx.wait();
 
         let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
@@ -339,6 +339,8 @@ describe("====>Exchange<====", function () {
     })
 
     it('Should execute the order in Exchange - Mode 0', async () => {
+        let tx6 = await mintingFactory.connect(owner).updateExchangeAddress(exchangeCore.address);
+
         console.log("\n");
         let nftContract: any;
         let tokenId = 100;
@@ -347,7 +349,7 @@ describe("====>Exchange<====", function () {
 
         // mint collection
         console.log("collection is getting minted");
-        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
         let receipt1 = await tx1.wait();
         let event1 = receipt1.events?.find((event: any) => event.event === "CollectionCreated");
         console.log("name: ", event1?.args?.name);
@@ -360,7 +362,7 @@ describe("====>Exchange<====", function () {
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
 
         // mint token
-        let tx2 = await mintingFactory.mintNFT(nftContract);
+        let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         // approval to exchange
         let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
@@ -371,10 +373,9 @@ describe("====>Exchange<====", function () {
         console.log("token approval and updating exchange address in factory...\n");
         let allowanceAmt = "100000"; // 1 ETH
         let tx4 = await weth.connect(owner).approve(exchangeCore.address, ethers.utils.parseEther(allowanceAmt));
-        let tx6 = await mintingFactory.connect(owner).updateExchangeAddress(exchangeCore.address);
 
         console.log("user bal before execute order:", (await weth.balanceOf(ownerAddress)).toString());
-        let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, userAddress, ethers.utils.parseEther(amount), auctionTime, 1, true);
+        let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, mintingFactory.address, ethers.utils.parseEther(amount), auctionTime, 1, true);
 
         console.log("user bal after execute order:", (await weth.balanceOf(ownerAddress)).toString());
     });
@@ -387,7 +388,7 @@ describe("====>Exchange<====", function () {
         let amount = "1025";
 
         // mint collection
-        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
         let receipt1 = await tx1.wait();
         let event1 = receipt1.events?.find((event: any) => event.event === "CollectionCreated");
         console.log("name: ", event1?.args?.name);
@@ -398,7 +399,7 @@ describe("====>Exchange<====", function () {
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
 
         // mint token
-        let tx2 = await mintingFactory.mintNFT(nftContract);
+        let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         // approval to exchange
         let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
@@ -416,6 +417,8 @@ describe("====>Exchange<====", function () {
     });
 
     it('Should execute the order in Exchange - With Membership Pass - Mode 0 - Cancel Order', async () => {
+        let tx6 = await mintingFactory.connect(owner).updateExchangeAddress(exchangeCore.address);
+
         console.log("\n");
         let nftContract: any;
         let tokenId = 100;
@@ -423,7 +426,7 @@ describe("====>Exchange<====", function () {
         let amount = "1025";
 
         // mint collection
-        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
         let receipt1 = await tx1.wait();
         let event1 = receipt1.events?.find((event: any) => event.event === "CollectionCreated");
         console.log("name: ", event1?.args?.name);
@@ -434,7 +437,7 @@ describe("====>Exchange<====", function () {
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
 
         // mint token
-        let tx2 = await mintingFactory.mintNFT(nftContract);
+        let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         // approval to exchange
         let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
@@ -444,7 +447,6 @@ describe("====>Exchange<====", function () {
         // token allowance
         let allowanceAmt = "100000"; // 1 ETH
         let tx4 = await weth.connect(owner).approve(exchangeCore.address, ethers.utils.parseEther(allowanceAmt));
-        let tx6 = await mintingFactory.connect(owner).updateExchangeAddress(exchangeCore.address);
 
         console.log("cancelling order...");
         let tx = await exchangeCore.connect(owner).cancelOrder(nftContract, tokenId, ownerAddress);
@@ -452,7 +454,7 @@ describe("====>Exchange<====", function () {
 
         console.log("executing order...");
         try {
-            let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, userAddress, ethers.utils.parseEther(amount), auctionTime, 0, true);
+            let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, mintingFactory.address, ethers.utils.parseEther(amount), auctionTime, 0, true);
         } catch (error: any) {
             expect(error.message).to.equal(`VM Exception while processing transaction: reverted with reason string 'ExchangeCore: Order is cancelled'`);
         }
@@ -466,7 +468,7 @@ describe("====>Exchange<====", function () {
         let amount = "1025";
 
         // mint collection
-        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
         let receipt1 = await tx1.wait();
         let event1 = receipt1.events?.find((event: any) => event.event === "CollectionCreated");
         console.log("name: ", event1?.args?.name);
@@ -477,7 +479,7 @@ describe("====>Exchange<====", function () {
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
 
         // mint token
-        let tx2 = await mintingFactory.mintNFT(nftContract);
+        let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         // approval to exchange
         let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
@@ -499,6 +501,8 @@ describe("====>Exchange<====", function () {
     });
 
     it('Should execute the order in Exchange - With Membership Pass - Mode 0 - Order uncancelled', async () => {
+        let tx6 = await mintingFactory.connect(owner).updateExchangeAddress(exchangeCore.address);
+
         console.log("\n");
         let nftContract: any;
         let tokenId = 100;
@@ -506,7 +510,7 @@ describe("====>Exchange<====", function () {
         let amount = "1025";
 
         // mint collection
-        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99, "https://carbon.xyz/");
+        let tx1 = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
         let receipt1 = await tx1.wait();
         let event1 = receipt1.events?.find((event: any) => event.event === "CollectionCreated");
         console.log("name: ", event1?.args?.name);
@@ -517,7 +521,7 @@ describe("====>Exchange<====", function () {
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
 
         // mint token
-        let tx2 = await mintingFactory.mintNFT(nftContract);
+        let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         // approval to exchange
         let nftContractInst = await CollectionFactory.attach(nftContract);
         let tx3 = await nftContractInst.connect(user).setApprovalForAll(exchangeCore.address, true); 
@@ -527,7 +531,7 @@ describe("====>Exchange<====", function () {
         // token allowance
         let allowanceAmt = "100000"; // 1 ETH
         let tx4 = await weth.connect(owner).approve(exchangeCore.address, ethers.utils.parseEther(allowanceAmt));
-        let tx6 = await mintingFactory.connect(owner).updateExchangeAddress(exchangeCore.address);
+        
 
         console.log("cancelling order...");
         let orderCancel = await exchangeCore.connect(owner).cancelOrder(nftContract, tokenId, ownerAddress);
@@ -535,7 +539,7 @@ describe("====>Exchange<====", function () {
 
         let orderUncancel = await exchangeCore.connect(owner).uncancelOrder(nftContract, tokenId, ownerAddress);
         console.log("order uncancelled.");
-        let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, userAddress, ethers.utils.parseEther(amount), auctionTime, 0, true);
+        let executeOrder = await exchangeCore.connect(owner).executeOrder(nftContract, tokenId, ownerAddress, mintingFactory.address, ethers.utils.parseEther(amount), auctionTime, 0, true);
     });
 
     it ("Should update address of minting factory", async () => {

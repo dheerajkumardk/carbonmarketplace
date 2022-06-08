@@ -84,7 +84,7 @@ describe("====>Update Contracts<====", function () {
   it("Should mint NFT contract in Minting Factory", async () => {
     let tx = await mintingFactory
       .connect(account)
-      .createCollection("Gujarat Titans", "GT", admin, 0, "https://carbon.xyz/");
+      .createCollection("Gujarat Titans", "GT", admin, 0);
     const receipt = await tx.wait();
 
     let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
@@ -101,7 +101,7 @@ describe("====>Update Contracts<====", function () {
   it("Should mint NFT contract in Minting Factory", async () => {
     let tx = await mintingFactory
       .connect(account)
-      .createCollection("Chennai Super Kings", "CSK", admin, 0, "https://carbon.xyz/");
+      .createCollection("Chennai Super Kings", "CSK", admin, 0);
     const receipt = await tx.wait();
 
     let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");

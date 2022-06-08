@@ -25,8 +25,7 @@ interface ICollection {
         string memory _name,
         string memory _symbol,
         address _adminRegistry,
-        uint256 _tokenId,
-        string memory _baseURI
+        uint256 _tokenId
     ) external;
 
     function balanceOf(address _owner) external view returns (uint256);

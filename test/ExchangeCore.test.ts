@@ -78,8 +78,7 @@ describe("ExchangeCore - executeOrder", function () {
       "Carbon Basic",
       "CBN",
       admin,
-      1,
-      "https://carbon.xyz/"
+      1
     );
     let receipt = await tx.wait();
 
@@ -93,7 +92,7 @@ describe("ExchangeCore - executeOrder", function () {
     tx = await nftContract.isApprovedForAll(admin, exchange.address);
 
     for (let index = 0; index < 6; index++) {
-      let newNFT = await mintingFactory.mintNFT(nftContractAddress);
+      let newNFT = await mintingFactory["mintNFT(address)"](nftContractAddress);
       receipt = await newNFT.wait();
       event = receipt.events?.find((event: any) => event.event === "NFTMinted");
       let tokenIdMinted = event?.args?.tokenId;
@@ -119,7 +118,7 @@ describe("ExchangeCore - executeOrder", function () {
             nftContractAddress,
             index + 2,
             user,
-            admin,
+            mintingFactory.address,
             ethers.utils.parseEther(amount),
             auctionTime,
             index,
