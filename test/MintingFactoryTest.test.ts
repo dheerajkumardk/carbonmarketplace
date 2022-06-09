@@ -70,6 +70,8 @@ describe("====>Minting Factory Tests<====", function () {
         // setting carbon vault in admin registry
         let tx11 = await adminRegistry.connect(owner).setCarbonVault(userAddress); 
 
+        let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
+        
         console.log("minting nft for this collection");
         
         let tx2 = await mintingFactory["mintNFT(address)"](nftContract);

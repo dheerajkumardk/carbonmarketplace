@@ -91,6 +91,8 @@ describe("ExchangeCore - executeOrder", function () {
     await (await newNFT.setApprovalForAll(exchange.address, true)).wait();
     tx = await nftContract.isApprovedForAll(admin, exchange.address);
 
+    let tx81 = await (await mintingFactory.setBaseURI(nftContractAddress, "https://carbon.xyz/")).wait();
+
     for (let index = 0; index < 6; index++) {
       let newNFT = await mintingFactory["mintNFT(address)"](nftContractAddress);
       receipt = await newNFT.wait();

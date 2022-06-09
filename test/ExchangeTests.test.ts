@@ -159,6 +159,8 @@ describe("====>Exchange Tests<====", function () {
         console.log("\nbefore minting tokens, setting up the carbon vault...\n");
         let tx3 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
 
+        let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
+        
         // minting nft for this collection
         let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         const receipt2 = await tx2.wait();
@@ -195,6 +197,8 @@ describe("====>Exchange Tests<====", function () {
 
         console.log("\nsetting up carbon vault in admin registry...\nMinting nft now...");
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
+
+        let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
 
         // mint token
         let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
@@ -263,6 +267,8 @@ describe("====>Exchange Tests<====", function () {
         nftContract = event1?.args?.nftContract;
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
 
+        let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
+
         // mint token
         let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         // approval to exchange
@@ -312,6 +318,8 @@ describe("====>Exchange Tests<====", function () {
         nftContract = event1?.args?.nftContract;
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
 
+        let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
+
         // mint token
         let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         // approval to exchange
@@ -347,6 +355,8 @@ describe("====>Exchange Tests<====", function () {
         console.log("creator: ", event1?.args?.creator);
         nftContract = event1?.args?.nftContract;
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
+
+        let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
 
         // mint token
         let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
@@ -398,6 +408,8 @@ describe("====>Exchange Tests<====", function () {
         nftContract = event1?.args?.nftContract;
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
 
+        let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
+
         // mint token
         let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         // approval to exchange
@@ -440,6 +452,8 @@ describe("====>Exchange Tests<====", function () {
         console.log("creator: ", event1?.args?.creator);
         nftContract = event1?.args?.nftContract;
         let tx5 = await adminRegistry.connect(owner).setCarbonVault(userAddress);
+
+        let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
 
         // mint token
         let tx2 = await mintingFactory["mintNFT(address)"](nftContract);

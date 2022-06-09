@@ -132,6 +132,8 @@ contract MintingFactory {
         external
         onlyCreatorAndAdmin(_nftContract)
     {
+        string memory _baseURI = Collection(_nftContract).baseURI();
+        require(bytes(_baseURI).length != 0, "baseURI not defined");
         uint256 _tokenId = Collection(_nftContract).mint(address(this));
         string memory _tokenURI = Collection(_nftContract).tokenURI(_tokenId);
 

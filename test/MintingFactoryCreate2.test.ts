@@ -72,6 +72,8 @@ describe("====>Minting Factory Create2<====", function () {
       
       let tx11 = await adminRegistry.connect(owner).setCarbonVault(userAddress); 
 
+      let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
+      
       console.log("minting nft for the collection");
       
       let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
