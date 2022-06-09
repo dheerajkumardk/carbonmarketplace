@@ -30,7 +30,7 @@ const deploy = async () => {
 
     console.log("creating nft collection...");
   
-    let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", admin, 0, "https://carbon.xyz/");
+    let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", admin, 0);
     const receipt = await tx.wait();
     let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
     console.log("name: ", event?.args?.name);

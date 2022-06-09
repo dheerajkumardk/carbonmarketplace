@@ -72,14 +72,14 @@ describe("====>Minting Factory Tests<====", function () {
 
         let tx81 = await (await mintingFactory.connect(owner).setBaseURI(nftContract, "https://carbon.xyz/")).wait();
         
-        console.log("minting nft for this collection");
+        console.log("\nminting nft for this collection");
         
         let tx2 = await mintingFactory["mintNFT(address)"](nftContract);
         const receipt2 = await tx2.wait();
         let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");
         console.log("contract: ", event2?.args?.nftContract);
-        console.log("token id: ", event2?.args?.tokenId);
-        console.log("token id: ", event2?.args?.tokenURI);
+        console.log("token id: ", event2?.args?.tokenId.toString());
+        console.log("token uri: ", event2?.args?.tokenURI);
 
         // get NFTs for owner
         let tx3 = await mintingFactory.getNFTsForOwner(ownerAddress);
@@ -124,8 +124,21 @@ describe("====>Minting Factory Tests<====", function () {
     });
 
     it('Should return total NFT contract minted by a user', async () => {
+        let totalCollection = await mintingFactory.getNFTsForOwner(ownerAddress);
+        console.log("total collections: ", totalCollection);
+
+        let tx = await mintingFactory.connect(owner).createCollection("UP Yoddha", "UPY", ownerAddress, 99);
+        const receipt = await tx.wait();
+    
+        let event = receipt.events?.find((event: any) => event.event === "CollectionCreated");
+        console.log("name: ", event?.args?.name);
+        console.log("symbol: ", event?.args?.symbol);
+        console.log("contract: ", event?.args?.nftContract);
+        console.log("creator: ", event?.args?.creator);
+
         let totalCollections = await mintingFactory.getNFTsForOwner(ownerAddress);
         console.log("total collections: ", totalCollections);
+
     });
 
     it('Should be able to change Exchange Address', async () => {

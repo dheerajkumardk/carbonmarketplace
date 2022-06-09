@@ -106,6 +106,7 @@ describe("====>Minting Tests<====", function () {
         let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");
         console.log("contract: ", event2?.args?.nftContract);
         console.log("token id: ", event2?.args?.tokenId);
+        console.log("token uri: ", event2?.args?.URI);
 
         // get NFTs for owner
         let tx3 = await mintingFactory.getNFTsForOwner(ownerAddress);

@@ -74,6 +74,7 @@ describe("====>ERC 721 Tests<====", function () {
         let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");
         console.log("contract: ", event2?.args.nftContract);
         console.log("token id: ", event2?.args.tokenId.toString());
+        console.log("token uri: ", event2?.args.tokenURI);
 
         let tx5 = await mintingFactory["mintNFT(address)"](nftContract);
         const receipt5 = await tx5.wait();
@@ -86,6 +87,7 @@ describe("====>ERC 721 Tests<====", function () {
         let event6 = receipt6.events?.find((event: any) => event.event === "NFTMinted");
         console.log("contract: ", event6?.args.nftContract);
         console.log("token id: ", event6?.args.tokenId.toString());
+        console.log("token uri: ", event6?.args.tokenURI);
 
         console.log("\n");
         
@@ -128,12 +130,14 @@ describe("====>ERC 721 Tests<====", function () {
         let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");
         console.log("contract: ", event2?.args.nftContract);
         console.log("token id: ", event2?.args.tokenId.toString());
+        console.log("token uri: ", event2?.args.tokenURI);
 
         let tx5 = await mintingFactory["mintNFT(address)"](nftContract);
         const receipt5 = await tx5.wait();
         let event5 = receipt5.events?.find((event: any) => event.event === "NFTMinted");
         console.log("contract: ", event5?.args.nftContract);
         console.log("token id: ", event5?.args.tokenId.toString());
+        console.log("token uri: ", event5?.args.tokenURI);
 
         console.log("\n");
         

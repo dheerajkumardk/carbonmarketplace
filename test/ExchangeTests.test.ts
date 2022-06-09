@@ -167,6 +167,7 @@ describe("====>Exchange Tests<====", function () {
         let event2 = receipt2.events?.find((event: any) => event.event === "NFTMinted");
         console.log("contract: ", event2?.args?.nftContract);
         console.log("token id: ", event2?.args?.tokenId.toString());
+        console.log("token uri: ", event2?.args?.tokenURI);
     });
 
     it('Should Approve some tokens for Buy Order to the Exchange', async () => {
