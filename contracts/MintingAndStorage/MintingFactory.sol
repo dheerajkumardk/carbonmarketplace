@@ -20,7 +20,7 @@ contract MintingFactory {
         address nftContract,
         address creator
     );
-    event NFTMinted(address nftContract, uint256 tokenId);
+    event NFTMinted(address nftContract, uint256 tokenId, string tokenURI);
     event OwnerUpdated(address nftContract, uint256 tokenId, address newOwner);
     event ExchangeAddressChanged(address oldExchange, address newExchange);
 
@@ -103,14 +103,13 @@ contract MintingFactory {
         string memory _name,
         string memory _symbol,
         address _creator,
-        uint256 _tokenId,
-        string memory _baseURI    
+        uint256 _tokenId
     ) external onlyAdmin returns (address _nftcontract) {
 
         bytes32 _salt = keccak256(abi.encodePacked(indexCount, _name, _symbol, _creator, _tokenId));
 
         address nftContract = Clones.cloneDeterministic(implementation, _salt);
-        ICollection(nftContract).initialize(_name, _symbol, adminRegistry, _tokenId, _baseURI);
+        ICollection(nftContract).initialize(_name, _symbol, adminRegistry, _tokenId);
         indexCount++;
 
         // update mapping of owner to NFTContracts
@@ -133,11 +132,23 @@ contract MintingFactory {
         external
         onlyCreatorAndAdmin(_nftContract)
     {
-        address carbonVault = IAdminRegistry(adminRegistry).getCarbonVault();
-        uint256 _tokenId = Collection(_nftContract).mint(carbonVault);
+        string memory _baseURI = Collection(_nftContract).baseURI();
+        require(bytes(_baseURI).length != 0, "baseURI not defined");
+        uint256 _tokenId = Collection(_nftContract).mint(address(this));
+        string memory _tokenURI = Collection(_nftContract).tokenURI(_tokenId);
 
-        emit NFTMinted(_nftContract, _tokenId);
+        emit NFTMinted(_nftContract, _tokenId, _tokenURI);
     }
+
+    function mintNFT(address _nftContract, string memory _tokenURI)
+        external
+        onlyCreatorAndAdmin(_nftContract)
+    {
+        uint256 _tokenId = Collection(_nftContract).mint(address(this), _tokenURI);
+
+        emit NFTMinted(_nftContract, _tokenId, _tokenURI);
+    }
+
 
     /**
      * @notice Updates the owner of the NFT in factory records - on-chain book-keeping purposes
