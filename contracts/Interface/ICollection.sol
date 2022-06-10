@@ -3,6 +3,19 @@
 pragma solidity ^0.8.0;
 
 interface ICollection {
+
+    function factory() external view returns (address);
+    
+    function adminRegistry() external view returns (address);
+
+    function startTokenId() external view returns (uint256);
+
+    function baseURI() external view returns (string memory);
+
+    function getTotalNFTs() external view returns (uint256);
+
+    function getApproved(uint256 _tokenId) external view returns (address);
+
     event Transfer(
         address indexed _from,
         address indexed _to,
@@ -55,22 +68,21 @@ interface ICollection {
 
     function setApprovalForAll(address _operator, bool _approved) external;
 
-    function getApproved(uint256 _tokenId) external view returns (address);
-
     function isApprovedForAll(address _owner, address _operator)
         external
         view
         returns (bool);
 
-    function mint() external returns (uint256);
+    function mint(address _owner) external returns (uint256);
 
     function changeAdmin(address _newAdmin) external;
 
-    function getTotalNFTs() external view returns (uint256);
+    function mint(address _owner, string memory _tokenURI) external returns (uint256);
 
-    function updateFactory(address) external;
+    function setBaseURI(string memory _baseURI) external;
 
-    function factory() external view returns (address);
+    function updateFactory(address _factory) external;
 
     function admin() external view returns (address);
+
 }
