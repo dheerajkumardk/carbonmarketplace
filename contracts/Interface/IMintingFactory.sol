@@ -3,13 +3,17 @@
 pragma solidity ^0.8.0;
 
 interface IMintingFactory {
-    function ETH() external view returns (address);
+    function WETH() external view returns (address);
+
+    function implementation() external view returns (address);
 
     function exchangeAddress() external view returns (address);
 
-    function carbonMintingFactoryFeeVault() external view returns (address);
+    function adminRegistry() external view returns (address);
 
-    function ownerToNFTs(address _owner)
+    function indexCount() external view returns (uint256);
+
+    function creatorToNFTs(address _creator)
         external
         view
         returns (address[] memory);
@@ -20,6 +24,27 @@ interface IMintingFactory {
         returns (address);
 
     function nftToOwner(address _nft) external view returns (address);
+
+    function createCollection(
+        string memory _name,
+        string memory _symbol,
+        address _creator,
+        uint256 _tokenId
+    ) external returns (address _nftcontract);
+
+    function mintNFT(address _nftContract) external;
+
+    function mintNFT(address _nftContract, string memory _tokenURI) external;
+
+    function updateOwner(
+        address _nftContract,
+        uint256 _tokenId,
+        address _newOwner
+    ) external;
+
+    function updateExchangeAddress(address _newExchange) external;
+
+    function setBaseURI(address _nftContract, string memory _baseURI) external;
 
     function getNFTsForOwner(address user)
         external
@@ -36,23 +61,10 @@ interface IMintingFactory {
         view
         returns (uint256, address[] memory);
 
-    function mintNFT(address _nftContract) external;
+    function addAdmin(address _account) external;
 
-    function updateExchangeAddress(address _newExchange) external;
+    function removeAdmin(address _account) external;
 
-    function setCarbonMintingFactoryFeeVault(address _mintingFactoryVault)
-        external;
+    function leaveRole() external;
 
-    function createCollection(
-        string memory _name,
-        string memory _symbol,
-        address _creator,
-        uint256 _tokenId
-    ) external returns (address _nftcontract);
-
-    function updateOwner(
-        address _nftContract,
-        uint256 _tokenId,
-        address _newOwner
-    ) external;
 }
