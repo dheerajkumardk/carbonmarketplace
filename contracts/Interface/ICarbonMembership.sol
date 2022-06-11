@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface ICarbonMembership is IERC721 {
 
+    function baseURI() external view returns (string);
+    
     function membershipTrader() external view returns (address);
 
     function mintNewNFT(address user)

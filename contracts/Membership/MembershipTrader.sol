@@ -14,9 +14,9 @@ contract MembershipTrader is Ownable {
 
     uint256 public constant tokensToDeposit = 100000;
 
-    address gemsToken;
-    address carbonMembershipNFT;
-    address carbonFeeVault;
+    address public gemsToken;
+    address public carbonMembershipNFT;
+    address public carbonFeeVault;
 
     constructor(address _gemsToken, address _carbonMembershipNFT) {
         gemsToken = _gemsToken;

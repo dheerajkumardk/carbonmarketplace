@@ -5,11 +5,15 @@ pragma solidity ^0.8.0;
 interface IMintingFactory {
     function WETH() external view returns (address);
 
+    function implementation() external view returns (address);
+
     function exchangeAddress() external view returns (address);
 
-    function carbonMintingFactoryFeeVault() external view returns (address);
+    function adminRegistry() external view returns (address);
 
-    function ownerToNFTs(address _owner)
+    function indexCount() external view returns (uint256);
+
+    function creatorToNFTs(address _creator)
         external
         view
         returns (address[] memory);
@@ -21,7 +25,6 @@ interface IMintingFactory {
 
     function nftToOwner(address _nft) external view returns (address);
 
-
     function createCollection(
         string memory _name,
         string memory _symbol,
@@ -32,9 +35,6 @@ interface IMintingFactory {
     function mintNFT(address _nftContract) external;
 
     function mintNFT(address _nftContract, string memory _tokenURI) external;
-
-    function setCarbonMintingFactoryFeeVault(address _mintingFactoryVault)
-        external;
 
     function updateOwner(
         address _nftContract,
