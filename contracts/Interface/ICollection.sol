@@ -21,6 +21,8 @@ interface ICollection {
         uint256 _tokenId
     ) external;
 
+    function ownerOf(uint256 _tokenId) external view returns (address);
+
     function mint(address _owner) external returns (uint256);
 
     function mint(address _owner, string memory _tokenURI) external returns (uint256);
