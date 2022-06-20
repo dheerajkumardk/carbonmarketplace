@@ -143,9 +143,7 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
             // 10/10/80 split (Charity)
             carbonRoyaltyFee = _amount.mul(800).div(MAX_BASE_FACTOR);
             creatorRoyalties = _amount.mul(100).div(MAX_BASE_FACTOR);
-            charityFees = _isCarbonMember
-                ? 0
-                : _amount.mul(100).div(MAX_BASE_FACTOR);
+            charityFees = _amount.mul(100).div(MAX_BASE_FACTOR);
         } else if (_mode == 2) {
             // 50/50 split
             carbonRoyaltyFee = _amount.mul(500).div(MAX_BASE_FACTOR);
@@ -347,7 +345,13 @@ contract ExchangeCore is Pausable, ReentrancyGuard {
         IERC20(WETH).transferFrom(_buyer, carbonFeeVault, _totalCarbonFee);
 
         // transferring the amount to the seller
-        IERC20(WETH).transferFrom(_buyer, _seller, _creatorRoyalties);
+        if(_seller == mintingFactory){
+            // check if the sale is primary market
+            IERC20(WETH).transferFrom(_buyer, carbonFeeVault, _creatorRoyalties);
+        } else {
+            IERC20(WETH).transferFrom(_buyer, _seller, _creatorRoyalties);
+        }
+
         if (_charityFees != 0) {
             IERC20(WETH).transferFrom(_buyer, charity, _charityFees);
         }
