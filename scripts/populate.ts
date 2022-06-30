@@ -2,14 +2,15 @@ import { ethers } from "ethers";
 
 let abi = require("../abis/erc20.json").abi;
 
-let populate = async () => {
+const populate = async () => {
   console.log("\nRunning...");
+  const { ALCHEMY_MUMBAI_RPC, PRIVATE_KEY } = process.env;
 
   let connection = new ethers.providers.JsonRpcProvider(
-    // provider url RPS
+    `${ALCHEMY_MUMBAI_RPC}`
   );
   let wallet = new ethers.Wallet(
-    // private key
+    `${PRIVATE_KEY}`
   );
   let signer = wallet.connect(connection);
 
@@ -24,15 +25,6 @@ let populate = async () => {
     "1"
   );
   console.log("unsignedTx", unsignedTx);
-
-  let signTx = await signer.signTransaction(unsignedTx);
-  console.log("signTx", signTx);
-
-  console.log("Transacting...");
-  let transaction = await signer.sendTransaction(unsignedTx);
-  let receipt = await transaction.wait();
-  console.log("Transaction", transaction);
-  console.log("Receipt", receipt.transactionHash);
 };
 
 populate()
