@@ -1,8 +1,5 @@
 import { ethers } from "ethers";
 
-// Test shared: 868b9fd7d2717a3e0bf5cb039ee695249ee9a6f09a8c082a261937ea6028e119
-// Shared 1: 8de751721cdcca853f76eac9994889eb77e4baac924b083f6eadae31702e102b
-// mnemonic: "list connect world cost mother elephant parrot flip resource celery bone sample"
 const abi = require("../abis/erc20.json").abi;
 
 const signSend = async () => {
