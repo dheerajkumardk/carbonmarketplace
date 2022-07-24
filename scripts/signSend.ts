@@ -1,5 +1,10 @@
 import { ethers } from "ethers";
 
+<<<<<<< HEAD
+=======
+const abi = require("../abis/erc20.json").abi;
+
+>>>>>>> fd5a767303662e8a8d7d97982fa3e21eb7f7fc99
 const signSend = async () => {
   console.log("\nRunning...");
 
