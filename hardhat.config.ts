@@ -38,7 +38,17 @@ module.exports = {
       gas: 5000000,
       gasPrice: 10000000000,
       blockGasLimit: 8000000,
+    },
+    ethereum: {
+      url: `https://eth-mainnet.g.alchemy.com/v2/6dd_PRvxehHwVYo6AvKO9h8CHMj73tHk`,
+      accounts: [process.env.PRIVATE_KEY],
+      throwOnTransactionFailures: true,
+      loggingEnabled: true,
+      gas: 5000000,
+      gasPrice: 10000000000,
+      blockGasLimit: 8000000,
     }
+
   },
   solidity: {
     version: "0.8.4",
@@ -59,6 +69,6 @@ module.exports = {
     timeout: 40000
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: 'process.env.ETHERSCAN_API_KEY',
   }
 };

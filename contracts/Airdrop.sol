@@ -2,18 +2,29 @@
 
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Interface/IERC20.sol";
 
 contract Airdrop is Ownable {
-    using SafeMath for uint256;
+    
+    address public tokenAddress;
 
-    address public elementAddress;
-
-    constructor(address _elementAddress) public {
-        elementAddress = _elementAddress;
+    constructor(address _tokenAddress) public {
+        tokenAddress = _tokenAddress;
     }
 
-    
+    function dropTokens(address[] memory _recipients, uint256[] memory _amount) public onlyOwner returns (bool) {
+        address ownerAddress = owner();
+       
+        for (uint i = 0; i < _recipients.length; i++) {
+            require(_recipients[i] != address(0));
+            require(IERC20(tokenAddress).transferFrom(ownerAddress, _recipients[i], _amount[i]));
+        }
+
+        return true;
+    }
+
+    function updateTokenAddress(address newTokenAddress) public onlyOwner {
+        tokenAddress = newTokenAddress;
+    }
    
 }
