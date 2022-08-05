@@ -3,13 +3,17 @@
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./ELEMENT.sol";
-
+import "./Interface/IERC20.sol";
 
 contract Airdrop is Ownable {
     using SafeMath for uint256;
 
-    address public tokenAddr;
+    address public elementAddress;
 
+    constructor(address _elementAddress) public {
+        elementAddress = _elementAddress;
+    }
+
+    
    
 }
