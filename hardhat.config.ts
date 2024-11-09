@@ -1,3 +1,4 @@
+import 'solidity-coverage'
 import "@nomiclabs/hardhat-waffle"
 import "@nomiclabs/hardhat-etherscan";
 import "@openzeppelin/hardhat-upgrades";
@@ -27,11 +28,26 @@ module.exports = {
     localhost: {
       url: "http://127.0.0.1:8545/"
     },
+    
     hardhat: {
-      allowUnlimitedContractSize: false,
+      forking: {
+        enabled: true,
+        url: 'https://eth-mainnet.g.alchemy.com/v2/6dd_PRvxehHwVYo6AvKO9h8CHMj73tHk'
+      },
+      chainId: 1,      
     },
+
     mumbai: {
       url: `https://matic-mumbai.chainstacklabs.com`,
+      accounts: [process.env.PRIVATE_KEY],
+      throwOnTransactionFailures: true,
+      loggingEnabled: true,
+      gas: 5000000,
+      gasPrice: 10000000000,
+      blockGasLimit: 8000000,
+    },
+    rinkeby: {
+      url: `https://eth-rinkeby.alchemyapi.io/v2/KEKDe7RqS_ihOBhUpqSG4Hsb3MNfKyxf`,
       accounts: [process.env.PRIVATE_KEY],
       throwOnTransactionFailures: true,
       loggingEnabled: true,
