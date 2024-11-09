@@ -32,7 +32,7 @@ module.exports = {
     hardhat: {
       forking: {
         enabled: true,
-        url: 'https://eth-mainnet.g.alchemy.com/v2/6dd_PRvxehHwVYo6AvKO9h8CHMj73tHk'
+        url: 'https://eth-mainnet.g.alchemy.com/v2/{MAINNET}'
       },
       chainId: 1,      
     },
